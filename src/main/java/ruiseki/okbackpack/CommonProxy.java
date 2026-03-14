@@ -1,6 +1,5 @@
 package ruiseki.okbackpack;
 
-import cpw.mods.fml.common.FMLCommonHandler;
 import net.minecraftforge.common.MinecraftForge;
 
 import ruiseki.okbackpack.common.event.ItemRenderEvent;

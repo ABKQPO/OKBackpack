@@ -34,7 +34,6 @@ import com.cleanroommc.modularui.screen.ModularScreen;
 import com.cleanroommc.modularui.screen.UISettings;
 import com.cleanroommc.modularui.value.sync.PanelSyncManager;
 import com.gtnewhorizon.gtnhlib.blockstate.core.BlockPropertyTrait;
-import com.gtnewhorizon.gtnhlib.blockstate.core.BlockState;
 import com.gtnewhorizon.gtnhlib.blockstate.properties.DirectionBlockProperty;
 import com.gtnewhorizon.gtnhlib.blockstate.registry.BlockPropertyRegistry;
 import com.gtnewhorizon.gtnhlib.client.model.color.IBlockColor;
@@ -118,10 +117,10 @@ public class BlockBackpack extends BlockOK implements IBlockColor {
         super.onBlockPlacedBy(world, x, y, z, player, itemIn);
         int heading = MathHelper.floor_double(player.rotationYaw * 4.0F / 360.0F + 0.5D) & 3;
         ForgeDirection facing = getDirectionForHeading(heading);
-        BlockState state = BlockPropertyRegistry.getBlockState(world, x, y, z);
-        state.setPropertyValue(property, facing);
-        state.place(world, x, y, z);
-        state.close();
+        TileEntity te = world.getTileEntity(x, y, z);
+        if (te instanceof TEBackpack backpack) {
+            backpack.setFacing(facing);
+        }
     }
 
     private ForgeDirection getDirectionForHeading(int heading) {

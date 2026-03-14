@@ -3,6 +3,7 @@ package ruiseki.okbackpack.compat.nei;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
@@ -52,13 +53,15 @@ public class BackpackGuiOpener implements IContainerInputHandler {
         if (slot == null || !slot.getHasStack()) return false;
 
         EntityPlayer player = Platform.getClientPlayer();
-        if (slot.inventory != player.inventory) return false;
+        if (player.capabilities.isCreativeMode) return false;
+        if (!(slot.inventory instanceof InventoryPlayer)) return false;
 
         ItemStack stack = slot.getStack();
         if (!(stack.getItem() instanceof BlockBackpack.ItemBackpack)) return false;
 
+        int slotIndex = slot.getSlotIndex();
         GuiFactories.playerInventory()
-            .openFromPlayerInventoryClient(slot.getSlotIndex());
+            .openFromPlayerInventoryClient(slotIndex);
 
         return true;
     }
@@ -72,7 +75,8 @@ public class BackpackGuiOpener implements IContainerInputHandler {
         if (slot == null || !slot.getHasStack()) return false;
 
         EntityPlayer player = Platform.getClientPlayer();
-        if (slot.inventory != player.inventory) return false;
+        if (player.capabilities.isCreativeMode) return false;
+        if (!(slot.inventory instanceof InventoryPlayer)) return false;
 
         ItemStack carried = player.inventory.getItemStack();
         if (carried == null) return false;
