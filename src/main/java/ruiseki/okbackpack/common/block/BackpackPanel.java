@@ -36,6 +36,8 @@ import ruiseki.okbackpack.client.gui.OKBGuiTextures;
 import ruiseki.okbackpack.client.gui.container.BackPackContainer;
 import ruiseki.okbackpack.client.gui.container.BackpackGuiContainer;
 import ruiseki.okbackpack.client.gui.slot.BackpackSlot;
+import ruiseki.okbackpack.client.gui.slot.CraftingSlotInfo;
+import ruiseki.okbackpack.client.gui.slot.LockedPlayerSlot;
 import ruiseki.okbackpack.client.gui.slot.ModularBackpackSlot;
 import ruiseki.okbackpack.client.gui.slot.ModularUpgradeSlot;
 import ruiseki.okbackpack.client.gui.syncHandler.BackpackSH;
@@ -210,14 +212,8 @@ public class BackpackPanel extends ModularPanel {
             return;
         }
 
-        ModularSlot slot = new ModularSlot(new PlayerInvWrapper(player.inventory), slotIndex) {
-
-            @Override
-            public boolean canTakeStack(EntityPlayer playerIn) {
-                return false;
-            }
-        }.slotGroup("player_inventory");
-
+        ModularSlot slot = new LockedPlayerSlot(new PlayerInvWrapper(player.inventory), slotIndex)
+            .slotGroup("player_inventory");
         syncManager.itemSlot("player", slotIndex, slot);
     }
 
@@ -494,7 +490,6 @@ public class BackpackPanel extends ModularPanel {
             if (wrapper instanceof CraftingUpgradeWrapper upgrade) {
                 upgradeSlotGroup.updateCraftingDelegate(upgrade);
                 tabWidget.setExpandedWidget(new CraftingUpgradeWidget(slotIndex, upgrade, this));
-                upgradeSlotGroup.updateCraftingSlotIndex();
             }
 
             // Feeding
@@ -636,6 +631,35 @@ public class BackpackPanel extends ModularPanel {
             }
             isResetOpenedTabs = true;
         }
+    }
+
+    public BackPackContainer getBackpackContainer() {
+        return (BackPackContainer) syncManager.getContainer();
+    }
+
+    public int getOpenCraftingUpgradeSlot() {
+        for (int slotIndex = 0; slotIndex < wrapper.getUpgradeSlots(); slotIndex++) {
+            ItemSlot slot = upgradeSlotWidgets.get(slotIndex);
+            ItemStack stack = slot.getSlot()
+                .getStack();
+            Item item = stack.getItem();
+
+            if (!(item instanceof ItemUpgrade<?> && ((ItemUpgrade<?>) item).hasTab())) {
+                continue;
+            }
+
+            UpgradeWrapper wrapper = UpgradeWrapperFactory.createWrapper(stack);
+            if (wrapper == null) continue;
+
+            if (wrapper instanceof CraftingUpgradeWrapper && wrapper.isTabOpened()) {
+                return slotIndex;
+            }
+        }
+        return -1;
+    }
+
+    public CraftingSlotInfo getCraftingInfo(int slotIndex) {
+        return upgradeSlotGroups[slotIndex].craftingInfo;
     }
 
     @Override

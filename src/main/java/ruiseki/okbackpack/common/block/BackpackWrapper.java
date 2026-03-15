@@ -29,7 +29,6 @@ import ruiseki.okbackpack.client.gui.handler.BackpackItemStackHandler;
 import ruiseki.okbackpack.client.gui.handler.UpgradeItemStackHandler;
 import ruiseki.okbackpack.common.SortType;
 import ruiseki.okbackpack.common.init.ModItems;
-import ruiseki.okbackpack.common.item.ItemCraftingUpgrade;
 import ruiseki.okbackpack.common.item.ItemEverlastingUpgrade;
 import ruiseki.okbackpack.common.item.ItemInceptionUpgrade;
 import ruiseki.okbackpack.common.item.ItemStackUpgrade;
@@ -147,23 +146,9 @@ public class BackpackWrapper implements IItemHandlerModifiable, INBTSerializable
         this.searchBackpack = true;
         this.keepTab = true;
 
-        this.backpackHandler = new BackpackItemStackHandler(backpackSlots, this) {
+        this.backpackHandler = new BackpackItemStackHandler(backpackSlots, this);
 
-            @Override
-            protected void onContentsChanged(int slot) {
-                super.onContentsChanged(slot);
-                writeToItem();
-            }
-        };
-
-        this.upgradeHandler = new UpgradeItemStackHandler(upgradeSlots) {
-
-            @Override
-            protected void onContentsChanged(int slot) {
-                super.onContentsChanged(slot);
-                writeToItem();
-            }
-        };
+        this.upgradeHandler = new UpgradeItemStackHandler(upgradeSlots);
 
         readFromItem();
     }
@@ -412,17 +397,6 @@ public class BackpackWrapper implements IItemHandlerModifiable, INBTSerializable
         return false;
     }
 
-    public boolean canAddCrafting() {
-        for (ItemStack stack : upgradeHandler.getStacks()) {
-            if (stack == null) continue;
-            if (stack.getItem() instanceof ItemCraftingUpgrade) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
     public boolean canRemoveInceptionUpgrade() {
         boolean containsBackpack = false;
         for (ItemStack stack : backpackHandler.getStacks()) {
@@ -482,10 +456,7 @@ public class BackpackWrapper implements IItemHandlerModifiable, INBTSerializable
 
     public boolean canInsert(ItemStack stack) {
         Map<Integer, IFilterUpgrade> upgrades = gatherCapabilityUpgrades(IFilterUpgrade.class);
-
-        if (upgrades.isEmpty()) {
-            return true;
-        }
+        if (upgrades.isEmpty()) return true;
 
         for (IFilterUpgrade upgrade : upgrades.values()) {
             if (upgrade.canInsert(stack)) {
@@ -497,10 +468,7 @@ public class BackpackWrapper implements IItemHandlerModifiable, INBTSerializable
 
     public boolean canExtract(ItemStack stack) {
         Map<Integer, IFilterUpgrade> upgrades = gatherCapabilityUpgrades(IFilterUpgrade.class);
-
-        if (upgrades.isEmpty()) {
-            return true;
-        }
+        if (upgrades.isEmpty()) return true;
 
         for (IFilterUpgrade upgrade : upgrades.values()) {
             if (upgrade.canExtract(stack)) {

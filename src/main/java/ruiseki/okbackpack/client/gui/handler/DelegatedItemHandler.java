@@ -22,13 +22,13 @@ public class DelegatedItemHandler implements IItemHandlerModifiable {
         this.delegated = delegated;
     }
 
-    private IItemHandler getDelegated() {
+    public IItemHandler get() {
         return delegated.get();
     }
 
     @Override
     public int getSlots() {
-        IItemHandler handler = getDelegated();
+        IItemHandler handler = get();
 
         if (handler != EmptyHandler.INSTANCE) {
             if (handler.getSlots() != wrappedSlotAmount) {
@@ -44,27 +44,27 @@ public class DelegatedItemHandler implements IItemHandlerModifiable {
 
     @Override
     public ItemStack getStackInSlot(int slot) {
-        return getDelegated().getStackInSlot(slot);
+        return get().getStackInSlot(slot);
     }
 
     @Override
     public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-        return getDelegated().insertItem(slot, stack, simulate);
+        return get().insertItem(slot, stack, simulate);
     }
 
     @Override
     public ItemStack extractItem(int slot, int amount, boolean simulate) {
-        return getDelegated().extractItem(slot, amount, simulate);
+        return get().extractItem(slot, amount, simulate);
     }
 
     @Override
     public int getSlotLimit(int slot) {
-        return getDelegated().getSlotLimit(slot);
+        return get().getSlotLimit(slot);
     }
 
     @Override
     public void setStackInSlot(int slot, ItemStack stack) {
-        IItemHandler handler = getDelegated();
+        IItemHandler handler = get();
 
         if (handler instanceof IItemHandlerModifiable) {
             ((IItemHandlerModifiable) handler).setStackInSlot(slot, stack);

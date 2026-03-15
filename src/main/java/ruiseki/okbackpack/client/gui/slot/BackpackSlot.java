@@ -182,13 +182,16 @@ public class BackpackSlot extends ItemSlot {
     }
 
     @Override
-    public void draw(ModularGuiContext context, WidgetThemeEntry<?> widgetTheme) {
+    public void draw(ModularGuiContext context, WidgetThemeEntry<?> widgetThemeEntry) {
+        WidgetTheme widgetTheme = widgetThemeEntry.getTheme() != null ? widgetThemeEntry.getTheme()
+            : WidgetTheme.getDefault()
+                .getTheme();
         int index = getSlot().slotNumber;
 
-        if (wrapper.isSlotLocked(index)) drawLockedSlot(context, widgetTheme.getTheme());
+        if (wrapper.isSlotLocked(index)) drawLockedSlot(context, widgetTheme);
 
-        if (isInSettingMode()) drawSettingStack(context, widgetTheme.getTheme());
-        else drawNormalStack(context, widgetTheme.getTheme());
+        if (isInSettingMode()) drawSettingStack(context, widgetTheme);
+        else drawNormalStack(context, widgetTheme);
 
         if (!focus && !isInSettingMode()) {
             drawDimmedSlot(context);

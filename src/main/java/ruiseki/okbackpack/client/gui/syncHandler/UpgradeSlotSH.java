@@ -5,6 +5,7 @@ import java.io.IOException;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 
+import com.cleanroommc.modularui.utils.item.ItemStackHandler;
 import com.cleanroommc.modularui.value.sync.ItemSlotSH;
 import com.cleanroommc.modularui.widgets.slot.ModularSlot;
 
@@ -21,7 +22,6 @@ import ruiseki.okbackpack.common.item.wrapper.IToggleable;
 import ruiseki.okbackpack.common.item.wrapper.IVoidUpgrade;
 import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapper;
 import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapperFactory;
-import ruiseki.okcore.item.ItemStackHandler;
 
 public class UpgradeSlotSH extends ItemSlotSH {
 

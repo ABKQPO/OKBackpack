@@ -30,10 +30,4 @@ public class ModularBackpackSlot extends ModularSlot {
         int multiplier = wrapper.getTotalStackMultiplier();
         return 64 * multiplier;
     }
-
-    @Override
-    public void onSlotChanged() {
-        super.onSlotChanged();
-        wrapper.writeToItem();
-    }
 }

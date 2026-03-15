@@ -1,19 +1,16 @@
 package ruiseki.okbackpack.client.gui.widget;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Container;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.CraftingManager;
-
 import com.cleanroommc.modularui.value.sync.ItemSlotSH;
 import com.cleanroommc.modularui.value.sync.PanelSyncManager;
-import com.cleanroommc.modularui.widgets.slot.InventoryCraftingWrapper;
+import com.cleanroommc.modularui.widgets.slot.ModularCraftingSlot;
+import com.cleanroommc.modularui.widgets.slot.ModularSlot;
 import com.cleanroommc.modularui.widgets.slot.SlotGroup;
 
-import ruiseki.okbackpack.client.gui.slot.BackpackCraftingSlot;
-import ruiseki.okbackpack.client.gui.slot.ModularCraftingMatrixSlot;
+import ruiseki.okbackpack.client.gui.slot.CraftingSlotInfo;
+import ruiseki.okbackpack.client.gui.slot.IndexedModularCraftingMatrixSlot;
+import ruiseki.okbackpack.client.gui.slot.IndexedModularCraftingSlot;
 import ruiseki.okbackpack.client.gui.slot.ModularFilterSlot;
+import ruiseki.okbackpack.client.gui.syncHandler.DelegatedCraftingStackHandlerSH;
 import ruiseki.okbackpack.client.gui.syncHandler.DelegatedStackHandlerSH;
 import ruiseki.okbackpack.client.gui.syncHandler.FilterSlotSH;
 import ruiseki.okbackpack.client.gui.syncHandler.FoodFilterSlotSH;
@@ -22,7 +19,6 @@ import ruiseki.okbackpack.common.block.BackpackWrapper;
 import ruiseki.okbackpack.common.item.wrapper.IAdvancedFilterable;
 import ruiseki.okbackpack.common.item.wrapper.IBasicFilterable;
 import ruiseki.okbackpack.common.item.wrapper.IStorageUpgrade;
-import ruiseki.okbackpack.common.item.wrapper.IUpgrade;
 
 public class UpgradeSlotUpdateGroup {
 
@@ -43,11 +39,11 @@ public class UpgradeSlotUpdateGroup {
     public ModularFilterSlot[] advancedFeedingFilterSlots;
 
     // Crafting
-    public DelegatedStackHandlerSH craftingMatrixStackHandler;
-    public ModularCraftingMatrixSlot[] craftingMatrixSlots;
+    public DelegatedStackHandlerSH craftingStackHandler;
+    public ModularSlot[] craftingMatrixSlots;
+    public ModularCraftingSlot craftingOutputSlot;
 
-    private InventoryCraftingWrapper craftMatrix;
-    public BackpackCraftingSlot craftingResultSlot;
+    public CraftingSlotInfo craftingInfo;
 
     public UpgradeSlotUpdateGroup(BackpackPanel panel, BackpackWrapper wrapper, int slotIndex) {
         this.panel = panel;
@@ -64,14 +60,7 @@ public class UpgradeSlotUpdateGroup {
         for (int i = 0; i < 9; i++) {
             ModularFilterSlot slot = new ModularFilterSlot(commonFilterStackHandler.delegatedStackHandler, i);
             slot.slotGroup("common_filters_" + slotIndex);
-            slot.changeListener((newItem, onlyAmountChanged, client, init) -> {
-                if (client) {
-                    wrapper.syncToServer();
-                }
-            });
-
             syncManager.syncValue("common_filter_" + slotIndex, i, new FilterSlotSH(slot));
-
             commonFilterSlots[i] = slot;
         }
 
@@ -85,12 +74,6 @@ public class UpgradeSlotUpdateGroup {
         for (int i = 0; i < 16; i++) {
             ModularFilterSlot slot = new ModularFilterSlot(advancedCommonFilterStackHandler.delegatedStackHandler, i);
             slot.slotGroup("adv_common_filters_" + slotIndex);
-            slot.changeListener((newItem, onlyAmountChanged, client, init) -> {
-                if (client) {
-                    wrapper.syncToServer();
-                }
-            });
-
             syncManager.syncValue("adv_common_filter_" + slotIndex, i, new FilterSlotSH(slot));
 
             advancedCommonFilterSlots[i] = slot;
@@ -103,12 +86,6 @@ public class UpgradeSlotUpdateGroup {
         for (int i = 0; i < 9; i++) {
             ModularFilterSlot slot = new ModularFilterSlot(commonFilterStackHandler.delegatedStackHandler, i);
             slot.slotGroup("feeding_filters_" + slotIndex);
-            slot.changeListener((newItem, onlyAmountChanged, client, init) -> {
-                if (client) {
-                    wrapper.syncToServer();
-                }
-            });
-
             syncManager.syncValue("feeding_filter_" + slotIndex, i, new FoodFilterSlotSH(slot));
 
             feedingFilterSlots[i] = slot;
@@ -121,12 +98,6 @@ public class UpgradeSlotUpdateGroup {
         for (int i = 0; i < 16; i++) {
             ModularFilterSlot slot = new ModularFilterSlot(advancedCommonFilterStackHandler.delegatedStackHandler, i);
             slot.slotGroup("adv_feeding_filters_" + slotIndex);
-            slot.changeListener((newItem, onlyAmountChanged, client, init) -> {
-                if (client) {
-                    wrapper.syncToServer();
-                }
-            });
-
             syncManager.syncValue("adv_feeding_filter_" + slotIndex, i, new FoodFilterSlotSH(slot));
 
             advancedFeedingFilterSlots[i] = slot;
@@ -149,101 +120,41 @@ public class UpgradeSlotUpdateGroup {
     }
 
     public void updateCraftingDelegate(IStorageUpgrade wrapper) {
-        craftingMatrixStackHandler.setDelegatedStackHandler(wrapper::getStorage);
-        craftingMatrixStackHandler.syncToServer(DelegatedStackHandlerSH.UPDATE_STORAGE);
-    }
-
-    public void updateCraftingSlotIndex() {
-        if (craftingMatrixSlots != null) {
-            for (ModularCraftingMatrixSlot slot : craftingMatrixSlots) {
-                slot.setActive(false);
-            }
-        }
-
-        IUpgrade wrapper = this.wrapper != null ? this.wrapper.gatherCapabilityUpgrades(IUpgrade.class)
-            .get(slotIndex) : null;
-
-        if (wrapper != null) {
-            for (ModularCraftingMatrixSlot slot : craftingMatrixSlots) {
-                slot.setActive(wrapper.isTabOpened());
-            }
-        }
+        craftingStackHandler.setDelegatedStackHandler(wrapper::getStorage);
+        craftingStackHandler.syncToServer(DelegatedCraftingStackHandlerSH.UPDATE_CRAFTING);
     }
 
     private void craftingUpgradeGroup() {
         PanelSyncManager syncManager = panel.getSyncManager();
 
-        this.craftingMatrixStackHandler = new DelegatedStackHandlerSH(wrapper, slotIndex, 10);
-        syncManager.syncValue("crafting_delegation_" + slotIndex, craftingMatrixStackHandler);
+        this.craftingStackHandler = new DelegatedCraftingStackHandlerSH(
+            panel::getBackpackContainer,
+            wrapper,
+            slotIndex,
+            10);
+        syncManager.syncValue("crafting_delegation_" + slotIndex, craftingStackHandler);
 
-        this.craftMatrix = new InventoryCraftingWrapper(new Container() {
-
-            @Override
-            public boolean canInteractWith(EntityPlayer var1) {
-                return panel.getSettings()
-                    .canPlayerInteractWithUI(var1);
-            }
-
-            @Override
-            public void detectAndSendChanges() {
-                super.detectAndSendChanges();
-                craftMatrix.detectChanges();
-            }
-
-            @Override
-            public void onCraftMatrixChanged(IInventory p_75130_1_) {
-                if (panel.getPlayer().worldObj.isRemote) return;
-                craftingResultSlot.updateResult(
-                    CraftingManager.getInstance()
-                        .findMatchingRecipe(craftMatrix, panel.getPlayer().worldObj));
-            }
-        }, 3, 3, craftingMatrixStackHandler.delegatedStackHandler, 0);
-
-        this.craftingMatrixSlots = new ModularCraftingMatrixSlot[9];
+        this.craftingMatrixSlots = new ModularSlot[9];
         for (int i = 0; i < 9; i++) {
-            ModularCraftingMatrixSlot slot = new ModularCraftingMatrixSlot(
-                craftingMatrixStackHandler.delegatedStackHandler,
+            ModularSlot slot = new IndexedModularCraftingMatrixSlot(
+                slotIndex,
+                craftingStackHandler.delegatedStackHandler,
                 i);
-            slot.slotGroup("crafting_workbench_slot_" + slotIndex)
-                .changeListener((newItem, onlyAmountChanged, client, init) -> {
-                    if (client) {
-                        wrapper.syncToServer();
-                    }
-
-                    if (client) return;
-                    boolean empty = true;
-                    for (ModularCraftingMatrixSlot craftingMatrixSlot : craftingMatrixSlots) {
-                        ItemStack stack = craftingMatrixSlot.getStack();
-                        if (stack != null && stack.stackSize > 0) {
-                            empty = false;
-                            break;
-                        }
-                    }
-
-                    if (empty) {
-                        craftingResultSlot.updateResult(null);
-                    } else {
-                        craftingResultSlot.updateResult(
-                            CraftingManager.getInstance()
-                                .findMatchingRecipe(craftMatrix, panel.getPlayer().worldObj));
-                    }
-                });
+            slot.slotGroup("crafting_result_" + slotIndex);
             syncManager.syncValue("crafting_slot_" + slotIndex, i, new ItemSlotSH(slot));
             craftingMatrixSlots[i] = slot;
         }
-
-        BackpackCraftingSlot resultSlot = new BackpackCraftingSlot(
-            craftingMatrixStackHandler.delegatedStackHandler,
-            9,
+        syncManager.registerSlotGroup(new SlotGroup("crafting_matrix_$slotIndex", 3, false));
+        craftingOutputSlot = new IndexedModularCraftingSlot(
+            slotIndex,
             wrapper,
-            slotIndex);
-        resultSlot.slotGroup("crafting_workbench_slot_" + slotIndex)
-            .accessibility(false, true);
-        resultSlot.setCraftMatrix(craftMatrix);
-        syncManager.syncValue("crafting_result_" + slotIndex, 0, new ItemSlotSH(resultSlot));
-        craftingResultSlot = resultSlot;
+            craftingStackHandler.delegatedStackHandler,
+            9);
+        craftingOutputSlot.slotGroup("crafting_result_" + slotIndex);
+        syncManager.syncValue("crafting_result_" + slotIndex, 0, new ItemSlotSH(craftingOutputSlot));
+        craftingInfo = new CraftingSlotInfo(craftingMatrixSlots, craftingOutputSlot);
 
-        syncManager.registerSlotGroup(new SlotGroup("crafting_workbench_slot_" + slotIndex, 10, false));
+        syncManager.registerSlotGroup(new SlotGroup("crafting_result_" + slotIndex, 1, false));
     }
 
 }

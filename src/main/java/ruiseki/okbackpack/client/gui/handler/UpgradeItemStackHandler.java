@@ -5,7 +5,7 @@ import java.util.List;
 
 import net.minecraft.item.ItemStack;
 
-import ruiseki.okcore.item.ItemStackHandler;
+import com.cleanroommc.modularui.utils.item.ItemStackHandler;
 
 public class UpgradeItemStackHandler extends ItemStackHandler {
 
