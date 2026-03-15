@@ -1,8 +1,9 @@
 
 ## Required Dependencies:
 
-- [ModularUI2 (>= 2.3.46)](https://github.com/GTNewHorizons/ModularUI2)
-- [GTNHLib (>= 0.9.40)](https://github.com/GTNewHorizons/GTNHLib)
+- [ModularUI2 (>= 2.3.46)](https://github.com/GTNewHorizons/ModularUI2)
+- [GTNHLib (>= 0.9.40)](https://github.com/GTNewHorizons/GTNHLib)
+- [OKCore](https://github.com/Shigure-Ruiseki/OKCore)
 
 ## Features:
 
