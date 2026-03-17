@@ -48,13 +48,13 @@ public class PacketBackpackNBT extends PacketCodec {
         if (type == null || nbt == null) return;
 
         ItemStack stack = null;
-        if (type == InventoryTypes.PLAYER) {
-            stack = player.inventory.getStackInSlot(slot);
-        }
-
         if (type == InventoryTypes.BAUBLES && Mods.Baubles.isLoaded()) {
             IInventory baublesInventory = BaublesApi.getBaubles(player);
             stack = baublesInventory.getStackInSlot(slot);
+        }
+
+        if (type == InventoryTypes.PLAYER) {
+            stack = player.inventory.getStackInSlot(slot);
         }
         if (stack != null) {
             stack.setTagCompound(nbt);

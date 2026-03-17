@@ -161,15 +161,15 @@ public class BackpackPanel extends ModularPanel {
 
         this.backpackSlotSyncHandlers = new BackpackSlotSH[this.wrapper.getBackpackSlots()];
         for (int i = 0; i < this.wrapper.getBackpackSlots(); i++) {
-            ModularBackpackSlot modularBackpackSlot = new ModularBackpackSlot(this.wrapper, i);
-            modularBackpackSlot.slotGroup("backpack_inventory");
-            modularBackpackSlot.changeListener((lastStack, currentStack, isClient, init) -> {
+            ModularBackpackSlot slot = new ModularBackpackSlot(this.wrapper, i);
+            slot.slotGroup("backpack_inventory");
+            slot.changeListener((lastStack, currentStack, isClient, init) -> {
                 if (isClient) {
                     searchBarWidget.research();
                     wrapper.syncToServer();
                 }
             });
-            BackpackSlotSH syncHandler = new BackpackSlotSH(modularBackpackSlot, this.wrapper, this);
+            BackpackSlotSH syncHandler = new BackpackSlotSH(slot, this.wrapper, this);
             this.syncManager.syncValue("backpack", i, syncHandler);
             this.backpackSlotSyncHandlers[i] = syncHandler;
         }
@@ -181,10 +181,10 @@ public class BackpackPanel extends ModularPanel {
         this.upgradeSlotSyncHandlers = new UpgradeSlotSH[this.wrapper.getUpgradeSlots()];
         this.upgradeSlotGroups = new UpgradeSlotUpdateGroup[this.wrapper.getUpgradeSlots()];
         for (int i = 0; i < this.wrapper.getUpgradeSlots(); i++) {
-            ModularUpgradeSlot modularUpgradeSlot = new ModularUpgradeSlot(this.wrapper, i, this);
-            modularUpgradeSlot.slotGroup("upgrade_inventory");
-            UpgradeSlotSH syncHandler = new UpgradeSlotSH(modularUpgradeSlot, this.wrapper, this);
-            modularUpgradeSlot.changeListener((lastStack, currentStack, isClient, init) -> {
+            ModularUpgradeSlot slot = new ModularUpgradeSlot(this.wrapper, i, this);
+            slot.slotGroup("upgrade_inventory");
+            UpgradeSlotSH syncHandler = new UpgradeSlotSH(slot, this.wrapper, this);
+            slot.changeListener((lastStack, currentStack, isClient, init) -> {
                 if (isClient) {
                     updateUpgradeWidgets();
                     wrapper.syncToServer();

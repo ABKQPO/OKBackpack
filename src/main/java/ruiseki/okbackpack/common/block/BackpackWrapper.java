@@ -11,6 +11,7 @@ import java.util.UUID;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.item.EntityXPOrb;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
@@ -19,6 +20,7 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 import com.cleanroommc.modularui.factory.inventory.InventoryType;
+import com.cleanroommc.modularui.utils.item.IItemHandler;
 import com.cleanroommc.modularui.utils.item.IItemHandlerModifiable;
 import com.cleanroommc.modularui.utils.item.ItemHandlerHelper;
 
@@ -146,9 +148,23 @@ public class BackpackWrapper implements IItemHandlerModifiable, INBTSerializable
         this.searchBackpack = true;
         this.keepTab = true;
 
-        this.backpackHandler = new BackpackItemStackHandler(backpackSlots, this);
+        this.backpackHandler = new BackpackItemStackHandler(backpackSlots, this) {
 
-        this.upgradeHandler = new UpgradeItemStackHandler(upgradeSlots);
+            @Override
+            protected void onContentsChanged(int slot) {
+                super.onContentsChanged(slot);
+                writeToItem();
+            }
+        };
+
+        this.upgradeHandler = new UpgradeItemStackHandler(upgradeSlots) {
+
+            @Override
+            protected void onContentsChanged(int slot) {
+                super.onContentsChanged(slot);
+                writeToItem();
+            }
+        };
 
         readFromItem();
     }
@@ -420,16 +436,13 @@ public class BackpackWrapper implements IItemHandlerModifiable, INBTSerializable
         return inceptionCount > 1;
     }
 
-    public ItemStack getFeedingStack(int foodLevel, float health, float maxHealth) {
+    public boolean feed(EntityPlayer player, IItemHandler handler) {
         for (IFeedingUpgrade upgrade : gatherCapabilityUpgrades(IFeedingUpgrade.class).values()) {
-            ItemStack feedingStack = upgrade.getFeedingStack(backpackHandler, foodLevel, health, maxHealth);
-
-            if (feedingStack != null && feedingStack.stackSize > 0) {
-                return feedingStack;
+            if (upgrade.feed(player, handler)) {
+                return true;
             }
         }
-
-        return null;
+        return false;
     }
 
     public List<Entity> getMagnetEntities(World world, AxisAlignedBB aabb) {

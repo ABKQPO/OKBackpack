@@ -249,9 +249,9 @@ public class BlockBackpack extends BlockOK {
             super.onUpdate(stack, world, entity, slot, isHeld);
             if (!world.isRemote && stack != null) {
                 if (!stack.hasTagCompound()) {
-                    BackpackWrapper cap = new BackpackWrapper(stack, this);
-                    cap.writeToItem();
-                    stack.setTagCompound(cap.getTagCompound());
+                    BackpackWrapper wrapper = new BackpackWrapper(stack, this);
+                    wrapper.writeToItem();
+                    stack.setTagCompound(wrapper.getTagCompound());
                 }
             }
         }

@@ -75,7 +75,7 @@ public class DelegatedCraftingStackHandlerSH extends DelegatedStackHandlerSH {
 
         if (isValid() && !getSyncManager().isClient() && !(delegatedStackHandler.get() instanceof EmptyHandler)) {
 
-            var result = delegatedStackHandler.get()
+            ItemStack result = delegatedStackHandler.get()
                 .getStackInSlot(9);
 
             syncToClient(UPDATE_CRAFTING, buffer -> buffer.writeItemStackToBuffer(result));
@@ -84,8 +84,7 @@ public class DelegatedCraftingStackHandlerSH extends DelegatedStackHandlerSH {
 
     @Override
     public void readOnClient(int id, PacketBuffer buf) {
-
-        var stack = wrapper.getUpgradeHandler()
+        ItemStack stack = wrapper.getUpgradeHandler()
             .getStackInSlot(slotIndex);
 
         if (id == UPDATE_CRAFTING) {
@@ -122,6 +121,5 @@ public class DelegatedCraftingStackHandlerSH extends DelegatedStackHandlerSH {
                 break;
             }
         }
-        wrapper.writeToItem();
     }
 }

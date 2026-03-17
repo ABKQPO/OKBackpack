@@ -6,12 +6,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.cleanroommc.modularui.screen.ModularScreen;
-import com.cleanroommc.modularui.widgets.slot.ModularSlot;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+
+import com.cleanroommc.modularui.screen.ModularScreen;
+import com.cleanroommc.modularui.widgets.slot.ModularSlot;
 
 import codechicken.nei.PositionedStack;
 import codechicken.nei.recipe.DefaultOverlayHandler;
@@ -19,13 +20,10 @@ import codechicken.nei.recipe.GuiOverlayButton;
 import codechicken.nei.recipe.IRecipeHandler;
 import ruiseki.okbackpack.client.gui.container.BackPackContainer;
 import ruiseki.okbackpack.client.gui.slot.CraftingSlotInfo;
-import ruiseki.okbackpack.client.gui.slot.IndexedModularCraftingMatrixSlot;
 import ruiseki.okbackpack.client.gui.slot.IndexedModularCraftingSlot;
 import ruiseki.okbackpack.client.gui.slot.ModularFilterSlot;
 import ruiseki.okbackpack.common.block.BackpackPanel;
 import ruiseki.okbackpack.common.block.BackpackWrapper;
-import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapper;
-import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapperFactory;
 
 public class BackpackOverlay extends DefaultOverlayHandler {
 
@@ -175,7 +173,9 @@ public class BackpackOverlay extends DefaultOverlayHandler {
 
     private BackpackPanel getPanel(BackPackContainer container) {
         ModularScreen screen = container.getScreen();
-        if (!container.isInitialized() || !(screen.getPanelManager().getMainPanel() instanceof BackpackPanel)) return null;
-        return (BackpackPanel) screen.getPanelManager().getMainPanel();
+        if (!container.isInitialized() || !(screen.getPanelManager()
+            .getMainPanel() instanceof BackpackPanel)) return null;
+        return (BackpackPanel) screen.getPanelManager()
+            .getMainPanel();
     }
 }
