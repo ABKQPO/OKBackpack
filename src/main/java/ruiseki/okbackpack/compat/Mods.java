@@ -11,6 +11,7 @@ public enum Mods {
     BaublesExpanded("Baubles|Expanded"),
     NotEnoughItems("NotEnoughItems"),
     EtFuturum("etfuturum"),
+    TConstruct("TConstruct"),
     ;
     // spotless:on
 
