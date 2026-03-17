@@ -2,6 +2,8 @@ package ruiseki.okbackpack.compat;
 
 import java.util.function.Supplier;
 
+import net.minecraft.launchwrapper.Launch;
+
 import cpw.mods.fml.common.Loader;
 
 public enum Mods {
@@ -11,12 +13,15 @@ public enum Mods {
     BaublesExpanded("Baubles|Expanded"),
     NotEnoughItems("NotEnoughItems"),
     EtFuturum("etfuturum"),
+    TConstruct("TConstruct"),
     ;
     // spotless:on
 
     public final String modid;
     private final Supplier<Boolean> supplier;
     private Boolean loaded;
+
+    public static final boolean DEV_ENV = (Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment");
 
     Mods(String modid) {
         this.modid = modid;

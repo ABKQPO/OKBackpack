@@ -1,10 +1,10 @@
 package ruiseki.okbackpack.client.gui.container;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -16,8 +16,6 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
-
-import org.jetbrains.annotations.Nullable;
 
 import com.cleanroommc.modularui.api.inventory.ClickType;
 import com.cleanroommc.modularui.screen.ModularContainer;
@@ -38,6 +36,8 @@ import ruiseki.okbackpack.common.item.wrapper.CraftingUpgradeWrapper;
 import ruiseki.okbackpack.common.item.wrapper.IVoidUpgrade;
 import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapper;
 import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapperFactory;
+import ruiseki.okbackpack.compat.Mods;
+import ruiseki.okbackpack.compat.tic.TinkersHelpers;
 
 public class BackPackContainer extends ModularContainer {
 
@@ -52,6 +52,8 @@ public class BackPackContainer extends ModularContainer {
     private final Set<Slot> dragSlots = new HashSet<>();
     private int dragButton = -1;
 
+    private static final String PLAYER_INV = "player_inventory";
+
     protected final Map<Integer, IndexedInventoryCraftingWrapper> inventoryCraftingInstances = new HashMap<>();
     protected final Map<Integer, IndexedModularCraftingSlot> craftingSlotInstances = new HashMap<>();
 
@@ -63,7 +65,6 @@ public class BackPackContainer extends ModularContainer {
     @Override
     public void registerSlot(String panelName, ModularSlot slot) {
         super.registerSlot(panelName, slot);
-
         if (slot instanceof IndexedModularCraftingSlot s) {
             registerCraftingSlot(s.getUpgradeSlotIndex(), s);
         }
@@ -76,8 +77,13 @@ public class BackPackContainer extends ModularContainer {
 
             EntityPlayerMP playerMP = (EntityPlayerMP) getPlayer();
 
-            ItemStack result = CraftingManager.getInstance()
-                .findMatchingRecipe(inventoryCrafting, playerMP.worldObj);
+            ItemStack result;
+            if (Mods.TConstruct.isLoaded()) {
+                result = TinkersHelpers.getTinkersRecipe(inventoryCrafting);
+            } else {
+                result = CraftingManager.getInstance()
+                    .findMatchingRecipe(inventoryCrafting, playerMP.worldObj);
+            }
 
             IndexedModularCraftingSlot slot = craftingSlotInstances.get(inventoryCrafting.getUpgradeSlotIndex());
 
@@ -426,46 +432,40 @@ public class BackPackContainer extends ModularContainer {
     public ItemStack transferItem(ModularSlot fromSlot, ItemStack fromStack) {
         if (fromStack == null || fromStack.stackSize <= 0) return fromStack;
 
-        @Nullable
         SlotGroup fromSlotGroup = fromSlot.getSlotGroup();
+        String fromGroup = fromSlot.getSlotGroupName();
 
+        // Crafting slot
         if (fromSlot instanceof IndexedModularCraftingSlot craftingSlot) {
 
             IndexedInventoryCraftingWrapper inv = inventoryCraftingInstances.get(craftingSlot.getUpgradeSlotIndex());
 
             if (inv == null) {
-                return transferItemFiltered(
-                    fromSlot,
-                    fromStack,
-                    slot -> "player_inventory".equals(slot.getSlotGroupName()));
+                return transferToPlayer(fromSlot, fromStack);
             }
 
             if (inv.getCraftingDestination() == CraftingUpgradeWrapper.CraftingDestination.BACKPACK) {
-
-                return transferItemFiltered(
-                    fromSlot,
-                    fromStack,
-                    slot -> slot instanceof ModularBackpackSlot && wrapper.isSlotMemorized(slot.getSlotIndex()),
-                    slot -> slot instanceof ModularBackpackSlot);
+                return transferToBackpack(fromSlot, fromStack);
             }
 
-            return transferItemFiltered(
-                fromSlot,
-                fromStack,
-                slot -> "player_inventory".equals(slot.getSlotGroupName()));
-        } else if ("player_inventory".equals(fromSlot.getSlotGroupName())) {
-            return transferItemFiltered(
-                fromSlot,
-                fromStack,
-                slot -> slot instanceof ModularBackpackSlot && wrapper.isSlotMemorized(slot.getSlotIndex()),
-                slot -> slot instanceof ModularBackpackSlot);
+            return transferToPlayer(fromSlot, fromStack);
         }
 
+        // Player → Backpack
+        if (PLAYER_INV.equals(fromGroup)) {
+            return transferToBackpack(fromSlot, fromStack);
+        }
+
+        // Fallback
         for (ModularSlot toSlot : getShiftClickSlots()) {
-            SlotGroup slotGroup = Objects.requireNonNull(toSlot.getSlotGroup());
+            SlotGroup slotGroup = toSlot.getSlotGroup();
+            if (slotGroup == null) continue;
+
             if (slotGroup != fromSlotGroup && toSlot.func_111238_b() && toSlot.isItemValid(fromStack)) {
+
                 transferToSlot(fromSlot, toSlot, fromStack, toSlot.getStack());
-                if (fromStack.stackSize < 1) {
+
+                if (fromStack.stackSize <= 0) {
                     return fromStack;
                 }
             }
@@ -474,8 +474,24 @@ public class BackPackContainer extends ModularContainer {
         return super.transferItem(fromSlot, fromStack);
     }
 
+    private ItemStack transferToPlayer(ModularSlot fromSlot, ItemStack fromStack) {
+        return transferItemFiltered(
+            fromSlot,
+            fromStack,
+            Arrays.asList(slot -> PLAYER_INV.equals(slot.getSlotGroupName())));
+    }
+
+    private ItemStack transferToBackpack(ModularSlot fromSlot, ItemStack fromStack) {
+        return transferItemFiltered(
+            fromSlot,
+            fromStack,
+            Arrays.asList(
+                slot -> slot instanceof ModularBackpackSlot && wrapper.isSlotMemorized(slot.getSlotIndex()),
+                slot -> slot instanceof ModularBackpackSlot));
+    }
+
     public ItemStack transferItemFiltered(ModularSlot fromSlot, ItemStack fromStack,
-        Predicate<ModularSlot>... slotFilters) {
+        List<Predicate<ModularSlot>> slotFilters) {
         SlotGroup fromSlotGroup = fromSlot.getSlotGroup();
 
         for (Predicate<ModularSlot> slotFilter : slotFilters) {
@@ -485,22 +501,18 @@ public class BackPackContainer extends ModularContainer {
                 .collect(Collectors.toList());
 
             for (ModularSlot toSlot : memorizedSlots) {
-
                 SlotGroup slotGroup = toSlot.getSlotGroup();
 
                 if (slotGroup != fromSlotGroup && toSlot.func_111238_b() && toSlot.isItemValid(fromStack)) {
-
                     transferToSlot(fromSlot, toSlot, fromStack, toSlot.getStack());
 
                     if (fromStack.stackSize <= 0) {
                         return fromStack;
                     }
-
                 }
             }
 
             for (ModularSlot emptySlot : memorizedSlots) {
-
                 ItemStack stack = emptySlot.getStack();
                 SlotGroup slotGroup = emptySlot.getSlotGroup();
 
@@ -508,14 +520,8 @@ public class BackPackContainer extends ModularContainer {
                     && stack == null
                     && emptySlot.isItemValid(fromStack)) {
 
-                    if (fromStack.stackSize > emptySlot.getItemStackLimit(fromStack)) {
-
-                        emptySlot.putStack(fromStack.splitStack(emptySlot.getItemStackLimit(fromStack)));
-
-                    } else {
-
-                        emptySlot.putStack(fromStack.splitStack(fromStack.stackSize));
-                    }
+                    int limit = emptySlot.getItemStackLimit(fromStack);
+                    emptySlot.putStack(fromStack.splitStack(Math.min(fromStack.stackSize, limit)));
 
                     if (fromStack.stackSize < 1) {
                         return fromStack;
