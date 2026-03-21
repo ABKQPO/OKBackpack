@@ -329,7 +329,6 @@ public class BlockBackpack extends BlockOK {
             if (stack == null || type != RenderHelpers.RenderType.BODY) return;
             GL11.glPushMatrix();
             GL11.glTranslatef(0f, 0.3f, 0.3f);
-            RenderHelpers.rotateIfSneaking(event.entityPlayer);
             JsonModelISBRH.INSTANCE.renderToEntity(stack);
             GL11.glPopMatrix();
         }
