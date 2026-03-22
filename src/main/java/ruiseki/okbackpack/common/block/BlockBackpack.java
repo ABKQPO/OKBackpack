@@ -94,7 +94,7 @@ public class BlockBackpack extends BlockOK {
     };
 
     public BlockBackpack(String name, int backpackSlots, int upgradeSlots) {
-        super(name, TEBackpack.class, Material.iron);
+        super(name, TEBackpack.class, Material.cloth);
         setStepSound(soundTypeCloth);
         setHardness(1f);
         setCreativeTab(OKBCreativeTab.INSTANCE);
