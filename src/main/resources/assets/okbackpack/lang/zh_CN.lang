@@ -126,6 +126,7 @@ gui.backpack.void_overflow=虚空溢出物品
 gui.backpack.void_all=在GUI中也生效
 gui.backpack.void_automation=仅在自动化/其他升级中生效
 
+gui.backpack.sleeping_bag=使用睡袋
 
 # Items
 tile.leather_backpack.name=皮革背包
@@ -133,6 +134,7 @@ tile.iron_backpack.name=铁制背包
 tile.gold_backpack.name=金制背包
 tile.diamond_backpack.name=钻石背包
 tile.obsidian_backpack.name=黑曜石背包
+tile.sleeping_bag.name=睡袋
 
 item.upgrade_base.name=空白升级
 item.stack_upgrade.iron.name=堆叠升级T1
@@ -175,3 +177,7 @@ tooltip.backpack.filter_upgrade=过滤放入世界时插入的物品
 tooltip.backpack.advanced_filter_upgrade=过滤放入世界时插入的物品（更多配置）
 tooltip.backpack.void_upgrade=销毁过滤器选定的物品
 tooltip.backpack.advanced_void_upgrade=销毁过滤器选定的物品（更多过滤选项）
+
+#Messages
+messages.backpack.cant.bag=无法放置睡袋！检查周围区域。
+messages.cant.sleep.here=古老的力量不欢迎在此入睡。
