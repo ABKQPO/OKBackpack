@@ -75,7 +75,8 @@ public class BackpackSH extends SyncHandler {
         if (id == UPDATE_SET_SORT_TYPE || id == UPDATE_SORT_INV
             || id == UPDATE_TRANSFER_TO_BACKPACK_INV
             || id == UPDATE_TRANSFER_TO_PLAYER_INV
-            || id == UPDATE_SETTING) {
+            || id == UPDATE_SETTING
+            || id == DEPLOY_SLEEPING_BAG) {
             wrapper.syncToServer();
         }
     }

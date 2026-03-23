@@ -128,7 +128,6 @@ gui.backpack.void_automation=Only works with other upgrade/automation
 
 gui.backpack.sleeping_bag=Use Sleeping Bag
 
-
 # Items
 tile.leather_backpack.name=Leather Backpack
 tile.iron_backpack.name=Iron Backpack

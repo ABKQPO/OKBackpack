@@ -77,7 +77,8 @@ public class BackpackEventHandler {
     @SubscribeEvent
     public void tickPlayer(TickEvent.PlayerTickEvent event) {
         EntityPlayer player = event.player;
-        if (event.phase == TickEvent.Phase.END) {
+        if (player != null && !player.isDead) return;
+        if (event.phase == TickEvent.Phase.END && player != null) {
             if (!player.worldObj.isRemote) {
                 if (BackpackProperty.get(player)
                     .isWakingUpInPortableBag()) {
@@ -85,9 +86,6 @@ public class BackpackEventHandler {
                     BackpackProperty.get(player)
                         .setWakingUpInPortableBag(false);
                 }
-            }
-        } else if (player != null && !player.isDead) {
-            if (event.phase == TickEvent.Phase.END && !player.worldObj.isRemote) {
                 if (BackpackProperty.get(player)
                     .isWakingUpInDeployedBag()) {
                     BlockSleepingBag.restoreOriginalSpawn(player);
