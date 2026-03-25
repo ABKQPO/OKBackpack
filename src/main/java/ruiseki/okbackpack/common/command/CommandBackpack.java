@@ -54,7 +54,7 @@ public class CommandBackpack extends CommandMod {
         sender.addChatMessage(new ChatComponentText(EnumChatFormatting.YELLOW + "Usage:"));
         sender.addChatMessage(
             new ChatComponentText(
-                EnumChatFormatting.WHITE + "  /okbackpack give <player> <template> [count] - Give backpack template"));
+                EnumChatFormatting.WHITE + "  /okbackpack give <player> <name> [count] - Give backpack template"));
         sender.addChatMessage(
             new ChatComponentText(
                 EnumChatFormatting.WHITE + "  /okbackpack export <name> - Export held backpack to JSON"));
@@ -87,7 +87,7 @@ public class CommandBackpack extends CommandMod {
 
         @Override
         public String getCommandUsage(ICommandSender sender) {
-            return "/okbackpack give <player> <template> [count]";
+            return "/okbackpack give <player> <name> [count]";
         }
 
         @Override

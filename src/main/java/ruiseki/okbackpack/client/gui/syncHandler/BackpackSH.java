@@ -64,10 +64,11 @@ public class BackpackSH extends SyncHandler {
 
             case DEPLOY_SLEEPING_BAG:
                 deploySleepingBag();
-
-            default:
                 break;
+            default:
+                return;
         }
+        wrapper.markDirty();
     }
 
     @Override

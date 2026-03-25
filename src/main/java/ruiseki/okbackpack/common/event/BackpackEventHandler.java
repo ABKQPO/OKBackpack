@@ -1,6 +1,7 @@
 package ruiseki.okbackpack.common.event;
 
 import java.util.List;
+import java.util.WeakHashMap;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
@@ -37,6 +38,11 @@ import ruiseki.okbackpack.compat.Mods;
 import ruiseki.okbackpack.config.ModConfig;
 
 public class BackpackEventHandler {
+
+    // Track previous hunger levels to detect changes
+    private static final WeakHashMap<EntityPlayer, Integer> lastHungerLevel = new WeakHashMap<>();
+    // Track last tick when we attempted to feed each player
+    private static final WeakHashMap<EntityPlayer, Integer> lastFeedTick = new WeakHashMap<>();
 
     public BackpackEventHandler() {
         MinecraftForge.EVENT_BUS.register(this);
@@ -105,12 +111,12 @@ public class BackpackEventHandler {
 
         if (Mods.Baubles.isLoaded()) {
             IInventory inventory = BaublesApi.getBaubles(player);
-            stack = attemptPickup(inventory, stack, InventoryTypes.BAUBLES);
+            stack = attemptPickup(player, inventory, stack, InventoryTypes.BAUBLES);
         }
 
         if (stack != null) {
             IInventory inventory = player.inventory;
-            stack = attemptPickup(inventory, stack, InventoryTypes.PLAYER);
+            stack = attemptPickup(player, inventory, stack, InventoryTypes.PLAYER);
         }
 
         if (stack == null || stack.stackSize <= 0) {
@@ -145,7 +151,8 @@ public class BackpackEventHandler {
 
     }
 
-    private ItemStack attemptPickup(IInventory targetInventory, ItemStack stack, InventoryType type) {
+    private static ItemStack attemptPickup(EntityPlayer player, IInventory targetInventory, ItemStack stack,
+        InventoryType type) {
         for (int i = 0; i < targetInventory.getSizeInventory(); i++) {
             ItemStack backpackStack = targetInventory.getStackInSlot(i);
             if (backpackStack == null || backpackStack.stackSize <= 0) continue;
@@ -163,8 +170,11 @@ public class BackpackEventHandler {
             boolean changed = result == null || result.stackSize != before.stackSize;
 
             if (changed) {
-                OKBackpack.instance.getPacketHandler()
-                    .sendToServer(new PacketBackpackNBT(i, wrapper.getTagCompound(), type));
+                wrapper.writeToItem();
+                if (player.worldObj.isRemote) {
+                    OKBackpack.instance.getPacketHandler()
+                        .sendToServer(new PacketBackpackNBT(i, wrapper.getTagCompound(), type));
+                }
             }
 
             stack = result;
@@ -195,8 +205,28 @@ public class BackpackEventHandler {
             return;
         }
 
-        if (!player.capabilities.isCreativeMode && player.ticksExisted % 20 == 0) {
-            attemptFeed(player);
+        if (!player.capabilities.isCreativeMode) {
+            int currentHunger = player.getFoodStats()
+                .getFoodLevel();
+            Integer previousHunger = lastHungerLevel.get(player);
+            Integer lastTick = lastFeedTick.get(player);
+            int currentTick = player.ticksExisted;
+
+            boolean shouldFeed = false;
+
+            // Check every 20 ticks
+            if (lastTick == null || (currentTick - lastTick) >= 20) shouldFeed = true;
+
+            // Also check when hunger level changes
+            else if (previousHunger != null && currentHunger != previousHunger) shouldFeed = true;
+
+            if (shouldFeed) {
+                attemptFeed(player);
+                lastFeedTick.put(player, currentTick);
+            }
+
+            // Update tracked hunger level
+            lastHungerLevel.put(player, currentHunger);
         }
     }
 
@@ -231,8 +261,11 @@ public class BackpackEventHandler {
             boolean result = wrapper.feed(player, wrapper);
 
             if (result) {
-                OKBackpack.instance.getPacketHandler()
-                    .sendToServer(new PacketBackpackNBT(i, stack.getTagCompound(), type));
+                wrapper.writeToItem(); // Explicitly write back after feeding
+                if (player.worldObj.isRemote) {
+                    OKBackpack.instance.getPacketHandler()
+                        .sendToServer(new PacketBackpackNBT(i, stack.getTagCompound(), type));
+                }
             }
 
             return result;
