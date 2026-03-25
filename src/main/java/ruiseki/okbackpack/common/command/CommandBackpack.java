@@ -53,7 +53,8 @@ public class CommandBackpack extends CommandMod {
     public void processCommandHelp(ICommandSender sender, String[] args) throws CommandException {
         sender.addChatMessage(new ChatComponentText(EnumChatFormatting.YELLOW + "Usage:"));
         sender.addChatMessage(
-            new ChatComponentText(EnumChatFormatting.WHITE + "  /okbackpack give <player> <template> [count] - Give backpack template"));
+            new ChatComponentText(
+                EnumChatFormatting.WHITE + "  /okbackpack give <player> <template> [count] - Give backpack template"));
         sender.addChatMessage(
             new ChatComponentText(
                 EnumChatFormatting.WHITE + "  /okbackpack export <name> - Export held backpack to JSON"));
