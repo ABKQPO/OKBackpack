@@ -10,7 +10,6 @@ import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.command.PlayerSelector;
 import net.minecraft.command.WrongUsageException;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -87,56 +86,70 @@ public class CommandBackpack extends CommandMod {
 
         @Override
         public String getCommandUsage(ICommandSender sender) {
-            return "/okbackpack give <player|selector> <name>";
+            return "/okbackpack give <player> <template> [count]";
         }
 
         @Override
-        public void processCommand(ICommandSender sender, String[] args) throws CommandException {
+        public void processCommand(ICommandSender sender, String[] args) {
 
-            if (args.length < 2) throw new WrongUsageException(getCommandUsage(sender));
-
-            EntityPlayerMP[] players = PlayerSelector.matchPlayers(sender, args[0]);
-
-            if (players == null) {
-                EntityPlayerMP player = getPlayer(sender, args[0]);
-                players = new EntityPlayerMP[] { player };
+            if (args.length < 2) {
+                throw new WrongUsageException(getCommandUsage(sender));
             }
 
+            EntityPlayerMP player = getPlayer(sender, args[0]);
             String template = args[1];
 
+            int count = 1;
+
+            if (args.length >= 3) {
+                count = parseIntBounded(sender, args[2], 1, 64);
+            }
+
             File file = new File(backpackDir, template + ".json");
-            if (!file.exists()) throw new CommandException("Template not found: " + template);
+
+            if (!file.exists()) {
+                throw new CommandException("Template not found: " + template);
+            }
 
             BackpackMaterial mat;
+
             try {
                 mat = new BackpackJsonReader(file).read();
             } catch (IOException e) {
                 throw new CommandException("Error reading file: " + e.getMessage());
             }
 
-            if (mat == null) throw new CommandException("Failed to read template");
+            if (mat == null) {
+                throw new CommandException("Failed to read template");
+            }
 
-            for (EntityPlayerMP player : players) {
+            for (int k = 0; k < count; ++k) {
 
-                ItemStack backpack = createBackpackFromMaterial(mat);
+                ItemStack stack = createBackpackFromMaterial(mat);
 
-                if (!player.inventory.addItemStackToInventory(backpack)) {
-                    player.dropPlayerItemWithRandomChoice(backpack, false);
+                if (!player.inventory.addItemStackToInventory(stack)) {
+                    player.dropPlayerItemWithRandomChoice(stack, false);
                 }
             }
+
+            func_152373_a(
+                sender,
+                this,
+                "Gave backpack template %s x%s to %s",
+                template,
+                count,
+                player.getCommandSenderName());
         }
 
         @Override
         public List addTabCompletionOptions(ICommandSender sender, String[] args) {
 
-            if (args.length == 1) return getListOfStringsMatchingLastWord(
+            return args.length == 1 ? getListOfStringsMatchingLastWord(
                 args,
                 MinecraftServer.getServer()
-                    .getAllUsernames());
-
-            if (args.length == 2) return getListOfStringsMatchingLastWord(args, getJsonFiles().toArray(new String[0]));
-
-            return null;
+                    .getAllUsernames())
+                : (args.length == 2 ? getListOfStringsMatchingLastWord(args, getJsonFiles().toArray(new String[0]))
+                    : null);
         }
 
         @Override
