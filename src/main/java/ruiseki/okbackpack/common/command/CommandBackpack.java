@@ -10,9 +10,12 @@ import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.command.PlayerSelector;
 import net.minecraft.command.WrongUsageException;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
 
@@ -84,40 +87,63 @@ public class CommandBackpack extends CommandMod {
 
         @Override
         public String getCommandUsage(ICommandSender sender) {
-            return "/ok backpack give <name>";
+            return "/okbackpack give <player|selector> <name>";
         }
 
         @Override
         public void processCommand(ICommandSender sender, String[] args) throws CommandException {
-            if (args.length < 1) throw new WrongUsageException(getCommandUsage(sender));
-            EntityPlayer player = CommandBase.getCommandSenderAsPlayer(sender);
 
-            File file = new File(backpackDir, args[0] + ".json");
-            if (!file.exists()) {
-                throw new CommandException("Template not found: " + args[0]);
+            if (args.length < 2)
+                throw new WrongUsageException(getCommandUsage(sender));
+
+            EntityPlayerMP[] players = PlayerSelector.matchPlayers(sender, args[0]);
+
+            if (players == null) {
+                EntityPlayerMP player = getPlayer(sender, args[0]);
+                players = new EntityPlayerMP[]{player};
             }
 
+            String template = args[1];
+
+            File file = new File(backpackDir, template + ".json");
+            if (!file.exists())
+                throw new CommandException("Template not found: " + template);
+
+            BackpackMaterial mat;
             try {
-                BackpackMaterial mat = new BackpackJsonReader(file).read();
-                if (mat == null) throw new CommandException("Failed to read template");
+                mat = new BackpackJsonReader(file).read();
+            } catch (IOException e) {
+                throw new CommandException("Error reading file: " + e.getMessage());
+            }
+
+            if (mat == null)
+                throw new CommandException("Failed to read template");
+
+            for (EntityPlayerMP player : players) {
 
                 ItemStack backpack = createBackpackFromMaterial(mat);
+
                 if (!player.inventory.addItemStackToInventory(backpack)) {
                     player.dropPlayerItemWithRandomChoice(backpack, false);
                 }
-                sender.addChatMessage(
-                    new ChatComponentText(EnumChatFormatting.GREEN + "Gave backpack template: " + args[0]));
-            } catch (IOException e) {
-                throw new CommandException("Error reading file: " + e.getMessage());
             }
         }
 
         @Override
         public List addTabCompletionOptions(ICommandSender sender, String[] args) {
-            if (args.length == 1) {
+
+            if (args.length == 1)
+                return getListOfStringsMatchingLastWord(args, MinecraftServer.getServer().getAllUsernames());
+
+            if (args.length == 2)
                 return getListOfStringsMatchingLastWord(args, getJsonFiles().toArray(new String[0]));
-            }
+
             return null;
+        }
+
+        @Override
+        public boolean isUsernameIndex(String[] args, int index) {
+            return index == 0;
         }
     }
 
@@ -130,7 +156,7 @@ public class CommandBackpack extends CommandMod {
 
         @Override
         public String getCommandUsage(ICommandSender sender) {
-            return "/ok backpack export <name>";
+            return "/okbackpack export <name>";
         }
 
         @Override
@@ -167,7 +193,7 @@ public class CommandBackpack extends CommandMod {
 
         @Override
         public String getCommandUsage(ICommandSender sender) {
-            return "/ok backpack import <name>";
+            return "/okbackpack import <name>";
         }
 
         @Override
