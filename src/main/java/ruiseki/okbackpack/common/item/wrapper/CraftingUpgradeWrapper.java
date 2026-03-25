@@ -9,6 +9,7 @@ import ruiseki.okcore.helper.ItemNBTHelpers;
 public class CraftingUpgradeWrapper extends UpgradeWrapper implements ICraftingUpgrade {
 
     protected UpgradeItemStackHandler handler;
+    private boolean itemsCached = false;
 
     public CraftingUpgradeWrapper(ItemStack upgrade) {
         super(upgrade);
@@ -24,9 +25,12 @@ public class CraftingUpgradeWrapper extends UpgradeWrapper implements ICraftingU
 
     @Override
     public UpgradeItemStackHandler getStorage() {
-        NBTTagCompound handlerTag = ItemNBTHelpers.getCompound(upgrade, STORAGE_TAG, false);
-        if (handlerTag != null) {
-            handler.deserializeNBT(handlerTag);
+        if (!itemsCached) {
+            NBTTagCompound handlerTag = ItemNBTHelpers.getCompound(upgrade, STORAGE_TAG, false);
+            if (handlerTag != null) {
+                handler.deserializeNBT(handlerTag);
+            }
+            itemsCached = true;
         }
         return handler;
     }
@@ -35,6 +39,7 @@ public class CraftingUpgradeWrapper extends UpgradeWrapper implements ICraftingU
     public void setStorage(UpgradeItemStackHandler handler) {
         if (handler != null) {
             ItemNBTHelpers.setCompound(upgrade, STORAGE_TAG, handler.serializeNBT());
+            itemsCached = false;
         }
     }
 

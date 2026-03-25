@@ -144,7 +144,7 @@ public class UpgradeSlotUpdateGroup {
             syncManager.syncValue("crafting_slot_" + slotIndex, i, new ItemSlotSH(slot));
             craftingMatrixSlots[i] = slot;
         }
-        syncManager.registerSlotGroup(new SlotGroup("crafting_matrix_$slotIndex", 3, false));
+        syncManager.registerSlotGroup(new SlotGroup("crafting_matrix_" + slotIndex, 3, false));
         craftingOutputSlot = new IndexedModularCraftingSlot(
             slotIndex,
             wrapper,
