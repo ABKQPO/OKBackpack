@@ -55,6 +55,21 @@ public class BackpackItemStackHandler extends UpgradeItemStackHandler {
         return 64 * wrapper.getTotalStackMultiplier();
     }
 
+    @Override
+    public void resize(int newSize) {
+        super.resize(newSize);
+        syncListSize(this.memorizedSlotStack, newSize, null);
+        syncListSize(this.memorizedSlotRespectNbtList, newSize, false);
+        syncListSize(this.sortLockedSlots, newSize, false);
+    }
+
+    @Override
+    public boolean isSizeInconsistent(int newSize) {
+        return super.isSizeInconsistent(newSize) || this.memorizedSlotStack.size() != newSize
+            || this.memorizedSlotRespectNbtList.size() != newSize
+            || this.sortLockedSlots.size() != newSize;
+    }
+
     public ItemStack prioritizedInsertion(int slotIndex, ItemStack stack, boolean simulate) {
         if (stack != null && !wrapper.canNestBackpack() && stack.getItem() instanceof BlockBackpack.ItemBackpack) {
             return stack;

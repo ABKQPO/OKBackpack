@@ -26,4 +26,20 @@ public class UpgradeItemStackHandler extends ItemStackHandler {
 
         this.stacks = newStacks;
     }
+
+    public boolean isSizeInconsistent(int newSize) {
+        return newSize != stacks.size();
+    }
+
+    public static <T> void syncListSize(List<T> list, int newSize, T defaultValue) {
+        int currentSize = list.size();
+        if (newSize < currentSize) {
+            list.subList(newSize, currentSize)
+                .clear();
+        } else {
+            for (int i = currentSize; i < newSize; i++) {
+                list.add(defaultValue);
+            }
+        }
+    }
 }
