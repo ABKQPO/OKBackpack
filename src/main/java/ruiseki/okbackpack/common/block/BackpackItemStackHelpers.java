@@ -16,7 +16,7 @@ public class BackpackItemStackHelpers {
 
             if (stack != null) {
                 NBTTagCompound tag = new NBTTagCompound();
-                tag.setByte("Slot", (byte) i);
+                tag.setInteger("Slot", i);
                 writeToNBTExtended(stack, tag);
                 list.appendTag(tag);
             }
@@ -37,7 +37,7 @@ public class BackpackItemStackHelpers {
 
         for (int i = 0; i < list.tagCount(); i++) {
             NBTTagCompound tag = list.getCompoundTagAt(i);
-            int j = tag.getByte("Slot") & 255;
+            int j = tag.getInteger("Slot");
 
             if (j < inventory.size()) {
                 inventory.set(j, loadItemStackExtended(tag));

@@ -54,4 +54,5 @@ dependencies {
     compileOnly("curse.maven:neverenoughanimation-1062347:7624764")
 
     annotationProcessor('org.projectlombok:lombok:1.18.30')
+    runtimeOnlyNonPublishable('com.github.GTNewHorizons:ServerUtilities:2.2.2:dev')
 }

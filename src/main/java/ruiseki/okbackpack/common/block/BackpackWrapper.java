@@ -614,8 +614,19 @@ public class BackpackWrapper implements IItemHandlerModifiable, INBTSerializable
     @Override
     public NBTTagCompound serializeNBT() {
         NBTTagCompound tag = new NBTTagCompound();
-        tag.setInteger(BACKPACK_SLOTS, getBackpackSlots());
-        tag.setInteger(UPGRADE_SLOTS, getUpgradeSlots());
+
+        int currentSlots = getBackpackSlots();
+        int upSlots = getUpgradeSlots();
+
+        if (backpackHandler.isSizeInconsistent(currentSlots)) {
+            backpackHandler.resize(currentSlots);
+        }
+        if (upgradeHandler.isSizeInconsistent(upSlots)) {
+            upgradeHandler.resize(upSlots);
+        }
+
+        tag.setInteger(BACKPACK_SLOTS, currentSlots);
+        tag.setInteger(UPGRADE_SLOTS, upSlots);
         tag.setInteger(MAIN_COLOR, getMainColor());
         tag.setInteger(ACCENT_COLOR, getAccentColor());
 
@@ -627,16 +638,18 @@ public class BackpackWrapper implements IItemHandlerModifiable, INBTSerializable
         tag.setTag(MEMORY_STACK_ITEMS_TAG, memoryTag);
 
         List<Boolean> respectList = backpackHandler.memorizedSlotRespectNbtList;
-        byte[] respectBytes = new byte[respectList.size()];
-        for (int i = 0; i < respectList.size(); i++) {
-            respectBytes[i] = (byte) (respectList.get(i) ? 1 : 0);
+        byte[] respectBytes = new byte[currentSlots];
+        for (int i = 0; i < currentSlots; i++) {
+            boolean val = i < respectList.size() && respectList.get(i);
+            respectBytes[i] = (byte) (val ? 1 : 0);
         }
         tag.setByteArray(MEMORY_STACK_RESPECT_NBT_TAG, respectBytes);
 
         List<Boolean> locked = backpackHandler.sortLockedSlots;
-        byte[] lockedBytes = new byte[locked.size()];
-        for (int i = 0; i < locked.size(); i++) {
-            lockedBytes[i] = (byte) (locked.get(i) ? 1 : 0);
+        byte[] lockedBytes = new byte[currentSlots];
+        for (int i = 0; i < currentSlots; i++) {
+            boolean val = i < locked.size() && locked.get(i);
+            lockedBytes[i] = (byte) (val ? 1 : 0);
         }
         tag.setByteArray(LOCKED_SLOTS_TAG, lockedBytes);
 
@@ -646,9 +659,8 @@ public class BackpackWrapper implements IItemHandlerModifiable, INBTSerializable
 
         tag.setBoolean(KEEP_TAB_TAG, keepTab);
 
-        tag.setString(UUID_TAG, uuid);
-
-        if (hasCustomInventoryName()) {
+        if (uuid != null) tag.setString(UUID_TAG, uuid);
+        if (hasCustomInventoryName() && this.customName != null) {
             tag.setString(CUSTOM_NAME_TAG, this.customName);
         }
 
@@ -662,93 +674,76 @@ public class BackpackWrapper implements IItemHandlerModifiable, INBTSerializable
 
     @Override
     public void deserializeNBT(NBTTagCompound tag) {
-        if (tag.hasKey(BACKPACK_SLOTS)) {
-            backpackSlots = tag.getInteger(BACKPACK_SLOTS);
+        if (tag.hasKey(BACKPACK_SLOTS, 3)) {
+            this.backpackSlots = tag.getInteger(BACKPACK_SLOTS);
         }
-        if (tag.hasKey(UPGRADE_SLOTS)) {
-            upgradeSlots = tag.getInteger(UPGRADE_SLOTS);
-        }
-
-        if (tag.hasKey(MAIN_COLOR)) {
-            mainColor = tag.getInteger(MAIN_COLOR);
-        }
-        if (tag.hasKey(ACCENT_COLOR)) {
-            accentColor = tag.getInteger(ACCENT_COLOR);
+        if (tag.hasKey(UPGRADE_SLOTS, 3)) {
+            this.upgradeSlots = tag.getInteger(UPGRADE_SLOTS);
         }
 
-        if (tag.hasKey(BACKPACK_INV)) {
+        if (tag.hasKey(MAIN_COLOR, 3)) this.mainColor = tag.getInteger(MAIN_COLOR);
+        if (tag.hasKey(ACCENT_COLOR, 3)) this.accentColor = tag.getInteger(ACCENT_COLOR);
+
+        if (tag.hasKey(BACKPACK_INV, 10)) {
             backpackHandler.deserializeNBT(tag.getCompoundTag(BACKPACK_INV));
+
+            if (backpackHandler.isSizeInconsistent(this.backpackSlots)) {
+                backpackHandler.resize(this.backpackSlots);
+            }
 
             BackpackItemStackHelpers
                 .loadAllItemsExtended(tag.getCompoundTag(BACKPACK_INV), backpackHandler.getStacks());
-            if (backpackHandler.getSlots() != backpackSlots) {
-                backpackHandler.resize(backpackSlots);
-            }
-        }
-        if (tag.hasKey(UPGRADE_INV)) {
-            upgradeHandler.deserializeNBT(tag.getCompoundTag(UPGRADE_INV));
-            if (upgradeHandler.getSlots() != upgradeSlots) {
-                upgradeHandler.resize(upgradeSlots);
-            }
         }
 
-        if (tag.hasKey(MEMORY_STACK_ITEMS_TAG)) {
+        if (tag.hasKey(MEMORY_STACK_ITEMS_TAG, 10)) {
             BackpackItemStackHelpers
                 .loadAllItemsExtended(tag.getCompoundTag(MEMORY_STACK_ITEMS_TAG), backpackHandler.memorizedSlotStack);
         }
 
-        byte[] respectArr = tag.getByteArray(MEMORY_STACK_RESPECT_NBT_TAG);
-        int maxRespect = backpackHandler.memorizedSlotRespectNbtList.size();
-        for (int i = 0; i < respectArr.length && i < maxRespect; i++) {
-            setMemoryStackRespectNBT(i, respectArr[i] != 0);
+        if (tag.hasKey(MEMORY_STACK_RESPECT_NBT_TAG, 7)) {
+            byte[] respectArr = tag.getByteArray(MEMORY_STACK_RESPECT_NBT_TAG);
+            for (int i = 0; i < respectArr.length && i < this.backpackSlots; i++) {
+                setMemoryStackRespectNBT(i, respectArr[i] != 0);
+            }
         }
 
-        byte[] lockedArr = tag.getByteArray(LOCKED_SLOTS_TAG);
-        int maxLocked = backpackHandler.sortLockedSlots.size();
-        for (int i = 0; i < lockedArr.length && i < maxLocked; i++) {
-            setSlotLocked(i, lockedArr[i] != 0);
+        if (tag.hasKey(LOCKED_SLOTS_TAG, 7)) {
+            byte[] lockedArr = tag.getByteArray(LOCKED_SLOTS_TAG);
+            for (int i = 0; i < lockedArr.length && i < this.backpackSlots; i++) {
+                setSlotLocked(i, lockedArr[i] != 0);
+            }
         }
 
-        if (tag.hasKey(SORT_TYPE_TAG)) {
-            sortType = SortType.values()[tag.getByte(SORT_TYPE_TAG)];
+        if (tag.hasKey(UPGRADE_INV, 10)) {
+            upgradeHandler.deserializeNBT(tag.getCompoundTag(UPGRADE_INV));
+            if (upgradeHandler.isSizeInconsistent(this.upgradeSlots)) {
+                upgradeHandler.resize(this.upgradeSlots);
+            }
         }
 
-        if (tag.hasKey(LOCKED_BACKPACK_TAG)) {
-            lockBackpack = tag.getBoolean(LOCKED_BACKPACK_TAG);
+        if (tag.hasKey(SORT_TYPE_TAG, 1)) {
+            byte type = tag.getByte(SORT_TYPE_TAG);
+            if (type >= 0 && type < SortType.values().length) {
+                this.sortType = SortType.values()[type];
+            }
         }
 
-        if (tag.hasKey(KEEP_TAB_TAG)) {
-            keepTab = tag.getBoolean(KEEP_TAB_TAG);
-        }
-
-        if (tag.hasKey(UUID_TAG)) {
-            uuid = tag.getString(UUID_TAG);
-        }
+        if (tag.hasKey(LOCKED_BACKPACK_TAG, 1)) this.lockBackpack = tag.getBoolean(LOCKED_BACKPACK_TAG);
+        if (tag.hasKey(KEEP_TAB_TAG, 1)) this.keepTab = tag.getBoolean(KEEP_TAB_TAG);
+        if (tag.hasKey(UUID_TAG, 8)) this.uuid = tag.getString(UUID_TAG);
 
         if (tag.hasKey("display", 10)) {
             NBTTagCompound display = tag.getCompoundTag("display");
-            if (display.hasKey("Name", 8)) {
-                customName = display.getString("Name");
-            }
-        } else {
-            customName = tag.getString(CUSTOM_NAME_TAG);
+            if (display.hasKey("Name", 8)) this.customName = display.getString("Name");
+        } else if (tag.hasKey(CUSTOM_NAME_TAG, 8)) {
+            this.customName = tag.getString(CUSTOM_NAME_TAG);
         }
 
-        if (tag.hasKey(SLEEPING_BAG_DEPLOYED_TAG)) {
-            sleepingBagDeployed = tag.getBoolean(SLEEPING_BAG_DEPLOYED_TAG);
-        }
-
-        if (tag.hasKey(SLEEPING_BAG_X)) {
-            sleepingBagX = tag.getInteger(SLEEPING_BAG_X);
-        }
-
-        if (tag.hasKey(SLEEPING_BAG_Y)) {
-            sleepingBagY = tag.getInteger(SLEEPING_BAG_Y);
-        }
-
-        if (tag.hasKey(SLEEPING_BAG_Z)) {
-            sleepingBagZ = tag.getInteger(SLEEPING_BAG_Z);
-        }
+        if (tag.hasKey(SLEEPING_BAG_DEPLOYED_TAG, 1))
+            this.sleepingBagDeployed = tag.getBoolean(SLEEPING_BAG_DEPLOYED_TAG);
+        if (tag.hasKey(SLEEPING_BAG_X, 3)) this.sleepingBagX = tag.getInteger(SLEEPING_BAG_X);
+        if (tag.hasKey(SLEEPING_BAG_Y, 3)) this.sleepingBagY = tag.getInteger(SLEEPING_BAG_Y);
+        if (tag.hasKey(SLEEPING_BAG_Z, 3)) this.sleepingBagZ = tag.getInteger(SLEEPING_BAG_Z);
     }
 
     public <T> Map<Integer, T> gatherCapabilityUpgrades(Class<T> capabilityClass) {
