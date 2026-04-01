@@ -35,9 +35,7 @@ public class CraftingSlotGroup implements IUpgradeSlotGroupFactory {
             slots[i] = slot;
 
             slot.changeListener((stack, onlyAmountChanged, client, init) -> {
-
                 if (!client) return;
-
                 craftingStackHandler.syncToServer(DelegatedCraftingStackHandlerSH.DETECT_CHANGES);
             });
         }

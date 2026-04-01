@@ -204,6 +204,7 @@ public class UpgradeSlotSH extends ItemSlotSH {
         boolean clockwise = buf.readBoolean();
         ItemStackHandler stackHandler = upgradeWrapper.getStorage();
         BackpackInventoryHelpers.rotated(stackHandler, clockwise);
+        wrapper.markDirty();
     }
 
     public void updateGrid(PacketBuffer buf) {
@@ -216,6 +217,7 @@ public class UpgradeSlotSH extends ItemSlotSH {
         } else {
             BackpackInventoryHelpers.spread(stackHandler);
         }
+        wrapper.markDirty();
     }
 
     public void updateClear(PacketBuffer buf) {
@@ -224,6 +226,7 @@ public class UpgradeSlotSH extends ItemSlotSH {
         int ordinal = buf.readInt();
         BackpackInventoryHelpers.clear(panel, upgradeWrapper.getStorage(), ordinal);
         panel.player.inventory.markDirty();
+        wrapper.markDirty();
     }
 
     private void updateDirty(PacketBuffer buf) {
