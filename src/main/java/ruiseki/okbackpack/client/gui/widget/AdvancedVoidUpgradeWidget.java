@@ -8,11 +8,11 @@ import net.minecraft.item.ItemStack;
 import com.cleanroommc.modularui.api.drawable.IKey;
 import com.cleanroommc.modularui.network.NetworkUtils;
 
+import ruiseki.okbackpack.api.wrapper.IVoidUpgrade;
 import ruiseki.okbackpack.client.gui.OKBGuiTextures;
 import ruiseki.okbackpack.client.gui.syncHandler.UpgradeSlotSH;
 import ruiseki.okbackpack.common.init.ModItems;
 import ruiseki.okbackpack.common.item.wrapper.AdvancedVoidUpgradeWrapper;
-import ruiseki.okbackpack.api.wrapper.IVoidUpgrade;
 
 public class AdvancedVoidUpgradeWidget extends AdvancedExpandedTabWidget<AdvancedVoidUpgradeWrapper> {
 

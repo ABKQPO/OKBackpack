@@ -33,11 +33,11 @@ import com.cleanroommc.modularui.widgets.textfield.TextFieldWidget;
 
 import lombok.Getter;
 import ruiseki.okbackpack.Reference;
+import ruiseki.okbackpack.api.wrapper.IAdvancedFilterable;
 import ruiseki.okbackpack.client.gui.OKBGuiTextures;
 import ruiseki.okbackpack.client.gui.drawble.Outline;
 import ruiseki.okbackpack.client.gui.slot.FilterSlot;
 import ruiseki.okbackpack.client.gui.syncHandler.UpgradeSlotSH;
-import ruiseki.okbackpack.api.wrapper.IAdvancedFilterable;
 
 public class AdvancedFilterWidget extends ParentWidget<AdvancedFilterWidget> {
 

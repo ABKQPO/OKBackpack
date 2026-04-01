@@ -14,7 +14,7 @@ public class UpgradeWrapperFactory {
             return null;
         }
         Item item = stack.getItem();
-        if (!(item instanceof IUpgradeWrapperFactory<?> factory)) {
+        if (!(item instanceof IUpgradeWrapperFactory<?>factory)) {
             return null;
         }
         return (W) factory.createWrapper(stack, storage);

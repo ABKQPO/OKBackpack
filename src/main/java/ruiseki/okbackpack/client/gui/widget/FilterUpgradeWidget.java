@@ -7,11 +7,11 @@ import com.cleanroommc.modularui.api.drawable.IKey;
 import com.cleanroommc.modularui.network.NetworkUtils;
 
 import lombok.Getter;
+import ruiseki.okbackpack.api.wrapper.IFilterUpgrade;
 import ruiseki.okbackpack.client.gui.OKBGuiTextures;
 import ruiseki.okbackpack.client.gui.syncHandler.UpgradeSlotSH;
 import ruiseki.okbackpack.common.init.ModItems;
 import ruiseki.okbackpack.common.item.wrapper.FilterUpgradeWrapper;
-import ruiseki.okbackpack.api.wrapper.IFilterUpgrade;
 
 public class FilterUpgradeWidget extends BasicExpandedTabWidget<FilterUpgradeWrapper> {
 

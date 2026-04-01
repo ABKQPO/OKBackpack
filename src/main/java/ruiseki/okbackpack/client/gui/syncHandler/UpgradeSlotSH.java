@@ -10,10 +10,6 @@ import com.cleanroommc.modularui.utils.item.ItemStackHandler;
 import com.cleanroommc.modularui.value.sync.ItemSlotSH;
 import com.cleanroommc.modularui.widgets.slot.ModularSlot;
 
-import ruiseki.okbackpack.common.block.BackpackPanel;
-import ruiseki.okbackpack.common.block.BackpackWrapper;
-import ruiseki.okbackpack.common.helpers.BackpackInventoryHelpers;
-import ruiseki.okbackpack.common.item.wrapper.AdvancedFeedingUpgradeWrapper;
 import ruiseki.okbackpack.api.wrapper.IAdvancedFilterable;
 import ruiseki.okbackpack.api.wrapper.IBasicFilterable;
 import ruiseki.okbackpack.api.wrapper.ICraftingUpgrade;
@@ -21,6 +17,10 @@ import ruiseki.okbackpack.api.wrapper.IFilterUpgrade;
 import ruiseki.okbackpack.api.wrapper.IMagnetUpgrade;
 import ruiseki.okbackpack.api.wrapper.IToggleable;
 import ruiseki.okbackpack.api.wrapper.IVoidUpgrade;
+import ruiseki.okbackpack.common.block.BackpackPanel;
+import ruiseki.okbackpack.common.block.BackpackWrapper;
+import ruiseki.okbackpack.common.helpers.BackpackInventoryHelpers;
+import ruiseki.okbackpack.common.item.wrapper.AdvancedFeedingUpgradeWrapper;
 import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapperBase;
 import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapperFactory;
 

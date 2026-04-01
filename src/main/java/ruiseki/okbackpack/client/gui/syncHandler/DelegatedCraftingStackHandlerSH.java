@@ -9,12 +9,12 @@ import net.minecraft.network.PacketBuffer;
 import com.cleanroommc.modularui.utils.item.EmptyHandler;
 import com.cleanroommc.modularui.utils.item.IItemHandler;
 
+import ruiseki.okbackpack.api.wrapper.IBasicFilterable;
+import ruiseki.okbackpack.api.wrapper.ICraftingUpgrade;
 import ruiseki.okbackpack.client.gui.container.BackPackContainer;
 import ruiseki.okbackpack.client.gui.handler.IndexedInventoryCraftingWrapper;
 import ruiseki.okbackpack.common.block.BackpackWrapper;
 import ruiseki.okbackpack.common.item.wrapper.CraftingUpgradeWrapper;
-import ruiseki.okbackpack.api.wrapper.IBasicFilterable;
-import ruiseki.okbackpack.api.wrapper.ICraftingUpgrade;
 import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapperBase;
 import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapperFactory;
 

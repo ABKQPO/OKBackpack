@@ -17,10 +17,10 @@ import com.cleanroommc.modularui.utils.item.ItemStackHandler;
 import com.cleanroommc.modularui.utils.item.PlayerMainInvWrapper;
 
 import ruiseki.okbackpack.OKBackpack;
+import ruiseki.okbackpack.api.wrapper.ICraftingUpgrade;
 import ruiseki.okbackpack.common.block.BackpackPanel;
 import ruiseki.okbackpack.common.block.BackpackWrapper;
 import ruiseki.okbackpack.common.block.BlockBackpack;
-import ruiseki.okbackpack.api.wrapper.ICraftingUpgrade;
 import ruiseki.okbackpack.common.network.PacketBackpackNBT;
 import ruiseki.okcore.helper.ItemHandlerHelpers;
 

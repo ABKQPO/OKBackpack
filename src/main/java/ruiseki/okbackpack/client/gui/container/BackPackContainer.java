@@ -26,6 +26,7 @@ import com.cleanroommc.modularui.widgets.slot.ModularSlot;
 import com.cleanroommc.modularui.widgets.slot.SlotGroup;
 
 import ruiseki.okbackpack.OKBackpack;
+import ruiseki.okbackpack.api.wrapper.IVoidUpgrade;
 import ruiseki.okbackpack.client.gui.handler.IndexedInventoryCraftingWrapper;
 import ruiseki.okbackpack.client.gui.slot.IndexedModularCraftingMatrixSlot;
 import ruiseki.okbackpack.client.gui.slot.IndexedModularCraftingSlot;
@@ -33,7 +34,6 @@ import ruiseki.okbackpack.client.gui.slot.ModularBackpackSlot;
 import ruiseki.okbackpack.client.gui.slot.ModularFilterSlot;
 import ruiseki.okbackpack.common.block.BackpackWrapper;
 import ruiseki.okbackpack.common.item.wrapper.CraftingUpgradeWrapper;
-import ruiseki.okbackpack.api.wrapper.IVoidUpgrade;
 import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapperBase;
 import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapperFactory;
 import ruiseki.okbackpack.common.network.PacketBackpackNBT;
@@ -101,10 +101,11 @@ public class BackPackContainer extends ModularContainer {
         super.detectAndSendChanges();
 
         // Server-side only: sync dirty changes to client
-        if (!getGuiData().isClient() && wrapper.isDirty && wrapper.backpack != null) {
+        if (!getGuiData().isClient() && wrapper.isDirty) {
             EntityPlayer player = getPlayer();
 
-            wrapper.writeToItem();
+            // Write changes to the actual ItemStack (using UUID tracking)
+            wrapper.writeToItem(player);
 
             // Send NBT update packet to client (only if backpack is valid)
             if (wrapper.type != null && backpackSlotIndex != null && player instanceof EntityPlayerMP playerMP) {
@@ -114,6 +115,7 @@ public class BackPackContainer extends ModularContainer {
                         playerMP);
             }
 
+            // Clear dirty flag
             wrapper.clearDirty();
         }
     }
@@ -123,9 +125,12 @@ public class BackPackContainer extends ModularContainer {
         super.onContainerClosed(player);
 
         // Final sync before closing - ensure all changes are saved
-        if (!getGuiData().isClient() && wrapper.backpack != null) {
-            wrapper.writeToItem();
-            wrapper.clearDirty();
+        if (!getGuiData().isClient()) {
+            wrapper.writeToItem(player);
+            // Only clear dirty if write succeeded (backpack still valid)
+            if (wrapper.backpack != null) {
+                wrapper.clearDirty();
+            }
         }
     }
 

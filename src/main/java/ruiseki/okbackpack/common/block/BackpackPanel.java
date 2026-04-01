@@ -35,6 +35,7 @@ import com.cleanroommc.modularui.widgets.slot.SlotGroup;
 
 import lombok.Getter;
 import ruiseki.okbackpack.Reference;
+import ruiseki.okbackpack.api.wrapper.IToggleable;
 import ruiseki.okbackpack.client.gui.OKBGuiTextures;
 import ruiseki.okbackpack.client.gui.container.BackPackContainer;
 import ruiseki.okbackpack.client.gui.container.BackpackGuiContainer;
@@ -78,7 +79,6 @@ import ruiseki.okbackpack.common.item.wrapper.BasicUpgradeWrapper;
 import ruiseki.okbackpack.common.item.wrapper.CraftingUpgradeWrapper;
 import ruiseki.okbackpack.common.item.wrapper.FeedingUpgradeWrapper;
 import ruiseki.okbackpack.common.item.wrapper.FilterUpgradeWrapper;
-import ruiseki.okbackpack.api.wrapper.IToggleable;
 import ruiseki.okbackpack.common.item.wrapper.MagnetUpgradeWrapper;
 import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapperBase;
 import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapperFactory;

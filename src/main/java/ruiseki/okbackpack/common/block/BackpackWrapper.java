@@ -12,6 +12,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.item.EntityXPOrb;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
@@ -23,8 +24,14 @@ import com.cleanroommc.modularui.factory.inventory.InventoryType;
 import com.cleanroommc.modularui.utils.item.IItemHandler;
 import com.cleanroommc.modularui.utils.item.ItemHandlerHelper;
 
+import baubles.api.BaublesApi;
 import ruiseki.okbackpack.OKBackpack;
 import ruiseki.okbackpack.api.IStorageWrapper;
+import ruiseki.okbackpack.api.wrapper.IFeedingUpgrade;
+import ruiseki.okbackpack.api.wrapper.IFilterUpgrade;
+import ruiseki.okbackpack.api.wrapper.IMagnetUpgrade;
+import ruiseki.okbackpack.api.wrapper.IPickupUpgrade;
+import ruiseki.okbackpack.api.wrapper.IVoidUpgrade;
 import ruiseki.okbackpack.client.gui.handler.BackpackItemStackHandler;
 import ruiseki.okbackpack.client.gui.handler.UpgradeItemStackHandler;
 import ruiseki.okbackpack.common.SortType;
@@ -34,14 +41,10 @@ import ruiseki.okbackpack.common.init.ModItems;
 import ruiseki.okbackpack.common.item.ItemEverlastingUpgrade;
 import ruiseki.okbackpack.common.item.ItemInceptionUpgrade;
 import ruiseki.okbackpack.common.item.ItemStackUpgrade;
-import ruiseki.okbackpack.api.wrapper.IFeedingUpgrade;
-import ruiseki.okbackpack.api.wrapper.IFilterUpgrade;
-import ruiseki.okbackpack.api.wrapper.IMagnetUpgrade;
-import ruiseki.okbackpack.api.wrapper.IPickupUpgrade;
-import ruiseki.okbackpack.api.wrapper.IVoidUpgrade;
 import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapperBase;
 import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapperFactory;
 import ruiseki.okbackpack.common.network.PacketBackpackNBT;
+import ruiseki.okbackpack.compat.Mods;
 import ruiseki.okbackpack.config.ModConfig;
 import ruiseki.okcore.helper.ItemNBTHelpers;
 import ruiseki.okcore.helper.LangHelpers;
@@ -59,6 +62,7 @@ public class BackpackWrapper implements IStorageWrapper {
     public boolean lockBackpack;
     public boolean keepTab;
     public String uuid;
+    public String playerUuid;
     public String customName;
     public boolean sleepingBagDeployed;
     public int sleepingBagX;
@@ -82,6 +86,7 @@ public class BackpackWrapper implements IStorageWrapper {
     public static final String LOCKED_SLOTS_TAG = "LockedSlots";
     public static final String LOCKED_BACKPACK_TAG = "LockedBackpack";
     public static final String UUID_TAG = "UUID";
+    public static final String PLAYER_UUID_TAG = "PlayerUUID";
     public static final String KEEP_TAB_TAG = "KeepTab";
     public static final String CUSTOM_NAME_TAG = "CustomName";
     public static final String SLEEPING_BAG_DEPLOYED_TAG = "SleepingBagDeloyed";
@@ -113,7 +118,8 @@ public class BackpackWrapper implements IStorageWrapper {
         this.accentColor = 0xFF622E1A;
         this.sortType = SortType.BY_NAME;
         this.lockBackpack = false;
-        this.uuid = "";
+        this.uuid = UUID.randomUUID()
+            .toString();
         this.keepTab = true;
         this.sleepingBagDeployed = false;
 
@@ -492,7 +498,13 @@ public class BackpackWrapper implements IStorageWrapper {
     }
 
     public boolean canPlayerAccess(UUID playerUUID) {
-        return !lockBackpack || playerUUID.equals(UUID.fromString(uuid));
+        if (!lockBackpack) return true;
+
+        if (playerUuid != null && playerUUID.equals(UUID.fromString(playerUuid))) {
+            return true;
+        }
+
+        return false;
     }
 
     public boolean hasCustomInventoryName() {
@@ -507,6 +519,38 @@ public class BackpackWrapper implements IStorageWrapper {
         return backpack.getTagCompound();
     }
 
+    public ItemStack findActualStack(EntityPlayer player) {
+        if (player == null || uuid == null) return backpack;
+
+        // Check held item first (fastest)
+        ItemStack held = player.getHeldItem();
+        if (isSameBackpack(held)) return held;
+
+        // Check player inventory
+        for (int i = 0; i < player.inventory.getSizeInventory(); i++) {
+            ItemStack stack = player.inventory.getStackInSlot(i);
+            if (isSameBackpack(stack)) return stack;
+        }
+
+        // Check Baubles if loaded
+        if (Mods.Baubles.isLoaded()) {
+            IInventory baubles = BaublesApi.getBaubles(player);
+            if (baubles != null) {
+                for (int i = 0; i < baubles.getSizeInventory(); i++) {
+                    ItemStack stack = baubles.getStackInSlot(i);
+                    if (isSameBackpack(stack)) return stack;
+                }
+            }
+        }
+        return backpack; // Fallback
+    }
+
+    private boolean isSameBackpack(ItemStack stack) {
+        if (stack == null || !(stack.getItem() instanceof BlockBackpack.ItemBackpack)) return false;
+        NBTTagCompound tag = stack.getTagCompound();
+        return tag != null && uuid.equals(tag.getString(UUID_TAG));
+    }
+
     public void writeToItem() {
         if (backpack == null) return;
 
@@ -517,6 +561,11 @@ public class BackpackWrapper implements IStorageWrapper {
         }
 
         root.setTag(BACKPACK_NBT, serializeNBT());
+    }
+
+    public void writeToItem(EntityPlayer player) {
+        this.backpack = findActualStack(player);
+        writeToItem();
     }
 
     public void readFromItem() {
@@ -570,7 +619,12 @@ public class BackpackWrapper implements IStorageWrapper {
 
         tag.setBoolean(KEEP_TAB_TAG, keepTab);
 
-        if (uuid != null) tag.setString(UUID_TAG, uuid);
+        tag.setString(UUID_TAG, uuid);
+
+        if (lockBackpack && playerUuid != null) {
+            tag.setString(PLAYER_UUID_TAG, playerUuid);
+        }
+
         if (hasCustomInventoryName() && this.customName != null) {
             tag.setString(CUSTOM_NAME_TAG, this.customName);
         }
@@ -642,7 +696,20 @@ public class BackpackWrapper implements IStorageWrapper {
 
         if (tag.hasKey(LOCKED_BACKPACK_TAG, 1)) this.lockBackpack = tag.getBoolean(LOCKED_BACKPACK_TAG);
         if (tag.hasKey(KEEP_TAB_TAG, 1)) this.keepTab = tag.getBoolean(KEEP_TAB_TAG);
-        if (tag.hasKey(UUID_TAG, 8)) this.uuid = tag.getString(UUID_TAG);
+
+        if (tag.hasKey(UUID_TAG, 8)) {
+            String tempUuid = tag.getString(UUID_TAG);
+            if (tempUuid.length() > 0) { // Backward compatibility - remove this check after some time
+                this.uuid = tempUuid;
+                if (lockBackpack) { // Backward compatibility - remove this whole block after some time
+                    this.playerUuid = tempUuid;
+                }
+            }
+        }
+
+        if (tag.hasKey(PLAYER_UUID_TAG, 8)) {
+            this.playerUuid = tag.getString(PLAYER_UUID_TAG);
+        }
 
         if (tag.hasKey("display", 10)) {
             NBTTagCompound display = tag.getCompoundTag("display");

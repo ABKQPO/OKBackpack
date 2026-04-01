@@ -12,6 +12,7 @@ import com.cleanroommc.modularui.widgets.layout.Column;
 import com.cleanroommc.modularui.widgets.layout.Row;
 import com.cleanroommc.modularui.widgets.slot.ItemSlot;
 
+import ruiseki.okbackpack.api.wrapper.ICraftingUpgrade;
 import ruiseki.okbackpack.client.gui.OKBGuiTextures;
 import ruiseki.okbackpack.client.gui.slot.BigItemSlot;
 import ruiseki.okbackpack.client.gui.syncHandler.UpgradeSlotSH;
@@ -19,7 +20,6 @@ import ruiseki.okbackpack.common.block.BackpackPanel;
 import ruiseki.okbackpack.common.helpers.BackpackInventoryHelpers;
 import ruiseki.okbackpack.common.init.ModItems;
 import ruiseki.okbackpack.common.item.wrapper.CraftingUpgradeWrapper;
-import ruiseki.okbackpack.api.wrapper.ICraftingUpgrade;
 
 public class CraftingUpgradeWidget extends ExpandedUpgradeTabWidget<CraftingUpgradeWrapper> {
 
