@@ -162,7 +162,8 @@ public class BackpackWrapper implements IItemHandlerModifiable, INBTSerializable
         this.accentColor = 0xFF622E1A;
         this.sortType = SortType.BY_NAME;
         this.lockBackpack = false;
-        this.uuid = "";
+        this.uuid = UUID.randomUUID()
+            .toString();
         this.keepTab = true;
         this.sleepingBagDeployed = false;
 
@@ -730,7 +731,11 @@ public class BackpackWrapper implements IItemHandlerModifiable, INBTSerializable
 
         if (tag.hasKey(LOCKED_BACKPACK_TAG, 1)) this.lockBackpack = tag.getBoolean(LOCKED_BACKPACK_TAG);
         if (tag.hasKey(KEEP_TAB_TAG, 1)) this.keepTab = tag.getBoolean(KEEP_TAB_TAG);
-        if (tag.hasKey(UUID_TAG, 8)) this.uuid = tag.getString(UUID_TAG);
+
+        if (tag.hasKey(UUID_TAG, 8)) {
+            String tempUuid = tag.getString(UUID_TAG);
+            if (tempUuid.length() > 0) this.uuid = tempUuid;
+        }
 
         if (tag.hasKey("display", 10)) {
             NBTTagCompound display = tag.getCompoundTag("display");
