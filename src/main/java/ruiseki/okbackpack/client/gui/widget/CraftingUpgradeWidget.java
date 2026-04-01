@@ -37,8 +37,8 @@ public class CraftingUpgradeWidget extends ExpandedUpgradeTabWidget<CraftingUpgr
     private ItemSlot[] craftingMatrix;
     private ItemSlot craftingResult;
 
-    public CraftingUpgradeWidget(int slotIndex, CraftingUpgradeWrapper wrapper, BackpackPanel panel) {
-        super(slotIndex, 5, ModItems.CRAFTING_UPGRADE.newItemStack(), "gui.backpack.crafting_settings", 90);
+    public CraftingUpgradeWidget(int slotIndex, CraftingUpgradeWrapper wrapper, BackpackPanel panel, String titleKey) {
+        super(slotIndex, 5, ModItems.CRAFTING_UPGRADE.newItemStack(), titleKey, 90);
         this.wrapper = wrapper;
 
         this.syncHandler("upgrades", slotIndex);

@@ -143,6 +143,13 @@ public class UpgradeSlotUpdateGroup {
             slot.slotGroup("crafting_result_" + slotIndex);
             syncManager.syncValue("crafting_slot_" + slotIndex, i, new ItemSlotSH(slot));
             craftingMatrixSlots[i] = slot;
+
+            slot.changeListener((stack, onlyAmountChanged, client, init) -> {
+
+                if (!client) return;
+
+                craftingStackHandler.syncToServer(DelegatedCraftingStackHandlerSH.DETECT_CHANGES);
+            });
         }
         syncManager.registerSlotGroup(new SlotGroup("crafting_matrix_" + slotIndex, 3, false));
         craftingOutputSlot = new IndexedModularCraftingSlot(

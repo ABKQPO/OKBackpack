@@ -4,7 +4,7 @@ import net.minecraft.item.ItemStack;
 
 import ruiseki.okbackpack.api.IStorageWrapper;
 
-public interface IUpgradeWrapperFactory<W extends UpgradeWrapper> {
+public interface IUpgradeWrapperFactory<W extends UpgradeWrapperBase> {
 
     W createWrapper(ItemStack stack, IStorageWrapper storage);
 }

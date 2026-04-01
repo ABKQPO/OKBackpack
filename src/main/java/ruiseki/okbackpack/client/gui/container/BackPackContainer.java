@@ -34,7 +34,7 @@ import ruiseki.okbackpack.client.gui.slot.ModularFilterSlot;
 import ruiseki.okbackpack.common.block.BackpackWrapper;
 import ruiseki.okbackpack.common.item.wrapper.CraftingUpgradeWrapper;
 import ruiseki.okbackpack.common.item.wrapper.IVoidUpgrade;
-import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapper;
+import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapperBase;
 import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapperFactory;
 import ruiseki.okbackpack.common.network.PacketBackpackNBT;
 import ruiseki.okbackpack.compat.Mods;
@@ -180,7 +180,8 @@ public class BackPackContainer extends ModularContainer {
 
                         if (slot instanceof IndexedModularCraftingMatrixSlot matrixSlot) {
                             ItemStack stack = wrapper.upgradeHandler.getStackInSlot(matrixSlot.getUpgradeSlotIndex());
-                            UpgradeWrapper upgradeWrapper = UpgradeWrapperFactory.createWrapper(stack, this.wrapper);
+                            UpgradeWrapperBase upgradeWrapper = UpgradeWrapperFactory
+                                .createWrapper(stack, this.wrapper);
                             if (upgradeWrapper == null) continue;
                             if (!upgradeWrapper.isTabOpened()) continue;
                         }

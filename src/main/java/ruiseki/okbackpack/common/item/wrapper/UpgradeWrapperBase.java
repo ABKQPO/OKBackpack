@@ -5,12 +5,12 @@ import net.minecraft.item.ItemStack;
 import ruiseki.okbackpack.api.IStorageWrapper;
 import ruiseki.okcore.helper.ItemNBTHelpers;
 
-public class UpgradeWrapper implements IUpgradeWrapper, IDirtable {
+public class UpgradeWrapperBase implements IUpgradeWrapper, IDirtable {
 
     protected final ItemStack upgrade;
     protected final IStorageWrapper storage;
 
-    public UpgradeWrapper(ItemStack upgrade, IStorageWrapper storage) {
+    public UpgradeWrapperBase(ItemStack upgrade, IStorageWrapper storage) {
         this.upgrade = upgrade;
         this.storage = storage;
     }

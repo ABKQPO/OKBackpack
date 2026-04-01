@@ -38,12 +38,12 @@ public class AdvancedFeedingUpgradeWidget extends AdvancedExpandedTabWidget<Adva
     @Getter
     private final CyclicVariantButtonWidget heartButton;
 
-    public AdvancedFeedingUpgradeWidget(int slotIndex, AdvancedFeedingUpgradeWrapper wrapper) {
+    public AdvancedFeedingUpgradeWidget(int slotIndex, AdvancedFeedingUpgradeWrapper wrapper, String titleKey) {
         super(
             slotIndex,
             wrapper,
             new ItemStack(ModItems.ADVANCED_FEEDING_UPGRADE.getItem()),
-            "gui.backpack.advanced_feeding_settings",
+            titleKey,
             "adv_feeding_filter",
             6,
             100);

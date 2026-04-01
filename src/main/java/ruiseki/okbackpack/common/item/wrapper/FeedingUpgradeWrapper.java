@@ -30,6 +30,11 @@ public class FeedingUpgradeWrapper extends BasicUpgradeWrapper implements IFeedi
     }
 
     @Override
+    public String getSettingLangKey() {
+        return "gui.backpack.feeding_settings";
+    }
+
+    @Override
     public int getFoodSlot(IItemHandler handler, int foodLevel, float health, float maxHealth) {
         for (int slot = 0; slot < handler.getSlots(); slot++) {
             ItemStack stack = handler.getStackInSlot(slot);

@@ -23,15 +23,8 @@ public class VoidUpgradeWidget extends BasicExpandedTabWidget<VoidUpgradeWrapper
         new CyclicVariantButtonWidget.Variant(IKey.lang("gui.backpack.void_overflow"), OKBGuiTextures.VOID_OVERFLOW),
         new CyclicVariantButtonWidget.Variant(IKey.lang("gui.backpack.void_any"), OKBGuiTextures.VOID_ANY));
 
-    public VoidUpgradeWidget(int slotIndex, VoidUpgradeWrapper wrapper) {
-        super(
-            slotIndex,
-            wrapper,
-            ModItems.VOID_UPGRADE.newItemStack(),
-            "gui.backpack.void_settings",
-            "common_filter",
-            5,
-            80);
+    public VoidUpgradeWidget(int slotIndex, VoidUpgradeWrapper wrapper, String titleKey) {
+        super(slotIndex, wrapper, ModItems.VOID_UPGRADE.newItemStack(), titleKey, "common_filter", 5, 80);
 
         CyclicVariantButtonWidget inputButton = new CyclicVariantButtonWidget(
             VOID_INPUT_VARIANTS,

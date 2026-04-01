@@ -12,6 +12,11 @@ public class MagnetUpgradeWrapper extends PickupUpgradeWrapper implements IMagne
     }
 
     @Override
+    public String getSettingLangKey() {
+        return "gui.backpack.magnet_settings";
+    }
+
+    @Override
     public boolean isCollectItem() {
         return ItemNBTHelpers.getBoolean(upgrade, MAG_ITEM_TAG, true);
     }
@@ -19,6 +24,7 @@ public class MagnetUpgradeWrapper extends PickupUpgradeWrapper implements IMagne
     @Override
     public void setCollectItem(boolean enabled) {
         ItemNBTHelpers.setBoolean(upgrade, MAG_ITEM_TAG, enabled);
+        markDirty();
     }
 
     @Override
@@ -29,6 +35,7 @@ public class MagnetUpgradeWrapper extends PickupUpgradeWrapper implements IMagne
     @Override
     public void setCollectExp(boolean enabled) {
         ItemNBTHelpers.setBoolean(upgrade, MAG_EXP_TAG, enabled);
+        markDirty();
     }
 
     @Override

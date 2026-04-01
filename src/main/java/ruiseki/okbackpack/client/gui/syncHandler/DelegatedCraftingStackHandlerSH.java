@@ -15,7 +15,7 @@ import ruiseki.okbackpack.common.block.BackpackWrapper;
 import ruiseki.okbackpack.common.item.wrapper.CraftingUpgradeWrapper;
 import ruiseki.okbackpack.common.item.wrapper.IBasicFilterable;
 import ruiseki.okbackpack.common.item.wrapper.ICraftingUpgrade;
-import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapper;
+import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapperBase;
 import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapperFactory;
 
 public class DelegatedCraftingStackHandlerSH extends DelegatedStackHandlerSH {
@@ -63,7 +63,7 @@ public class DelegatedCraftingStackHandlerSH extends DelegatedStackHandlerSH {
 
         var stack = wrapper.upgradeHandler.getStackInSlot(slotIndex);
 
-        UpgradeWrapper upgradeWrapper = UpgradeWrapperFactory.createWrapper(stack, this.wrapper);
+        UpgradeWrapperBase upgradeWrapper = UpgradeWrapperFactory.createWrapper(stack, this.wrapper);
 
         if (!(upgradeWrapper instanceof ICraftingUpgrade craftingWrapper)) {
             return;
@@ -88,7 +88,7 @@ public class DelegatedCraftingStackHandlerSH extends DelegatedStackHandlerSH {
 
         if (id == UPDATE_CRAFTING) {
             ItemStack stack = wrapper.upgradeHandler.getStackInSlot(slotIndex);
-            UpgradeWrapper upgradeWrapper = UpgradeWrapperFactory.createWrapper(stack, this.wrapper);
+            UpgradeWrapperBase upgradeWrapper = UpgradeWrapperFactory.createWrapper(stack, this.wrapper);
             if (!(upgradeWrapper instanceof CraftingUpgradeWrapper craftingWrapper)) return;
 
             try {
@@ -105,7 +105,7 @@ public class DelegatedCraftingStackHandlerSH extends DelegatedStackHandlerSH {
     @Override
     public void readOnServer(int id, PacketBuffer buf) {
         ItemStack stack = wrapper.upgradeHandler.getStackInSlot(slotIndex);
-        UpgradeWrapper wrapper = UpgradeWrapperFactory.createWrapper(stack, this.wrapper);
+        UpgradeWrapperBase wrapper = UpgradeWrapperFactory.createWrapper(stack, this.wrapper);
 
         switch (id) {
 

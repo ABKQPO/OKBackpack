@@ -30,6 +30,13 @@ public class AdvancedFeedingUpgradeWrapper extends AdvancedUpgradeWrapper implem
                 tag.setTag(IBasicFilterable.FILTER_ITEMS_TAG, this.serializeNBT());
             }
         };
+        NBTTagCompound handlerTag = ItemNBTHelpers.getCompound(upgrade, FILTER_ITEMS_TAG, false);
+        if (handlerTag != null) handler.deserializeNBT(handlerTag);
+    }
+
+    @Override
+    public String getSettingLangKey() {
+        return "gui.backpack.advanced_feeding_settings";
     }
 
     @Override
@@ -72,10 +79,9 @@ public class AdvancedFeedingUpgradeWrapper extends AdvancedUpgradeWrapper implem
     }
 
     public void setHungerFeedingStrategy(FeedingStrategy.Hunger strategy) {
-        if (strategy == null) {
-            strategy = FeedingStrategy.Hunger.FULL;
-        }
+        if (strategy == null) strategy = FeedingStrategy.Hunger.FULL;
         ItemNBTHelpers.setInt(upgrade, HUNGER_FEEDING_STRATEGY_TAG, strategy.ordinal());
+        markDirty();
     }
 
     public FeedingStrategy.HEALTH getHealthFeedingStrategy() {
@@ -85,10 +91,9 @@ public class AdvancedFeedingUpgradeWrapper extends AdvancedUpgradeWrapper implem
     }
 
     public void setHealthFeedingStrategy(FeedingStrategy.HEALTH strategy) {
-        if (strategy == null) {
-            strategy = FeedingStrategy.HEALTH.ALWAYS;
-        }
+        if (strategy == null) strategy = FeedingStrategy.HEALTH.ALWAYS;
         ItemNBTHelpers.setInt(upgrade, HURT_FEEDING_STRATEGY_TAG, strategy.ordinal());
+        markDirty();
     }
 
     public static class FeedingStrategy {

@@ -13,7 +13,7 @@ import ruiseki.okbackpack.client.gui.handler.DelegatedItemHandler;
 import ruiseki.okbackpack.common.block.BackpackWrapper;
 import ruiseki.okbackpack.common.item.wrapper.IBasicFilterable;
 import ruiseki.okbackpack.common.item.wrapper.IStorageUpgrade;
-import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapper;
+import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapperBase;
 import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapperFactory;
 
 public class DelegatedStackHandlerSH extends SyncHandler {
@@ -49,7 +49,7 @@ public class DelegatedStackHandlerSH extends SyncHandler {
     @Override
     public void readOnServer(int id, PacketBuffer buf) {
         ItemStack stack = wrapper.upgradeHandler.getStackInSlot(slotIndex);
-        UpgradeWrapper wrapper = UpgradeWrapperFactory.createWrapper(stack, this.wrapper);
+        UpgradeWrapperBase wrapper = UpgradeWrapperFactory.createWrapper(stack, this.wrapper);
 
         switch (id) {
             case UPDATE_FILTERABLE:

@@ -8,7 +8,7 @@ import ruiseki.okbackpack.api.IStorageWrapper;
 public class UpgradeWrapperFactory {
 
     @SuppressWarnings("unchecked")
-    public static <W extends UpgradeWrapper> W createWrapper(ItemStack stack, IStorageWrapper storage) {
+    public static <W extends UpgradeWrapperBase> W createWrapper(ItemStack stack, IStorageWrapper storage) {
         if (stack == null) {
             return null;
         }

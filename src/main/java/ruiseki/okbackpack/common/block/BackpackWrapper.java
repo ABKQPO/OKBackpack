@@ -39,7 +39,7 @@ import ruiseki.okbackpack.common.item.wrapper.IFilterUpgrade;
 import ruiseki.okbackpack.common.item.wrapper.IMagnetUpgrade;
 import ruiseki.okbackpack.common.item.wrapper.IPickupUpgrade;
 import ruiseki.okbackpack.common.item.wrapper.IVoidUpgrade;
-import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapper;
+import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapperBase;
 import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapperFactory;
 import ruiseki.okbackpack.common.network.PacketBackpackNBT;
 import ruiseki.okbackpack.config.ModConfig;
@@ -665,7 +665,7 @@ public class BackpackWrapper implements IStorageWrapper {
             ItemStack stack = upgradeHandler.getStackInSlot(i);
             if (stack == null) continue;
 
-            UpgradeWrapper wrapper = UpgradeWrapperFactory.createWrapper(stack, this);
+            UpgradeWrapperBase wrapper = UpgradeWrapperFactory.createWrapper(stack, this);
             if (wrapper == null) continue;
 
             if (capabilityClass.isAssignableFrom(wrapper.getClass())) {

@@ -23,15 +23,8 @@ public class FilterUpgradeWidget extends BasicExpandedTabWidget<FilterUpgradeWra
     @Getter
     private final CyclicVariantButtonWidget filterButton;
 
-    public FilterUpgradeWidget(int slotIndex, FilterUpgradeWrapper wrapper) {
-        super(
-            slotIndex,
-            wrapper,
-            ModItems.FILTER_UPGRADE.newItemStack(),
-            "gui.backpack.filter_settings",
-            "common_filter",
-            5,
-            75);
+    public FilterUpgradeWidget(int slotIndex, FilterUpgradeWrapper wrapper, String titleKey) {
+        super(slotIndex, wrapper, ModItems.FILTER_UPGRADE.newItemStack(), titleKey, "common_filter", 5, 75);
 
         this.filterButton = new CyclicVariantButtonWidget(
             FILTER_VARIANTS,

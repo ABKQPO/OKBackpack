@@ -26,12 +26,12 @@ public class AdvancedVoidUpgradeWidget extends AdvancedExpandedTabWidget<Advance
         new CyclicVariantButtonWidget.Variant(IKey.lang("gui.backpack.void_overflow"), OKBGuiTextures.VOID_OVERFLOW),
         new CyclicVariantButtonWidget.Variant(IKey.lang("gui.backpack.void_any"), OKBGuiTextures.VOID_ANY));
 
-    public AdvancedVoidUpgradeWidget(int slotIndex, AdvancedVoidUpgradeWrapper wrapper) {
+    public AdvancedVoidUpgradeWidget(int slotIndex, AdvancedVoidUpgradeWrapper wrapper, String titleKey) {
         super(
             slotIndex,
             wrapper,
             new ItemStack(ModItems.ADVANCED_VOID_UPGRADE.getItem()),
-            "gui.backpack.advanced_void_settings",
+            titleKey,
             "adv_common_filter",
             6,
             100);

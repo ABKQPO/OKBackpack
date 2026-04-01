@@ -12,8 +12,6 @@ public interface IBasicFilterable {
 
     UpgradeItemStackHandler getFilterItems();
 
-    void setFilterItems(UpgradeItemStackHandler handler);
-
     FilterType getFilterType();
 
     void setFilterType(FilterType type);

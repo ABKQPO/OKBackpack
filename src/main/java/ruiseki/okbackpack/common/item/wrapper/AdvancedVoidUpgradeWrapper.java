@@ -12,6 +12,11 @@ public class AdvancedVoidUpgradeWrapper extends AdvancedUpgradeWrapper implement
     }
 
     @Override
+    public String getSettingLangKey() {
+        return "gui.backpack.advanced_void_settings";
+    }
+
+    @Override
     public boolean canVoid(ItemStack stack) {
         return checkFilter(stack);
     }
@@ -20,35 +25,29 @@ public class AdvancedVoidUpgradeWrapper extends AdvancedUpgradeWrapper implement
     public VoidType getVoidType() {
         int ordinal = ItemNBTHelpers.getInt(upgrade, VOID_TYPE_TAG, VoidType.OVERFLOW.ordinal());
         VoidType[] types = VoidType.values();
-        if (ordinal < 0 || ordinal >= types.length) {
-            return VoidType.OVERFLOW;
-        }
+        if (ordinal < 0 || ordinal >= types.length) return VoidType.OVERFLOW;
         return types[ordinal];
     }
 
     @Override
     public void setVoidType(VoidType type) {
-        if (type == null) {
-            type = VoidType.OVERFLOW;
-        }
+        if (type == null) type = VoidType.OVERFLOW;
         ItemNBTHelpers.setInt(upgrade, VOID_TYPE_TAG, type.ordinal());
+        markDirty();
     }
 
     @Override
     public VoidInput getVoidInput() {
         int ordinal = ItemNBTHelpers.getInt(upgrade, VOID_INPUT_TAG, VoidInput.ALL.ordinal());
         VoidInput[] types = VoidInput.values();
-        if (ordinal < 0 || ordinal >= types.length) {
-            return VoidInput.ALL;
-        }
+        if (ordinal < 0 || ordinal >= types.length) return VoidInput.ALL;
         return types[ordinal];
     }
 
     @Override
     public void setVoidInput(VoidInput type) {
-        if (type == null) {
-            type = VoidInput.ALL;
-        }
+        if (type == null) type = VoidInput.ALL;
         ItemNBTHelpers.setInt(upgrade, VOID_INPUT_TAG, type.ordinal());
+        markDirty();
     }
 }

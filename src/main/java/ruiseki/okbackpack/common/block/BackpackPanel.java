@@ -80,9 +80,10 @@ import ruiseki.okbackpack.common.item.wrapper.FeedingUpgradeWrapper;
 import ruiseki.okbackpack.common.item.wrapper.FilterUpgradeWrapper;
 import ruiseki.okbackpack.common.item.wrapper.IToggleable;
 import ruiseki.okbackpack.common.item.wrapper.MagnetUpgradeWrapper;
-import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapper;
+import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapperBase;
 import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapperFactory;
 import ruiseki.okbackpack.common.item.wrapper.VoidUpgradeWrapper;
+import ruiseki.okcore.helper.ItemStackHelpers;
 import ruiseki.okcore.helper.LangHelpers;
 
 public class BackpackPanel extends ModularPanel {
@@ -129,6 +130,7 @@ public class BackpackPanel extends ModularPanel {
     private final BackpackSlotSH[] backpackSlotSyncHandlers;
     private final UpgradeSlotSH[] upgradeSlotSyncHandlers;
     private final UpgradeSlotUpdateGroup[] upgradeSlotGroups;
+    private final ItemStack[] lastUpgradeStacks;
 
     @Getter
     private final IPanelHandler settingPanel;
@@ -144,7 +146,7 @@ public class BackpackPanel extends ModularPanel {
     public boolean isResetOpenedTabs = false;
 
     public BackpackPanel(EntityPlayer player, TileEntity tile, PanelSyncManager syncManager, UISettings settings,
-        BackpackWrapper wrapper, int width, Integer slotIndex) {
+        BackpackWrapper wrapper, int width, Integer backpackSlotIndex) {
         super("backpack_gui");
         this.player = player;
         this.tile = tile;
@@ -163,14 +165,15 @@ public class BackpackPanel extends ModularPanel {
         for (int i = 0; i < this.wrapper.backpackSlots; i++) {
             ModularBackpackSlot slot = new ModularBackpackSlot(this.wrapper, i);
             slot.slotGroup("backpack_inventory");
+            BackpackSlotSH syncHandler = new BackpackSlotSH(slot, this.wrapper, this);
+            this.syncManager.syncValue("backpack", i, syncHandler);
+            this.backpackSlotSyncHandlers[i] = syncHandler;
+
             slot.changeListener((lastStack, currentStack, isClient, init) -> {
                 if (isClient) {
                     searchBarWidget.research();
                 }
             });
-            BackpackSlotSH syncHandler = new BackpackSlotSH(slot, this.wrapper, this);
-            this.syncManager.syncValue("backpack", i, syncHandler);
-            this.backpackSlotSyncHandlers[i] = syncHandler;
         }
         this.syncManager.registerSlotGroup(new SlotGroup("backpack_inventory", this.wrapper.backpackSlots, 100, true));
 
@@ -178,25 +181,36 @@ public class BackpackPanel extends ModularPanel {
         this.upgradeSlotGroupWidget = new UpgradeSlotGroupWidget(this, this.wrapper.upgradeSlots);
         this.upgradeSlotSyncHandlers = new UpgradeSlotSH[this.wrapper.upgradeSlots];
         this.upgradeSlotGroups = new UpgradeSlotUpdateGroup[this.wrapper.upgradeSlots];
+        this.lastUpgradeStacks = new ItemStack[this.wrapper.upgradeSlots];
         for (int i = 0; i < this.wrapper.upgradeSlots; i++) {
+            int slotIndex = i;
+
             ModularUpgradeSlot slot = new ModularUpgradeSlot(this.wrapper, i);
             slot.slotGroup("upgrade_inventory");
             UpgradeSlotSH syncHandler = new UpgradeSlotSH(slot, this.wrapper, this);
-            slot.changeListener((lastStack, currentStack, isClient, init) -> {
-                if (isClient) {
-                    updateUpgradeWidgets();
-                }
-            });
             this.syncManager.syncValue("upgrades", i, syncHandler);
             this.upgradeSlotSyncHandlers[i] = syncHandler;
             this.upgradeSlotGroups[i] = new UpgradeSlotUpdateGroup(this, this.wrapper, i);
+
+            slot.changeListener((stack, onlyAmountChanged, client, init) -> {
+                if (!client) return;
+                ItemStack last = lastUpgradeStacks[slotIndex];
+
+                boolean itemChanged = !ItemStackHelpers.areStacksEqual(last, stack, true);
+                boolean tabDirty = isTabDirty(stack, syncHandler);
+
+                if (!itemChanged && !tabDirty) return;
+                lastUpgradeStacks[slotIndex] = stack == null ? null : stack.copy();
+
+                updateUpgradeWidgets();
+            });
         }
         this.syncManager.registerSlotGroup(new SlotGroup("upgrade_inventory", 1, 99, true));
 
         settingPanel = this.syncManager
             .syncedPanel("setting_panel", true, (syncManager1, syncHandler) -> new BackpackSettingPanel(this));
 
-        this.settings.customContainer(() -> new BackPackContainer(wrapper, slotIndex));
+        this.settings.customContainer(() -> new BackPackContainer(wrapper, backpackSlotIndex));
         this.settings.customGui(() -> BackpackGuiContainer::new);
 
         syncManager.bindPlayerInventory(player);
@@ -473,19 +487,14 @@ public class BackpackPanel extends ModularPanel {
 
         for (int slotIndex = 0; slotIndex < upgradeSlotWidgets.size(); slotIndex++) {
             ItemSlot slotWidget = upgradeSlotWidgets.get(slotIndex);
+            if (slotWidget.getSlot() == null) continue;
             ItemStack stack = slotWidget.getSlot()
                 .getStack();
-            if (!(stack != null && stack.getItem() instanceof ItemUpgrade<?>item)) {
-                continue;
-            }
-            if (!item.hasTab()) {
-                continue;
-            }
+            if (!(stack != null && stack.getItem() instanceof ItemUpgrade<?>item)) continue;
+            if (!item.hasTab()) continue;
 
-            UpgradeWrapper wrapper = UpgradeWrapperFactory.createWrapper(stack, this.wrapper);
-            if (wrapper == null) {
-                continue;
-            }
+            UpgradeWrapperBase wrapper = UpgradeWrapperFactory.createWrapper(stack, this.wrapper);
+            if (wrapper == null) continue;
 
             if (wrapper.isTabOpened()) {
                 if (openedTabIndex != null) {
@@ -500,24 +509,19 @@ public class BackpackPanel extends ModularPanel {
 
         for (int slotIndex = 0; slotIndex < wrapper.upgradeSlots; slotIndex++) {
             ItemSlot slotWidget = upgradeSlotWidgets.get(slotIndex);
+            if (slotWidget.getSlot() == null) continue;
             ItemStack stack = slotWidget.getSlot()
                 .getStack();
-            if (stack == null) {
-                continue;
-            }
-            Item item = stack.getItem();
+            if (stack == null) continue;
 
-            if (!(item instanceof ItemUpgrade) || !((ItemUpgrade<?>) item).hasTab()) {
-                continue;
-            }
+            Item item = stack.getItem();
+            if (!(item instanceof ItemUpgrade) || !((ItemUpgrade<?>) item).hasTab()) continue;
 
             TabWidget tabWidget = tabWidgets.get(tabIndex);
             UpgradeSlotUpdateGroup upgradeSlotGroup = upgradeSlotGroups[slotIndex];
 
-            UpgradeWrapper wrapper = UpgradeWrapperFactory.createWrapper(stack, this.wrapper);
-            if (wrapper == null) {
-                continue;
-            }
+            UpgradeWrapperBase wrapper = UpgradeWrapperFactory.createWrapper(stack, this.wrapper);
+            if (wrapper == null) continue;
 
             tabWidget.setShowExpanded(wrapper.isTabOpened());
             tabWidget.setEnabled(true);
@@ -534,43 +538,48 @@ public class BackpackPanel extends ModularPanel {
             // Crafting
             if (wrapper instanceof CraftingUpgradeWrapper upgrade) {
                 upgradeSlotGroup.updateCraftingDelegate(upgrade);
-                tabWidget.setExpandedWidget(new CraftingUpgradeWidget(slotIndex, upgrade, this));
+                tabWidget.setExpandedWidget(
+                    new CraftingUpgradeWidget(slotIndex, upgrade, this, wrapper.getSettingLangKey()));
             }
 
             // Feeding
             else if (wrapper instanceof AdvancedFeedingUpgradeWrapper upgrade) {
                 upgradeSlotGroup.updateAdvancedFilterDelegate(upgrade);
-                tabWidget.setExpandedWidget(new AdvancedFeedingUpgradeWidget(slotIndex, upgrade));
+                tabWidget.setExpandedWidget(
+                    new AdvancedFeedingUpgradeWidget(slotIndex, upgrade, wrapper.getSettingLangKey()));
             } else if (wrapper instanceof FeedingUpgradeWrapper upgrade) {
                 upgradeSlotGroup.updateFilterDelegate(upgrade);
-                tabWidget.setExpandedWidget(new FeedingUpgradeWidget(slotIndex, upgrade));
+                tabWidget.setExpandedWidget(new FeedingUpgradeWidget(slotIndex, upgrade, wrapper.getSettingLangKey()));
             }
 
             // Magnet
             else if (wrapper instanceof AdvancedMagnetUpgradeWrapper upgrade) {
                 upgradeSlotGroup.updateAdvancedFilterDelegate(upgrade);
-                tabWidget.setExpandedWidget(new AdvancedMagnetUpgradeWidget(slotIndex, upgrade));
+                tabWidget.setExpandedWidget(
+                    new AdvancedMagnetUpgradeWidget(slotIndex, upgrade, wrapper.getSettingLangKey()));
             } else if (wrapper instanceof MagnetUpgradeWrapper upgrade) {
                 upgradeSlotGroup.updateFilterDelegate(upgrade);
-                tabWidget.setExpandedWidget(new MagnetUpgradeWidget(slotIndex, upgrade));
+                tabWidget.setExpandedWidget(new MagnetUpgradeWidget(slotIndex, upgrade, wrapper.getSettingLangKey()));
             }
 
             // Filter
             else if (wrapper instanceof AdvancedFilterUpgradeWrapper upgrade) {
                 upgradeSlotGroup.updateAdvancedFilterDelegate(upgrade);
-                tabWidget.setExpandedWidget(new AdvancedFilterUpgradeWidget(slotIndex, upgrade));
+                tabWidget.setExpandedWidget(
+                    new AdvancedFilterUpgradeWidget(slotIndex, upgrade, wrapper.getSettingLangKey()));
             } else if (wrapper instanceof FilterUpgradeWrapper upgrade) {
                 upgradeSlotGroup.updateFilterDelegate(upgrade);
-                tabWidget.setExpandedWidget(new FilterUpgradeWidget(slotIndex, upgrade));
+                tabWidget.setExpandedWidget(new FilterUpgradeWidget(slotIndex, upgrade, wrapper.getSettingLangKey()));
             }
 
             // Void
             else if (wrapper instanceof AdvancedVoidUpgradeWrapper upgrade) {
                 upgradeSlotGroup.updateAdvancedFilterDelegate(upgrade);
-                tabWidget.setExpandedWidget(new AdvancedVoidUpgradeWidget(slotIndex, upgrade));
+                tabWidget
+                    .setExpandedWidget(new AdvancedVoidUpgradeWidget(slotIndex, upgrade, wrapper.getSettingLangKey()));
             } else if (wrapper instanceof VoidUpgradeWrapper upgrade) {
                 upgradeSlotGroup.updateFilterDelegate(upgrade);
-                tabWidget.setExpandedWidget(new VoidUpgradeWidget(slotIndex, upgrade));
+                tabWidget.setExpandedWidget(new VoidUpgradeWidget(slotIndex, upgrade, wrapper.getSettingLangKey()));
             }
 
             // Base
@@ -667,7 +676,7 @@ public class BackpackPanel extends ModularPanel {
                     .getStack();
                 if (stack == null || !(stack.getItem() instanceof ItemUpgrade<?>item) || !item.hasTab()) continue;
 
-                UpgradeWrapper wrapper = UpgradeWrapperFactory.createWrapper(stack, this.wrapper);
+                UpgradeWrapperBase wrapper = UpgradeWrapperFactory.createWrapper(stack, this.wrapper);
                 if (wrapper != null && wrapper.isTabOpened()) {
                     wrapper.setTabOpened(false);
                     upgradeSlotSyncHandlers[i]
@@ -693,7 +702,7 @@ public class BackpackPanel extends ModularPanel {
                 continue;
             }
 
-            UpgradeWrapper wrapper = UpgradeWrapperFactory.createWrapper(stack, this.wrapper);
+            UpgradeWrapperBase wrapper = UpgradeWrapperFactory.createWrapper(stack, this.wrapper);
             if (wrapper == null) continue;
 
             if (wrapper instanceof CraftingUpgradeWrapper && wrapper.isTabOpened()) {
@@ -705,6 +714,15 @@ public class BackpackPanel extends ModularPanel {
 
     public CraftingSlotInfo getCraftingInfo(int slotIndex) {
         return upgradeSlotGroups[slotIndex].craftingInfo;
+    }
+
+    private boolean isTabDirty(ItemStack stack, UpgradeSlotSH upgradeSlot) {
+        UpgradeWrapperBase wrapper = UpgradeWrapperFactory.createWrapper(stack, this.wrapper);
+        boolean isDirty = wrapper.isDirty();
+        if (isDirty) {
+            upgradeSlot.syncToServer(UpgradeSlotSH.UPDATE_DIRTY, buf -> { buf.writeBoolean(false); });
+        }
+        return isDirty;
     }
 
     @Override

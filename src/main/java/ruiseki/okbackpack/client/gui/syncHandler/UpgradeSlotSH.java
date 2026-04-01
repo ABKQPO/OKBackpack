@@ -21,7 +21,7 @@ import ruiseki.okbackpack.common.item.wrapper.IFilterUpgrade;
 import ruiseki.okbackpack.common.item.wrapper.IMagnetUpgrade;
 import ruiseki.okbackpack.common.item.wrapper.IToggleable;
 import ruiseki.okbackpack.common.item.wrapper.IVoidUpgrade;
-import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapper;
+import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapperBase;
 import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapperFactory;
 
 public class UpgradeSlotSH extends ItemSlotSH {
@@ -118,33 +118,33 @@ public class UpgradeSlotSH extends ItemSlotSH {
         }
     }
 
-    private UpgradeWrapper getWrapper() {
+    private UpgradeWrapperBase getWrapper() {
         ItemStack stack = getSlot().getStack();
         if (stack == null) return null;
         return UpgradeWrapperFactory.createWrapper(stack, this.wrapper);
     }
 
     private void updateTabState(PacketBuffer buf) {
-        UpgradeWrapper wrapper = getWrapper();
+        UpgradeWrapperBase wrapper = getWrapper();
         if (wrapper == null) return;
         wrapper.setTabOpened(buf.readBoolean());
     }
 
     private void updateToggleable() {
-        UpgradeWrapper wrapper = getWrapper();
+        UpgradeWrapperBase wrapper = getWrapper();
         if (!(wrapper instanceof IToggleable toggleWrapper)) return;
         toggleWrapper.toggle();
     }
 
     private void updateBasicFilterable(PacketBuffer buf) {
-        UpgradeWrapper wrapper = getWrapper();
+        UpgradeWrapperBase wrapper = getWrapper();
         if (!(wrapper instanceof IBasicFilterable upgradeWrapper)) return;
         IBasicFilterable.FilterType type = NetworkUtils.readEnumValue(buf, IBasicFilterable.FilterType.class);
         upgradeWrapper.setFilterType(type);
     }
 
     private void updateAdvancedFilterable(PacketBuffer buf) throws IOException {
-        UpgradeWrapper wrapper = getWrapper();
+        UpgradeWrapperBase wrapper = getWrapper();
         if (!(wrapper instanceof IAdvancedFilterable upgradeWrapper)) return;
 
         // APPLY
@@ -162,7 +162,7 @@ public class UpgradeSlotSH extends ItemSlotSH {
     }
 
     private void updateAdvanceFeedingUpgrade(PacketBuffer buf) {
-        UpgradeWrapper wrapper = getWrapper();
+        UpgradeWrapperBase wrapper = getWrapper();
         if (!(wrapper instanceof AdvancedFeedingUpgradeWrapper upgradeWrapper)) return;
         upgradeWrapper.setHungerFeedingStrategy(
             NetworkUtils.readEnumValue(buf, AdvancedFeedingUpgradeWrapper.FeedingStrategy.Hunger.class));
@@ -171,34 +171,34 @@ public class UpgradeSlotSH extends ItemSlotSH {
     }
 
     private void updateFilterUpgrade(PacketBuffer buf) {
-        UpgradeWrapper wrapper = getWrapper();
+        UpgradeWrapperBase wrapper = getWrapper();
         if (!(wrapper instanceof IFilterUpgrade upgradeWrapper)) return;
         upgradeWrapper.setFilterWay(NetworkUtils.readEnumValue(buf, IFilterUpgrade.FilterWayType.class));
     }
 
     private void updateMagnetUpgrade(PacketBuffer buf) {
-        UpgradeWrapper wrapper = getWrapper();
+        UpgradeWrapperBase wrapper = getWrapper();
         if (!(wrapper instanceof IMagnetUpgrade upgrade)) return;
         upgrade.setCollectItem(buf.readBoolean());
         upgrade.setCollectExp(buf.readBoolean());
     }
 
     private void updateCraftingUpgrade(PacketBuffer buf) {
-        UpgradeWrapper wrapper = getWrapper();
+        UpgradeWrapperBase wrapper = getWrapper();
         if (!(wrapper instanceof ICraftingUpgrade upgradeWrapper)) return;
         upgradeWrapper.setCraftingDes(NetworkUtils.readEnumValue(buf, ICraftingUpgrade.CraftingDestination.class));
         upgradeWrapper.setUseBackpack(buf.readBoolean());
     }
 
     private void updateVoidUpgrade(PacketBuffer buf) {
-        UpgradeWrapper wrapper = getWrapper();
+        UpgradeWrapperBase wrapper = getWrapper();
         if (!(wrapper instanceof IVoidUpgrade upgradeWrapper)) return;
         upgradeWrapper.setVoidType(NetworkUtils.readEnumValue(buf, IVoidUpgrade.VoidType.class));
         upgradeWrapper.setVoidInput(NetworkUtils.readEnumValue(buf, IVoidUpgrade.VoidInput.class));
     }
 
     public void updateRotated(PacketBuffer buf) {
-        UpgradeWrapper wrapper = getWrapper();
+        UpgradeWrapperBase wrapper = getWrapper();
         if (!(wrapper instanceof ICraftingUpgrade upgradeWrapper)) return;
         boolean clockwise = buf.readBoolean();
         ItemStackHandler stackHandler = upgradeWrapper.getStorage();
@@ -206,7 +206,7 @@ public class UpgradeSlotSH extends ItemSlotSH {
     }
 
     public void updateGrid(PacketBuffer buf) {
-        UpgradeWrapper wrapper = getWrapper();
+        UpgradeWrapperBase wrapper = getWrapper();
         if (!(wrapper instanceof ICraftingUpgrade upgradeWrapper)) return;
         boolean balance = buf.readBoolean();
         ItemStackHandler stackHandler = upgradeWrapper.getStorage();
@@ -218,7 +218,7 @@ public class UpgradeSlotSH extends ItemSlotSH {
     }
 
     public void updateClear(PacketBuffer buf) {
-        UpgradeWrapper wrapper = getWrapper();
+        UpgradeWrapperBase wrapper = getWrapper();
         if (!(wrapper instanceof ICraftingUpgrade upgradeWrapper)) return;
         int ordinal = buf.readInt();
         BackpackInventoryHelpers.clear(panel, upgradeWrapper.getStorage(), ordinal);
@@ -226,7 +226,7 @@ public class UpgradeSlotSH extends ItemSlotSH {
     }
 
     private void updateDirty(PacketBuffer buf) {
-        UpgradeWrapper wrapper = getWrapper();
+        UpgradeWrapperBase wrapper = getWrapper();
         if (wrapper == null) return;
         boolean isDirty = buf.readBoolean();
         wrapper.setDirty(isDirty);
