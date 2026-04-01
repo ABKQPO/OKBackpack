@@ -12,8 +12,8 @@ import com.cleanroommc.modularui.api.value.sync.IStringSyncValue;
 import com.cleanroommc.modularui.utils.FloatSupplier;
 import com.cleanroommc.modularui.value.sync.ValueSyncHandler;
 
-import ruiseki.okbackpack.api.IStorageWrapper;
 import ruiseki.okbackpack.client.gui.handler.DelegatedFloatSupplier;
+import ruiseki.okbackpack.common.block.BackpackWrapper;
 import ruiseki.okbackpack.common.item.wrapper.IProgressable;
 import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapperBase;
 import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapperFactory;
@@ -23,14 +23,14 @@ public class DelegatedFloatSH extends ValueSyncHandler<Float>
 
     public static final int UPDATE_PROGRESS = 1;
 
-    public final IStorageWrapper wrapper;
+    public final BackpackWrapper wrapper;
     public final int slotIndex;
 
     public DelegatedFloatSupplier delegatedFloatSupplier;
 
     private float cache;
 
-    public DelegatedFloatSH(IStorageWrapper wrapper, int slotIndex) {
+    public DelegatedFloatSH(BackpackWrapper wrapper, int slotIndex) {
         this.wrapper = wrapper;
         this.slotIndex = slotIndex;
 
@@ -49,7 +49,7 @@ public class DelegatedFloatSH extends ValueSyncHandler<Float>
     @Override
     public void readOnServer(int id, PacketBuffer buf) throws IOException {
 
-        ItemStack stack = wrapper.upgradeItemStackHandler.getStackInSlot(slotIndex);
+        ItemStack stack = wrapper.upgradeHandler.getStackInSlot(slotIndex);
 
         UpgradeWrapperBase upgradeWrapper = UpgradeWrapperFactory.createWrapper(stack, wrapper);
 
