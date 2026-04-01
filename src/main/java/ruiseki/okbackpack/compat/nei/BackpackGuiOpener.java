@@ -1,6 +1,5 @@
 package ruiseki.okbackpack.compat.nei;
 
-import baubles.common.container.InventoryBaubles;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
@@ -14,6 +13,7 @@ import com.cleanroommc.modularui.factory.GuiFactories;
 import com.cleanroommc.modularui.factory.inventory.InventoryTypes;
 import com.cleanroommc.modularui.utils.Platform;
 
+import baubles.common.container.InventoryBaubles;
 import codechicken.nei.guihook.GuiContainerManager;
 import codechicken.nei.guihook.IContainerInputHandler;
 import ruiseki.okbackpack.OKBackpack;
