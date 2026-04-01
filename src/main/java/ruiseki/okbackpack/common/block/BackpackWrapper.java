@@ -509,7 +509,7 @@ public class BackpackWrapper implements IStorageWrapper {
 
     public boolean canPlayerAccess(UUID playerUUID) {
         if (!lockBackpack) return true;
-        if (playerUUID == null || playerUuid == null ||  playerUuid.isEmpty()) return false;
+        if (playerUUID == null || playerUuid == null || playerUuid.isEmpty()) return false;
         return playerUUID.equals(UUID.fromString(playerUuid));
     }
 
