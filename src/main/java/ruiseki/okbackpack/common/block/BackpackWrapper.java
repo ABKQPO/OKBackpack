@@ -121,6 +121,7 @@ public class BackpackWrapper implements IStorageWrapper {
         this.lockBackpack = false;
         this.uuid = UUID.randomUUID()
             .toString();
+        this.playerUuid = "";
         this.keepTab = true;
         this.sleepingBagDeployed = false;
 
@@ -508,12 +509,8 @@ public class BackpackWrapper implements IStorageWrapper {
 
     public boolean canPlayerAccess(UUID playerUUID) {
         if (!lockBackpack) return true;
-
-        if (playerUuid != null && playerUUID.equals(UUID.fromString(playerUuid))) {
-            return true;
-        }
-
-        return false;
+        if (playerUUID == null || playerUuid == null ||  playerUuid.isEmpty()) return false;
+        return playerUUID.equals(UUID.fromString(playerUuid));
     }
 
     public boolean hasCustomInventoryName() {
@@ -557,7 +554,8 @@ public class BackpackWrapper implements IStorageWrapper {
     private boolean isSameBackpack(ItemStack stack) {
         if (stack == null || !(stack.getItem() instanceof BlockBackpack.ItemBackpack)) return false;
         NBTTagCompound tag = stack.getTagCompound();
-        return tag != null && uuid.equals(tag.getString(UUID_TAG));
+        NBTTagCompound backpackTag = tag.getCompoundTag(BACKPACK_NBT);
+        return backpackTag != null && uuid.equals(backpackTag.getString(UUID_TAG));
     }
 
     public void writeToItem() {
@@ -707,13 +705,7 @@ public class BackpackWrapper implements IStorageWrapper {
         if (tag.hasKey(KEEP_TAB_TAG, 1)) this.keepTab = tag.getBoolean(KEEP_TAB_TAG);
 
         if (tag.hasKey(UUID_TAG, 8)) {
-            String tempUuid = tag.getString(UUID_TAG);
-            if (tempUuid.length() > 0) { // Backward compatibility - remove this check after some time
-                this.uuid = tempUuid;
-                if (lockBackpack) { // Backward compatibility - remove this whole block after some time
-                    this.playerUuid = tempUuid;
-                }
-            }
+            this.uuid = tag.getString(UUID_TAG);
         }
 
         if (tag.hasKey(PLAYER_UUID_TAG, 8)) {
