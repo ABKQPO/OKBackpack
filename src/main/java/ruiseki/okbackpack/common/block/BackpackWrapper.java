@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.cleanroommc.modularui.factory.inventory.InventoryTypes;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -489,27 +490,31 @@ public class BackpackWrapper implements IStorageWrapper {
         return backpack.getTagCompound();
     }
 
-    public ItemStack findActualStack(EntityPlayer player) {
-        if (player == null || uuid == null) return backpack;
+    public ItemStack findStackByUUID(EntityPlayer player) {
+        if (player == null || uuid == null || type == null) return backpack;
 
         // Check held item first (fastest)
         ItemStack held = player.getHeldItem();
         if (isSameBackpack(held)) return held;
 
         // Check player inventory
-        for (int i = 0; i < player.inventory.getSizeInventory(); i++) {
-            ItemStack stack = player.inventory.getStackInSlot(i);
-            if (isSameBackpack(stack)) return stack;
-        }
-
-        // Check Baubles if loaded
-        IInventory baubles = BaublesApi.getBaubles(player);
-        if (baubles != null) {
-            for (int i = 0; i < baubles.getSizeInventory(); i++) {
-                ItemStack stack = baubles.getStackInSlot(i);
+        if (type == InventoryTypes.PLAYER) {
+            for (int i = 0; i < player.inventory.getSizeInventory(); i++) {
+                ItemStack stack = player.inventory.getStackInSlot(i);
                 if (isSameBackpack(stack)) return stack;
             }
         }
+
+        // Check Baubles if loaded
+         if (type == InventoryTypes.BAUBLES) {
+             IInventory baubles = BaublesApi.getBaubles(player);
+             if (baubles != null) {
+                 for (int i = 0; i < baubles.getSizeInventory(); i++) {
+                     ItemStack stack = baubles.getStackInSlot(i);
+                     if (isSameBackpack(stack)) return stack;
+                 }
+             }
+         }
         return backpack; // Fallback
     }
 
@@ -533,7 +538,7 @@ public class BackpackWrapper implements IStorageWrapper {
     }
 
     public void writeToItem(EntityPlayer player) {
-        this.backpack = findActualStack(player);
+        this.backpack = findStackByUUID(player);
         writeToItem();
     }
 

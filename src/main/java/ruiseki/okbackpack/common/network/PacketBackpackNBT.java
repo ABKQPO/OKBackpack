@@ -1,5 +1,6 @@
 package ruiseki.okbackpack.common.network;
 
+import com.cleanroommc.modularui.factory.inventory.InventoryTypes;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
@@ -48,35 +49,41 @@ public class PacketBackpackNBT extends PacketCodec {
         String uuid = bp.getString(BackpackWrapper.UUID_TAG);
         if (uuid == null || uuid.isEmpty()) return;
 
-        ItemStack stack = findStackByUUID(player, uuid);
+        ItemStack stack = findStackByUUID(player, uuid, type);
         if (stack != null) {
             stack.setTagCompound(nbt);
         }
     }
 
-    private ItemStack findStackByUUID(EntityPlayer player, String uuid) {
+    private ItemStack findStackByUUID(EntityPlayer player, String uuid, InventoryType type) {
         // Check held item
         ItemStack held = player.getHeldItem();
-        if (isMatch(held, uuid)) return held;
+        if (isSameBackpack(held, uuid)) return held;
 
         // Check inventory
-        for (int i = 0; i < player.inventory.getSizeInventory(); i++) {
-            ItemStack s = player.inventory.getStackInSlot(i);
-            if (isMatch(s, uuid)) return s;
+        if (type == InventoryTypes.PLAYER) {
+            for (int i = 0; i < player.inventory.getSizeInventory(); i++) {
+                ItemStack s = player.inventory.getStackInSlot(i);
+                if (isSameBackpack(s, uuid)) {
+                    return s;
+                }
+            }
         }
 
         // Check Baubles
-        IInventory baubles = BaublesApi.getBaubles(player);
-        if (baubles != null) {
-            for (int i = 0; i < baubles.getSizeInventory(); i++) {
-                ItemStack s = baubles.getStackInSlot(i);
-                if (isMatch(s, uuid)) return s;
+        if (type == InventoryTypes.BAUBLES) {
+            IInventory baubles = BaublesApi.getBaubles(player);
+            if (baubles != null) {
+                for (int i = 0; i < baubles.getSizeInventory(); i++) {
+                    ItemStack s = baubles.getStackInSlot(i);
+                    if (isSameBackpack(s, uuid)) return s;
+                }
             }
         }
         return null;
     }
 
-    private boolean isMatch(ItemStack stack, String uuid) {
+    private boolean isSameBackpack(ItemStack stack, String uuid) {
         if (stack == null || !(stack.getItem() instanceof BlockBackpack.ItemBackpack)) return false;
         NBTTagCompound tag = stack.getTagCompound();
         NBTTagCompound bp = tag.getCompoundTag(BackpackWrapper.BACKPACK_NBT);
@@ -94,7 +101,7 @@ public class PacketBackpackNBT extends PacketCodec {
         String uuid = bp.getString(BackpackWrapper.UUID_TAG);
         if (uuid == null || uuid.isEmpty()) return;
 
-        ItemStack stack = findStackByUUID(player, uuid);
+        ItemStack stack = findStackByUUID(player, uuid, type);
         if (stack != null) {
             stack.setTagCompound(nbt);
         }
