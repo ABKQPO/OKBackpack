@@ -143,7 +143,7 @@ public class CommandBackpack extends CommandMod {
         }
 
         @Override
-        public List addTabCompletionOptions(ICommandSender sender, String[] args) {
+        public List<String> addTabCompletionOptions(ICommandSender sender, String[] args) {
 
             return args.length == 1 ? getListOfStringsMatchingLastWord(
                 args,
@@ -241,7 +241,7 @@ public class CommandBackpack extends CommandMod {
         }
 
         @Override
-        public List addTabCompletionOptions(ICommandSender sender, String[] args) {
+        public List<String> addTabCompletionOptions(ICommandSender sender, String[] args) {
             if (args.length == 1) {
                 return getListOfStringsMatchingLastWord(args, getJsonFiles().toArray(new String[0]));
             }

@@ -15,7 +15,6 @@ import com.cleanroommc.modularui.screen.UISettings;
 import com.cleanroommc.modularui.value.sync.PanelSyncManager;
 
 import ruiseki.okbackpack.Reference;
-import ruiseki.okbackpack.api.wrapper.IVoidUpgrade;
 import ruiseki.okbackpack.common.init.ModBlocks;
 import ruiseki.okcore.persist.nbt.NBTPersist;
 import ruiseki.okcore.tileentity.TileTicking;
@@ -48,6 +47,10 @@ public class TEBackpack extends TileTicking implements ISidedInventory, IGuiHold
                 markDirty();
             }
         });
+        allSlots = new int[wrapper.getSlots()];
+        for (int i = 0; i < allSlots.length; i++) {
+            allSlots[i] = i;
+        }
     }
 
     public void setWrapper(BackpackWrapper wrapper) {
@@ -179,22 +182,13 @@ public class TEBackpack extends TileTicking implements ISidedInventory, IGuiHold
 
         if (stack == null) {
             wrapper.setStackInSlot(slot, null);
-            return;
         }
 
-        if (wrapper.canVoid(stack, IVoidUpgrade.VoidType.ANY, IVoidUpgrade.VoidInput.AUTOMATION)
-            || wrapper.canVoid(stack, IVoidUpgrade.VoidType.OVERFLOW, IVoidUpgrade.VoidInput.AUTOMATION)) {
-
-            wrapper.setStackInSlot(slot, null);
-            return;
+        if (stack != null && stack.stackSize > getInventoryStackLimit()) {
+            stack.stackSize = getInventoryStackLimit();
         }
 
-        ItemStack copy = stack.copy();
-        if (copy.stackSize > getInventoryStackLimit()) {
-            copy.stackSize = getInventoryStackLimit();
-        }
-
-        wrapper.setStackInSlot(slot, copy);
+        wrapper.setStackInSlot(slot, stack);
     }
 
     @Override

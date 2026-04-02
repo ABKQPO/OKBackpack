@@ -167,7 +167,7 @@ public class BlockBackpack extends BlockOK {
     @Override
     public TileEntity createTileEntity(World world, int metadata) {
         TEBackpack backpack = new TEBackpack();
-        BackpackWrapper wrapper = new BackpackWrapper(null, backpackSlots, upgradeSlots);
+        BackpackWrapper wrapper = new BackpackWrapper(backpack, backpackSlots, upgradeSlots);
         backpack.setWrapper(wrapper);
         return backpack;
     }
@@ -190,10 +190,8 @@ public class BlockBackpack extends BlockOK {
     public static class ItemBackpack extends ItemBlockBauble
         implements IGuiHolder<PlayerInventoryGuiData>, IBaubleRender, IArmorRender {
 
-        @Getter
-        private int backpackSlots = 27;
-        @Getter
-        private int upgradeSlots = 1;
+        public int backpackSlots = 27;
+        public int upgradeSlots = 1;
 
         public ItemBackpack(Block block) {
             super(block);

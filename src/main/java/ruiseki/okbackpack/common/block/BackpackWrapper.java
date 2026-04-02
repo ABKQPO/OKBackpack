@@ -5,10 +5,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 
 import org.jetbrains.annotations.Nullable;
@@ -24,7 +26,6 @@ import ruiseki.okbackpack.api.wrapper.IFilterUpgrade;
 import ruiseki.okbackpack.api.wrapper.IPickupUpgrade;
 import ruiseki.okbackpack.api.wrapper.ISlotModifiable;
 import ruiseki.okbackpack.api.wrapper.ITickable;
-import ruiseki.okbackpack.api.wrapper.IVoidUpgrade;
 import ruiseki.okbackpack.api.wrapper.UpgradeWrapperFactory;
 import ruiseki.okbackpack.client.gui.handler.BackpackItemStackHandler;
 import ruiseki.okbackpack.client.gui.handler.UpgradeItemStackHandler;
@@ -40,6 +41,7 @@ import ruiseki.okcore.helper.LangHelpers;
 public class BackpackWrapper implements IStorageWrapper {
 
     public ItemStack backpack;
+    public final TileEntity tile;
     public final BackpackItemStackHandler backpackHandler;
     public final UpgradeItemStackHandler upgradeHandler;
     public int backpackSlots;
@@ -83,23 +85,40 @@ public class BackpackWrapper implements IStorageWrapper {
     public static final String SLEEPING_BAG_Z = "SleepingBagZ";
 
     public BackpackWrapper() {
-        this(null, 120, 7);
+        this(null, null, 120, 7);
+    }
+
+    public BackpackWrapper(TileEntity tile) {
+        this(null, tile, 120, 7);
     }
 
     public BackpackWrapper(ItemStack backpack) {
-        this(backpack, 120, 7);
+        this(backpack, null, 120, 7);
     }
 
-    public BackpackWrapper(ItemStack backpack, BlockBackpack.ItemBackpack itemBackpack) {
-        this(backpack, itemBackpack.getBackpackSlots(), itemBackpack.getUpgradeSlots());
+    public BackpackWrapper(ItemStack backpack, TileEntity tile) {
+        this(backpack, tile, 120, 7);
     }
 
-    public BackpackWrapper(ItemStack backpack, BlockBackpack blockBackpack) {
-        this(backpack, blockBackpack.getBackpackSlots(), blockBackpack.getUpgradeSlots());
+    public BackpackWrapper(ItemStack backpack, BlockBackpack.ItemBackpack item) {
+        this(backpack, null, item.backpackSlots, item.upgradeSlots);
+    }
+
+    public BackpackWrapper(TileEntity tile, int backpackSlots, int upgradeSlots) {
+        this(null, tile, backpackSlots, upgradeSlots);
     }
 
     public BackpackWrapper(ItemStack backpack, int backpackSlots, int upgradeSlots) {
+        this(backpack, null, backpackSlots, upgradeSlots);
+    }
+
+    public BackpackWrapper(ItemStack backpack, BlockBackpack blockBackpack, TileEntity tile) {
+        this(backpack, tile, blockBackpack.getBackpackSlots(), blockBackpack.getUpgradeSlots());
+    }
+
+    public BackpackWrapper(ItemStack backpack, TileEntity tile, int backpackSlots, int upgradeSlots) {
         this.backpack = backpack;
+        this.tile = tile;
         this.backpackSlots = backpackSlots;
         this.upgradeSlots = upgradeSlots;
         this.mainColor = 0xFFCC613A;
@@ -150,6 +169,14 @@ public class BackpackWrapper implements IStorageWrapper {
                     .getUnlocalizedName(backpack) + ".name");
         }
 
+        if (tile != null && tile.getWorldObj() != null) {
+            Block block = tile.getWorldObj()
+                .getBlock(tile.xCoord, tile.yCoord, tile.zCoord);
+            if (block != null) {
+                return LangHelpers.localize(block.getUnlocalizedName() + ".name");
+            }
+        }
+
         return LangHelpers.localize("container.inventory");
     }
 
@@ -173,56 +200,21 @@ public class BackpackWrapper implements IStorageWrapper {
         return backpackHandler.prioritizedInsertion(slot, stack, simulate);
     }
 
-    public @Nullable ItemStack insertItem(@Nullable ItemStack stack, boolean simulate) {
-        if (stack == null || stack.stackSize <= 0) return null;
-
-        // Void ANY
-        if (canVoid(stack, IVoidUpgrade.VoidType.ANY, IVoidUpgrade.VoidInput.ALL)) {
-            return simulate ? stack : null;
-        }
-
-        // Void Overflow early have max item
-        for (int i = 0; i < backpackHandler.getSlots(); i++) {
-            ItemStack slotStack = getStackInSlot(i);
-            if (slotStack != null && ItemHandlerHelper.canItemStacksStack(slotStack, stack)) {
-
-                int limit = getSlotLimit(i);
-                if (slotStack.stackSize >= limit
-                    && canVoid(stack, IVoidUpgrade.VoidType.OVERFLOW, IVoidUpgrade.VoidInput.ALL)) {
-                    return null;
-                }
-            }
-        }
-
-        ItemStack remaining = stack;
-
-        for (int i = 0; i < backpackHandler.getSlots() && remaining != null; i++) {
-
-            int before = remaining.stackSize;
-            remaining = insertItem(i, remaining, simulate);
-
-            boolean changed = (remaining == null) || (remaining.stackSize != before);
-
-            // Void Overflow
-            if (changed && remaining != null && remaining.stackSize > 0) {
-                if (canVoid(remaining, IVoidUpgrade.VoidType.OVERFLOW, IVoidUpgrade.VoidInput.ALL)) {
-                    return simulate ? remaining : null;
-                }
-            }
-        }
-
-        if (remaining != null && remaining.stackSize > 0) {
-            if (simulate) {
-                return null;
-            }
-        }
-
-        return remaining;
-    }
-
     @Override
     public @Nullable ItemStack extractItem(int slot, int amount, boolean simulate) {
         return backpackHandler.extractItem(slot, amount, simulate);
+    }
+
+    public @Nullable ItemStack insertItem(@Nullable ItemStack stack, boolean simulate) {
+        if (stack == null || stack.stackSize <= 0) return null;
+
+        ItemStack remaining = ItemHandlerHelper.copyStackWithSize(stack, stack.stackSize);
+
+        for (int i = 0; i < backpackHandler.getSlots() && remaining != null; i++) {
+            remaining = insertItem(i, remaining, simulate);
+        }
+
+        return remaining;
     }
 
     public ItemStack extractItem(ItemStack wanted, int amount, boolean simulate) {
@@ -426,17 +418,6 @@ public class BackpackWrapper implements IStorageWrapper {
 
         for (IPickupUpgrade upgrade : gatherCapabilityUpgrades(IPickupUpgrade.class).values()) {
             if (upgrade.canPickup(stack)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean canVoid(ItemStack newStack, IVoidUpgrade.VoidType type, IVoidUpgrade.VoidInput input) {
-
-        for (IVoidUpgrade upgrade : gatherCapabilityUpgrades(IVoidUpgrade.class).values()) {
-            if (upgrade.canVoid(newStack) && upgrade.getVoidType() == type
-                && (upgrade.getVoidInput() == input || input == IVoidUpgrade.VoidInput.AUTOMATION)) {
                 return true;
             }
         }

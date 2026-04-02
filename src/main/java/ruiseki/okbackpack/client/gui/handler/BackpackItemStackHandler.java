@@ -2,11 +2,13 @@ package ruiseki.okbackpack.client.gui.handler;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import net.minecraft.item.ItemStack;
 
 import com.cleanroommc.modularui.utils.item.ItemHandlerHelper;
 
+import ruiseki.okbackpack.api.wrapper.IInventoryModifiable;
 import ruiseki.okbackpack.common.block.BackpackWrapper;
 import ruiseki.okbackpack.common.block.BlockBackpack;
 import ruiseki.okcore.helper.ItemStackHelpers;
@@ -56,6 +58,28 @@ public class BackpackItemStackHandler extends UpgradeItemStackHandler {
     }
 
     @Override
+    public ItemStack getStackInSlot(int slot) {
+        ItemStack stack = super.getStackInSlot(slot);
+
+        Map<Integer, IInventoryModifiable> mods = wrapper.gatherCapabilityUpgrades(IInventoryModifiable.class);
+        for (IInventoryModifiable mod : mods.values()) {
+            stack = mod.onGet(slot, stack);
+        }
+
+        return stack;
+    }
+
+    @Override
+    public void setStackInSlot(int slot, ItemStack stack) {
+        Map<Integer, IInventoryModifiable> mods = wrapper.gatherCapabilityUpgrades(IInventoryModifiable.class);
+        for (IInventoryModifiable mod : mods.values()) {
+            stack = mod.onSet(slot, stack);
+        }
+
+        super.setStackInSlot(slot, stack);
+    }
+
+    @Override
     public void resize(int newSize) {
         super.resize(newSize);
         syncListSize(this.memorizedSlotStack, newSize, null);
@@ -70,14 +94,22 @@ public class BackpackItemStackHandler extends UpgradeItemStackHandler {
             || this.sortLockedSlots.size() != newSize;
     }
 
-    public ItemStack prioritizedInsertion(int slotIndex, ItemStack stack, boolean simulate) {
-        if (stack != null && !wrapper.canAddStack(slotIndex, stack)
-            && stack.getItem() instanceof BlockBackpack.ItemBackpack) {
+    public ItemStack prioritizedInsertion(int slot, ItemStack stack, boolean simulate) {
+        if (stack == null || stack.stackSize <= 0) return stack;
+
+        // Apply slot-level modifications
+        Map<Integer, IInventoryModifiable> mods = wrapper.gatherCapabilityUpgrades(IInventoryModifiable.class);
+        for (IInventoryModifiable mod : mods.values()) {
+            stack = mod.onInsert(slot, stack, simulate);
+            if (stack == null) return null;
+        }
+
+        if (!wrapper.canAddStack(slot, stack) && stack.getItem() instanceof BlockBackpack.ItemBackpack) {
             return stack;
         }
 
         stack = insertItemToMemorySlots(stack, simulate);
-        return insertItem(slotIndex, stack, simulate);
+        return insertItem(slot, stack, simulate);
     }
 
     public ItemStack insertItemToMemorySlots(ItemStack stack, boolean simulate) {
@@ -134,30 +166,38 @@ public class BackpackItemStackHandler extends UpgradeItemStackHandler {
 
     @Override
     public ItemStack extractItem(int slot, int amount, boolean simulate) {
-        if (amount == 0) {
-            return null;
-        }
-        ItemStack existing = getStackInSlot(slot);
-        if (existing == null) {
-            return null;
-        }
+        if (amount == 0) return null;
+
+        ItemStack existing = stacks.get(slot);
+        if (existing == null) return null;
 
         int slotMaxStackSize = existing.getMaxStackSize() * wrapper.applyStackLimitModifiers(1, slot, existing);
         int toExtract = Math.min(amount, slotMaxStackSize);
 
+        ItemStack extracted;
+
         if (existing.stackSize <= toExtract) {
+            extracted = existing;
             if (!simulate) {
                 stacks.set(slot, null);
                 onContentsChanged(slot);
             }
-            return existing;
         } else {
+            extracted = ItemHandlerHelper.copyStackWithSize(existing, toExtract);
             if (!simulate) {
                 stacks.set(slot, ItemHandlerHelper.copyStackWithSize(existing, existing.stackSize - toExtract));
                 onContentsChanged(slot);
             }
-            return ItemHandlerHelper.copyStackWithSize(existing, toExtract);
         }
+
+        // Apply IInventoryModifiable wrappers on the actual extracted stack
+        Map<Integer, IInventoryModifiable> mods = wrapper.gatherCapabilityUpgrades(IInventoryModifiable.class);
+        for (IInventoryModifiable mod : mods.values()) {
+            extracted = mod.onExtract(slot, extracted, simulate); // pass extracted stack
+            if (extracted == null) return null; // if any wrapper cancels it
+        }
+
+        return extracted;
     }
 
 }
