@@ -4,7 +4,7 @@ import net.minecraft.item.ItemStack;
 
 import org.jetbrains.annotations.Nullable;
 
-public interface IFilterUpgrade extends IInventoryModifiable {
+public interface IFilterUpgrade {
 
     String FILTER_WAY_TAG = "FilterWay";
 
