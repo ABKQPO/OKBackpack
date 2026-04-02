@@ -1,5 +1,7 @@
 package ruiseki.okbackpack.api;
 
+import java.util.Map;
+
 import net.minecraft.item.ItemStack;
 
 import org.jetbrains.annotations.Nullable;
@@ -7,9 +9,12 @@ import org.jetbrains.annotations.Nullable;
 import com.cleanroommc.modularui.utils.item.IItemHandler;
 import com.cleanroommc.modularui.utils.item.IItemHandlerModifiable;
 
+import ruiseki.okbackpack.client.gui.handler.UpgradeItemStackHandler;
 import ruiseki.okcore.persist.nbt.INBTSerializable;
 
 public interface IStorageWrapper extends IItemHandlerModifiable, IItemHandler, ITintable, INBTSerializable {
+
+    UpgradeItemStackHandler getUpgradeHandler();
 
     String getDisplayName();
 
@@ -18,4 +23,18 @@ public interface IStorageWrapper extends IItemHandlerModifiable, IItemHandler, I
 
     @Nullable
     ItemStack extractItem(ItemStack wanted, int amount, boolean simulate);
+
+    int applySlotLimitModifiers(int original, int slot);
+
+    int applyStackLimitModifiers(int original, int slot, ItemStack stack);
+
+    boolean canAddUpgrade(int slot, ItemStack stack);
+
+    boolean canAddStack(int slot, ItemStack stack);
+
+    boolean canRemoveUpgrade(int slot);
+
+    boolean canReplaceUpgrade(int slot, ItemStack replacement);
+
+    <T> Map<Integer, T> gatherCapabilityUpgrades(Class<T> capabilityClass);
 }

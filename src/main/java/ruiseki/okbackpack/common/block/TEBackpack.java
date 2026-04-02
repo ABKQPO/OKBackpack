@@ -209,7 +209,7 @@ public class TEBackpack extends TileTicking implements ISidedInventory, IGuiHold
 
     @Override
     public int getInventoryStackLimit() {
-        return 64 * wrapper.getTotalStackMultiplier();
+        return 64 * wrapper.applySlotLimitModifiers(1, 0);
     }
 
     @Override

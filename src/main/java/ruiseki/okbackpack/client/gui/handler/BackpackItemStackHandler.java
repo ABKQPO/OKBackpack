@@ -37,7 +37,7 @@ public class BackpackItemStackHandler extends UpgradeItemStackHandler {
     @Override
     public boolean isItemValid(int slot, ItemStack stack) {
         if (memorizedSlotStack.get(slot) == null) {
-            return !(stack.getItem() instanceof BlockBackpack.ItemBackpack) || wrapper.canNestBackpack();
+            return !(stack.getItem() instanceof BlockBackpack.ItemBackpack) || wrapper.canAddStack(slot, stack);
         }
         if (memorizedSlotRespectNbtList.get(slot)) {
             return ItemStack.areItemStacksEqual(stack, memorizedSlotStack.get(slot));
@@ -47,12 +47,12 @@ public class BackpackItemStackHandler extends UpgradeItemStackHandler {
 
     @Override
     public int getStackLimit(int slot, ItemStack stack) {
-        return stack.getMaxStackSize() * wrapper.getTotalStackMultiplier();
+        return (stack == null ? 64 : stack.getMaxStackSize()) * wrapper.applyStackLimitModifiers(1, slot, stack);
     }
 
     @Override
     public int getSlotLimit(int slot) {
-        return 64 * wrapper.getTotalStackMultiplier();
+        return 64 * wrapper.applySlotLimitModifiers(1, slot);
     }
 
     @Override
@@ -71,7 +71,8 @@ public class BackpackItemStackHandler extends UpgradeItemStackHandler {
     }
 
     public ItemStack prioritizedInsertion(int slotIndex, ItemStack stack, boolean simulate) {
-        if (stack != null && !wrapper.canNestBackpack() && stack.getItem() instanceof BlockBackpack.ItemBackpack) {
+        if (stack != null && !wrapper.canAddStack(slotIndex, stack)
+            && stack.getItem() instanceof BlockBackpack.ItemBackpack) {
             return stack;
         }
 
@@ -141,7 +142,7 @@ public class BackpackItemStackHandler extends UpgradeItemStackHandler {
             return null;
         }
 
-        int slotMaxStackSize = existing.getMaxStackSize() * wrapper.getTotalStackMultiplier();
+        int slotMaxStackSize = existing.getMaxStackSize() * wrapper.applyStackLimitModifiers(1, slot, existing);
         int toExtract = Math.min(amount, slotMaxStackSize);
 
         if (existing.stackSize <= toExtract) {
