@@ -21,8 +21,8 @@ import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapperBase;
 
 public class DelegatedCraftingStackHandlerSH extends DelegatedStackHandlerSH {
 
-    public static final int UPDATE_CRAFTING = 2;
-    public static final int DETECT_CHANGES = 3;
+    public static final int UPDATE_CRAFTING = 3;
+    public static final int DETECT_CHANGES = 4;
 
     private final Supplier<BackPackContainer> containerProvider;
     private final BackpackWrapper wrapper;
