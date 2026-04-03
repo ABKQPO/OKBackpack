@@ -4,9 +4,9 @@ import java.util.List;
 
 public interface ILockedItemHandler {
 
-    boolean isLocked(int slot);
+    boolean isSlotLocked(int slot);
 
-    void setLocked(int slot, boolean locked);
+    void setSlotLocked(int slot, boolean locked);
 
-    List<Boolean> getLockedList();
+    List<Boolean> getLockedSlotList();
 }

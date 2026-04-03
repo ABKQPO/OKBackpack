@@ -22,8 +22,6 @@ import com.cleanroommc.modularui.utils.item.ItemHandlerHelper;
 
 import baubles.api.BaublesApi;
 import ruiseki.okbackpack.OKBackpack;
-import ruiseki.okbackpack.api.ILockedItemHandler;
-import ruiseki.okbackpack.api.IMemoryItemHandler;
 import ruiseki.okbackpack.api.IStorageWrapper;
 import ruiseki.okbackpack.api.wrapper.IEntityApplicable;
 import ruiseki.okbackpack.api.wrapper.IFilterUpgrade;
@@ -221,7 +219,7 @@ public class BackpackWrapper implements IStorageWrapper {
             if (stack == null) return null;
         }
 
-        return getMemoryItemHandler().prioritizedInsertion(slot, stack, simulate);
+        return backpackHandler.prioritizedInsertion(slot, stack, simulate);
     }
 
     @Override
@@ -287,12 +285,12 @@ public class BackpackWrapper implements IStorageWrapper {
     // Setting
     @Override
     public boolean isSlotMemorized(int slotIndex) {
-        return getMemoryItemHandler().isMemory(slotIndex);
+        return backpackHandler.isSlotMemorized(slotIndex);
     }
 
     @Override
-    public ItemStack getMemorizedStack(int slotIndex) {
-        return getMemoryItemHandler().getMemoryStack(slotIndex);
+    public ItemStack getMemoryStack(int slotIndex) {
+        return backpackHandler.getMemoryStack(slotIndex);
     }
 
     @Override
@@ -302,44 +300,34 @@ public class BackpackWrapper implements IStorageWrapper {
 
         ItemStack copiedStack = currentStack.copy();
         copiedStack.stackSize = 1;
-        getMemoryItemHandler().setMemoryStack(slotIndex, copiedStack);
-        getMemoryItemHandler().setRespectNBT(slotIndex, respectNBT);
+        backpackHandler.setMemoryStack(slotIndex, copiedStack);
+        backpackHandler.setRespectNBT(slotIndex, respectNBT);
     }
 
     @Override
     public void unsetMemoryStack(int slotIndex) {
-        getMemoryItemHandler().setMemoryStack(slotIndex, null);
-        getMemoryItemHandler().setRespectNBT(slotIndex, false);
+        backpackHandler.setMemoryStack(slotIndex, null);
+        backpackHandler.setRespectNBT(slotIndex, false);
     }
 
     @Override
     public boolean isMemoryStackRespectNBT(int slotIndex) {
-        return getMemoryItemHandler().isRespectNBT(slotIndex);
+        return backpackHandler.isRespectNBT(slotIndex);
     }
 
     @Override
     public void setMemoryStackRespectNBT(int slotIndex, boolean respect) {
-        getMemoryItemHandler().setRespectNBT(slotIndex, respect);
-    }
-
-    @Override
-    public IMemoryItemHandler getMemoryItemHandler() {
-        return backpackHandler;
+        backpackHandler.setRespectNBT(slotIndex, respect);
     }
 
     @Override
     public boolean isSlotLocked(int slotIndex) {
-        return getLockedItemHandler().isLocked(slotIndex);
+        return backpackHandler.isSlotLocked(slotIndex);
     }
 
     @Override
     public void setSlotLocked(int slotIndex, boolean locked) {
-        getLockedItemHandler().setLocked(slotIndex, locked);
-    }
-
-    @Override
-    public ILockedItemHandler getLockedItemHandler() {
-        return backpackHandler;
+        backpackHandler.setSlotLocked(slotIndex, locked);
     }
 
     @Override
@@ -582,10 +570,10 @@ public class BackpackWrapper implements IStorageWrapper {
         tag.setTag(UPGRADE_INV, upgradeHandler.serializeNBT());
 
         NBTTagCompound memoryTag = new NBTTagCompound();
-        BackpackItemStackHelpers.saveAllSlotsExtended(memoryTag, getMemoryItemHandler().getMemorizedStacks());
+        BackpackItemStackHelpers.saveAllSlotsExtended(memoryTag, backpackHandler.getMemorizedStacks());
         tag.setTag(MEMORY_STACK_ITEMS_TAG, memoryTag);
 
-        List<Boolean> respectList = getMemoryItemHandler().getRespectNBTList();
+        List<Boolean> respectList = backpackHandler.getRespectNBTList();
         byte[] respectBytes = new byte[backpackSlots];
         for (int i = 0; i < backpackSlots; i++) {
             boolean val = i < respectList.size() && respectList.get(i);
@@ -593,7 +581,7 @@ public class BackpackWrapper implements IStorageWrapper {
         }
         tag.setByteArray(MEMORY_STACK_RESPECT_NBT_TAG, respectBytes);
 
-        List<Boolean> locked = getLockedItemHandler().getLockedList();
+        List<Boolean> locked = backpackHandler.getLockedSlotList();
         byte[] lockedBytes = new byte[backpackSlots];
         for (int i = 0; i < backpackSlots; i++) {
             boolean val = i < locked.size() && locked.get(i);
@@ -650,9 +638,8 @@ public class BackpackWrapper implements IStorageWrapper {
         }
 
         if (tag.hasKey(MEMORY_STACK_ITEMS_TAG, 10)) {
-            BackpackItemStackHelpers.loadAllItemsExtended(
-                tag.getCompoundTag(MEMORY_STACK_ITEMS_TAG),
-                getMemoryItemHandler().getMemorizedStacks());
+            BackpackItemStackHelpers
+                .loadAllItemsExtended(tag.getCompoundTag(MEMORY_STACK_ITEMS_TAG), backpackHandler.getMemorizedStacks());
         }
 
         if (tag.hasKey(MEMORY_STACK_RESPECT_NBT_TAG, 7)) {

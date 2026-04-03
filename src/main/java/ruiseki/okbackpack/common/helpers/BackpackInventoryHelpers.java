@@ -31,7 +31,7 @@ public class BackpackInventoryHelpers {
         for (int i = 0; i < wrapper.getSlots(); i++) {
             if (!wrapper.isSlotMemorized(i) || wrapper.isSlotLocked(i)) continue;
 
-            ItemStack mem = wrapper.getMemorizedStack(i);
+            ItemStack mem = wrapper.getMemoryStack(i);
             if (mem == null) continue;
 
             ItemStack inSlot = wrapper.getStackInSlot(i);

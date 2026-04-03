@@ -9,17 +9,17 @@ import com.cleanroommc.modularui.utils.item.IItemHandler;
 import com.cleanroommc.modularui.widgets.slot.ModularCraftingSlot;
 
 import cpw.mods.fml.common.FMLCommonHandler;
+import ruiseki.okbackpack.api.IStorageWrapper;
 import ruiseki.okbackpack.api.wrapper.ICraftingUpgrade;
 import ruiseki.okbackpack.client.gui.handler.InventoryCraftingWrapper;
-import ruiseki.okbackpack.common.block.BackpackWrapper;
 
 public class IndexedModularCraftingSlot extends ModularCraftingSlot {
 
     protected InventoryCraftingWrapper craftMatrix;
-    protected final BackpackWrapper wrapper;
+    protected final IStorageWrapper wrapper;
     protected final int upgradeSlotIndex;
 
-    public IndexedModularCraftingSlot(int upgradeSlotIndex, BackpackWrapper wrapper, IItemHandler inv, int invIndex) {
+    public IndexedModularCraftingSlot(int upgradeSlotIndex, IStorageWrapper wrapper, IItemHandler inv, int invIndex) {
         super(inv, invIndex);
         this.wrapper = wrapper;
         this.upgradeSlotIndex = upgradeSlotIndex;

@@ -50,7 +50,8 @@ public class DelegatedStackHandlerSH extends SyncHandler {
 
     @Override
     public void readOnServer(int id, PacketBuffer buf) {
-        ItemStack stack = wrapper.upgradeHandler.getStackInSlot(slotIndex);
+        ItemStack stack = wrapper.getUpgradeHandler()
+            .getStackInSlot(slotIndex);
         UpgradeWrapperBase wrapper = UpgradeWrapperFactory.createWrapper(stack, this.wrapper);
 
         switch (id) {

@@ -6,13 +6,11 @@ import net.minecraft.item.ItemStack;
 
 public interface IMemoryItemHandler {
 
-    boolean isMemory(int slot);
+    boolean isSlotMemorized(int slot);
 
     ItemStack getMemoryStack(int slot);
 
     void setMemoryStack(int slot, ItemStack stack);
-
-    void clearMemoryStacks(int slot);
 
     boolean isRespectNBT(int slot);
 

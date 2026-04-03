@@ -137,7 +137,7 @@ public class BackpackItemStackHandler extends UpgradeItemStackHandler
     }
 
     @Override
-    public boolean isMemory(int slot) {
+    public boolean isSlotMemorized(int slot) {
         return memorizedSlotStack.get(slot) != null;
     }
 
@@ -152,12 +152,6 @@ public class BackpackItemStackHandler extends UpgradeItemStackHandler
         ItemStack copy = stack.copy();
         copy.stackSize = 1;
         memorizedSlotStack.set(slot, copy);
-    }
-
-    @Override
-    public void clearMemoryStacks(int slot) {
-        memorizedSlotStack.set(slot, null);
-        memorizedSlotRespectNbtList.set(slot, false);
     }
 
     @Override
@@ -212,17 +206,17 @@ public class BackpackItemStackHandler extends UpgradeItemStackHandler
     }
 
     @Override
-    public boolean isLocked(int slot) {
+    public boolean isSlotLocked(int slot) {
         return sortLockedSlots.get(slot);
     }
 
     @Override
-    public void setLocked(int slot, boolean locked) {
+    public void setSlotLocked(int slot, boolean locked) {
         sortLockedSlots.set(slot, locked);
     }
 
     @Override
-    public List<Boolean> getLockedList() {
+    public List<Boolean> getLockedSlotList() {
         return sortLockedSlots;
     }
 }

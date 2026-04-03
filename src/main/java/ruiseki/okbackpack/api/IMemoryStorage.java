@@ -6,7 +6,7 @@ public interface IMemoryStorage {
 
     boolean isSlotMemorized(int slotIndex);
 
-    ItemStack getMemorizedStack(int slotIndex);
+    ItemStack getMemoryStack(int slotIndex);
 
     void setMemoryStack(int slotIndex, boolean respectNBT);
 
@@ -15,6 +15,4 @@ public interface IMemoryStorage {
     boolean isMemoryStackRespectNBT(int slotIndex);
 
     void setMemoryStackRespectNBT(int slotIndex, boolean respectNBT);
-
-    IMemoryItemHandler getMemoryItemHandler();
 }

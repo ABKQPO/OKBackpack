@@ -437,7 +437,7 @@ public class BackPackContainer extends ModularContainer {
 
             if (wrapper.isSlotMemorized(slotIndex)) {
 
-                ItemStack memory = wrapper.getMemorizedStack(slotIndex);
+                ItemStack memory = wrapper.getMemoryStack(slotIndex);
 
                 if (memory != null) {
 
