@@ -97,6 +97,24 @@ public class BackPackContainer extends ModularContainer implements IStorageConta
     }
 
     @Override
+    public Slot getSlotFromInventory(IInventory inv, int slotIndex) {
+        Slot slot = super.getSlotFromInventory(inv, slotIndex);
+        if (slot != null) return slot;
+
+        // Fallback: ModularSlot wrapping IItemHandler may not match via
+        // SlotItemHandler.isSlotInInventory in some cases. Search by slot group.
+        if (inv instanceof InventoryPlayer) {
+            for (var s : this.inventorySlots) {
+                if (s instanceof ModularSlot ms && PLAYER_INV.equals(ms.getSlotGroupName())
+                    && ms.getSlotIndex() == slotIndex) {
+                    return ms;
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
     public void detectAndSendChanges() {
         super.detectAndSendChanges();
 
