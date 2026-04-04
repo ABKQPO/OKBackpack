@@ -13,7 +13,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import com.cleanroommc.modularui.factory.inventory.InventoryType;
@@ -22,13 +24,14 @@ import com.cleanroommc.modularui.utils.item.ItemHandlerHelper;
 
 import baubles.api.BaublesApi;
 import ruiseki.okbackpack.OKBackpack;
-import ruiseki.okbackpack.api.IStorageWrapper;
+import ruiseki.okbackpack.api.IBackpackWrapper;
 import ruiseki.okbackpack.api.wrapper.IEntityApplicable;
 import ruiseki.okbackpack.api.wrapper.IFilterUpgrade;
 import ruiseki.okbackpack.api.wrapper.IInventoryModifiable;
 import ruiseki.okbackpack.api.wrapper.IPickupUpgrade;
 import ruiseki.okbackpack.api.wrapper.ISlotModifiable;
 import ruiseki.okbackpack.api.wrapper.ITickable;
+import ruiseki.okbackpack.api.wrapper.IToggleable;
 import ruiseki.okbackpack.client.gui.handler.BackpackItemStackHandler;
 import ruiseki.okbackpack.client.gui.handler.UpgradeItemStackHandler;
 import ruiseki.okbackpack.common.SortType;
@@ -37,50 +40,70 @@ import ruiseki.okbackpack.common.init.ModBlocks;
 import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapperBase;
 import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapperFactory;
 import ruiseki.okbackpack.common.network.PacketBackpackNBT;
+import ruiseki.okcore.capabilities.Capability;
+import ruiseki.okcore.datastructure.BlockPos;
 import ruiseki.okcore.helper.ItemNBTHelpers;
 import ruiseki.okcore.helper.LangHelpers;
 
-public class BackpackWrapper implements IStorageWrapper {
+public class BackpackWrapper implements IBackpackWrapper {
 
     public ItemStack backpack;
     public final TileEntity tile;
+
     public final BackpackItemStackHandler backpackHandler;
-    public final UpgradeItemStackHandler upgradeHandler;
+    public UpgradeItemStackHandler upgradeHandler;
     public int backpackSlots;
     public int upgradeSlots;
+
     public int mainColor;
     public int accentColor;
+
     public SortType sortType;
+
     public boolean lockBackpack;
-    public boolean keepTab;
-    public String uuid;
     public String playerUuid;
+    public boolean keepTab;
+
     public String customName;
+
+    public boolean isDirty;
+
+    private Runnable onInventoryHandlerRefresh = () -> {};
+
+    public String uuid;
+
     public boolean sleepingBagDeployed;
     public int sleepingBagX;
     public int sleepingBagY;
     public int sleepingBagZ;
+
     public int slotIndex = -1;
     public InventoryType type = null;
-    public boolean isDirty;
-    private Runnable markDirtyCallback;
 
     public static final String BACKPACK_NBT = "BackpackNBT";
+
     public static final String BACKPACK_INV = "BackpackInv";
     public static final String UPGRADE_INV = "UpgradeInv";
     public static final String BACKPACK_SLOTS = "BackpackSlots";
     public static final String UPGRADE_SLOTS = "UpgradeSlots";
-    public static final String MAIN_COLOR = "MainColor";
-    public static final String ACCENT_COLOR = "AccentColor";
     public static final String MEMORY_STACK_ITEMS_TAG = "MemoryItems";
     public static final String MEMORY_STACK_RESPECT_NBT_TAG = "MemoryRespectNBT";
-    public static final String SORT_TYPE_TAG = "SortType";
     public static final String LOCKED_SLOTS_TAG = "LockedSlots";
-    public static final String LOCKED_BACKPACK_TAG = "LockedBackpack";
+
+    public static final String MAIN_COLOR = "MainColor";
+    public static final String ACCENT_COLOR = "AccentColor";
+
+    public static final String SORT_TYPE_TAG = "SortType";
+
     public static final String UUID_TAG = "UUID";
+
+    public static final String LOCKED_BACKPACK_TAG = "LockedBackpack";
     public static final String PLAYER_UUID_TAG = "PlayerUUID";
+
     public static final String KEEP_TAB_TAG = "KeepTab";
+
     public static final String CUSTOM_NAME_TAG = "CustomName";
+
     public static final String SLEEPING_BAG_DEPLOYED_TAG = "SleepingBagDeloyed";
     public static final String SLEEPING_BAG_X = "SleepingBagX";
     public static final String SLEEPING_BAG_Y = "SleepingBagY";
@@ -142,7 +165,7 @@ public class BackpackWrapper implements IStorageWrapper {
             }
         };
 
-        this.upgradeHandler = new UpgradeItemStackHandler(upgradeSlots) {
+        this.upgradeHandler = new UpgradeItemStackHandler(upgradeSlots, this) {
 
             @Override
             protected void onContentsChanged(int slot) {
@@ -420,7 +443,6 @@ public class BackpackWrapper implements IStorageWrapper {
 
     @Override
     public boolean tick(EntityPlayer player) {
-
         Map<Integer, ITickable> gathered = gatherCapabilityUpgrades(ITickable.class);
         if (gathered.isEmpty()) return false;
 
@@ -430,6 +452,19 @@ public class BackpackWrapper implements IStorageWrapper {
             dirty |= wrapper.tick(player);
         }
 
+        return dirty;
+    }
+
+    @Override
+    public boolean tick(World world, BlockPos pos) {
+        Map<Integer, ITickable> gathered = gatherCapabilityUpgrades(ITickable.class);
+        if (gathered.isEmpty()) return false;
+
+        boolean dirty = false;
+
+        for (ITickable wrapper : gathered.values()) {
+            dirty |= wrapper.tick(world, pos);
+        }
         return dirty;
     }
 
@@ -483,8 +518,8 @@ public class BackpackWrapper implements IStorageWrapper {
         return this.customName != null && !this.customName.isEmpty();
     }
 
-    // ---------- ITEM STACK ----------
-    public NBTTagCompound getTagCompound() {
+    @Override
+    public NBTTagCompound getBackpackNBT() {
         if (backpack == null) {
             return null;
         }
@@ -526,6 +561,7 @@ public class BackpackWrapper implements IStorageWrapper {
         return backpackTag != null && uuid.equals(backpackTag.getString(UUID_TAG));
     }
 
+    @Override
     public void writeToItem() {
         if (backpack == null) return;
 
@@ -539,15 +575,45 @@ public class BackpackWrapper implements IStorageWrapper {
         backpack.setTagCompound(root);
     }
 
+    @Override
+    public void readFromItem() {
+        if (backpack == null) return;
+        NBTTagCompound tag = ItemNBTHelpers.getNBT(backpack);
+        if (tag.hasKey(BACKPACK_NBT)) deserializeNBT(tag.getCompoundTag(BACKPACK_NBT));
+    }
+
+    @Override
     public void writeToItem(EntityPlayer player) {
         this.backpack = findStackByUUID(player);
         writeToItem();
     }
 
-    public void readFromItem() {
-        if (backpack == null) return;
-        NBTTagCompound tag = ItemNBTHelpers.getNBT(backpack);
-        if (tag.hasKey(BACKPACK_NBT)) deserializeNBT(tag.getCompoundTag(BACKPACK_NBT));
+    public void syncToServer() {
+        writeToItem();
+        if (type != null) {
+            OKBackpack.instance.getPacketHandler()
+                .sendToServer(new PacketBackpackNBT(slotIndex, getBackpackNBT(), type));
+        }
+    }
+
+    @Override
+    public InventoryType getType() {
+        return type;
+    }
+
+    @Override
+    public void setType(InventoryType type) {
+        this.type = type;
+    }
+
+    @Override
+    public int getSlotIndex() {
+        return slotIndex;
+    }
+
+    @Override
+    public void setSlotIndex(int slotIndex) {
+        this.slotIndex = slotIndex;
     }
 
     @Override
@@ -557,8 +623,8 @@ public class BackpackWrapper implements IStorageWrapper {
         if (backpackHandler.isSizeInconsistent(backpackSlots)) {
             backpackHandler.resize(backpackSlots);
         }
-        if (upgradeHandler.isSizeInconsistent(upgradeSlots)) {
-            upgradeHandler.resize(upgradeSlots);
+        if (getUpgradeHandler().isSizeInconsistent(upgradeSlots)) {
+            getUpgradeHandler().resize(upgradeSlots);
         }
 
         tag.setInteger(BACKPACK_SLOTS, backpackSlots);
@@ -705,7 +771,7 @@ public class BackpackWrapper implements IStorageWrapper {
 
             UpgradeWrapperBase wrapper = UpgradeWrapperFactory.createWrapper(stack, this);
             if (wrapper == null) continue;
-
+            if (wrapper instanceof IToggleable toggleable && !toggleable.isEnabled()) continue;
             if (capabilityClass.isAssignableFrom(wrapper.getClass())) {
                 result.put(i, capabilityClass.cast(wrapper));
             }
@@ -714,12 +780,14 @@ public class BackpackWrapper implements IStorageWrapper {
         return result;
     }
 
-    public void syncToServer() {
-        writeToItem();
-        if (type != null) {
-            OKBackpack.instance.getPacketHandler()
-                .sendToServer(new PacketBackpackNBT(slotIndex, getTagCompound(), type));
-        }
+    @Override
+    public void setSortType(SortType sortType) {
+        this.sortType = sortType;
+    }
+
+    @Override
+    public SortType getSortType() {
+        return sortType;
     }
 
     public boolean deploySleepingBag(EntityPlayer player, World world, int meta, int cX, int cY, int cZ) {
@@ -746,19 +814,27 @@ public class BackpackWrapper implements IStorageWrapper {
         writeToItem();
     }
 
+    @Override
+    public boolean isDirty() {
+        return false;
+    }
+
+    @Override
     public void markDirty() {
         this.isDirty = true;
-        if (markDirtyCallback != null) {
-            markDirtyCallback.run();
+        if (onInventoryHandlerRefresh != null) {
+            onInventoryHandlerRefresh.run();
         }
     }
 
-    public void setMarkDirtyCallback(Runnable callback) {
-        this.markDirtyCallback = callback;
+    @Override
+    public void markClean() {
+        this.isDirty = false;
     }
 
-    public void clearDirty() {
-        this.isDirty = false;
+    @Override
+    public void setInventorySlotChangeHandler(Runnable contentsChangeHandler) {
+        this.onInventoryHandlerRefresh = contentsChangeHandler;
     }
 
     @Override
@@ -775,5 +851,37 @@ public class BackpackWrapper implements IStorageWrapper {
     public void setColors(int mainColor, int accentColor) {
         this.mainColor = mainColor;
         this.accentColor = accentColor;
+    }
+
+    @Override
+    public IBackpackWrapper setBackpackStack(ItemStack backpackStack) {
+        this.backpack = backpackStack;
+        return this;
+    }
+
+    @Override
+    public ItemStack getBackpack() {
+        return backpack;
+    }
+
+    public boolean matches(ItemStack stack) {
+        if (stack == null || stack.getTagCompound() == null) return false;
+
+        NBTTagCompound tag = stack.getTagCompound()
+            .getCompoundTag(BACKPACK_NBT);
+
+        if (tag == null || !tag.hasKey(UUID_TAG)) return false;
+
+        return this.uuid.equals(tag.getString(UUID_TAG));
+    }
+
+    @Override
+    public boolean hasCapability(@NotNull Capability<?> capability, @Nullable ForgeDirection forgeDirection) {
+        return false;
+    }
+
+    @Override
+    public @Nullable <T> T getCapability(Capability<T> capability, ForgeDirection forgeDirection) {
+        return null;
     }
 }

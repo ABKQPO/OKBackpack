@@ -130,7 +130,7 @@ public class BackpackOverlay extends DefaultOverlayHandler {
             return itemPresenceSlots;
         }
 
-        BackpackWrapper wrapper = container.wrapper;
+        BackpackWrapper wrapper = (BackpackWrapper) container.wrapper;
         EntityPlayer player = container.getPlayer();
 
         final List<ItemStack> invStacks = new ArrayList<>();

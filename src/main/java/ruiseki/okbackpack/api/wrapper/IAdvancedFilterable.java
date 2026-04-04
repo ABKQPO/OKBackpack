@@ -7,7 +7,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.oredict.OreDictionary;
 
-import ruiseki.okbackpack.client.gui.handler.UpgradeItemStackHandler;
+import ruiseki.okbackpack.client.gui.handler.BaseItemStackHandler;
 import ruiseki.okcore.helper.ItemStackHelpers;
 
 public interface IAdvancedFilterable extends IBasicFilterable {
@@ -18,7 +18,7 @@ public interface IAdvancedFilterable extends IBasicFilterable {
     String ORE_DICT_LIST_TAG = "OreDict";
     String ORE_DICT_ITEMS_TAG = "OreDictItem";
 
-    UpgradeItemStackHandler getOreDictItem();
+    BaseItemStackHandler getOreDictItem();
 
     MatchType getMatchType();
 
@@ -51,7 +51,7 @@ public interface IAdvancedFilterable extends IBasicFilterable {
 
     default boolean matchItem(ItemStack stack) {
         boolean[] filterResult = new boolean[16];
-        UpgradeItemStackHandler filterItems = getFilterItems();
+        BaseItemStackHandler filterItems = getFilterItems();
 
         for (int i = 0; i < filterItems.getSlots(); i++) {
             ItemStack filterStack = filterItems.getStackInSlot(i);
@@ -79,7 +79,7 @@ public interface IAdvancedFilterable extends IBasicFilterable {
 
     default boolean matchMod(ItemStack stack) {
         boolean[] filterResult = new boolean[16];
-        UpgradeItemStackHandler filterItems = getFilterItems();
+        BaseItemStackHandler filterItems = getFilterItems();
 
         for (int i = 0; i < filterItems.getSlots(); i++) {
             ItemStack filterStack = filterItems.getStackInSlot(i);

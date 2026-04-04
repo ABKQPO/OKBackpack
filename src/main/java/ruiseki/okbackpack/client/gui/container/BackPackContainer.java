@@ -26,12 +26,12 @@ import com.cleanroommc.modularui.widgets.slot.ModularSlot;
 import com.cleanroommc.modularui.widgets.slot.SlotGroup;
 
 import ruiseki.okbackpack.OKBackpack;
+import ruiseki.okbackpack.api.IBackpackWrapper;
 import ruiseki.okbackpack.client.gui.handler.IndexedInventoryCraftingWrapper;
 import ruiseki.okbackpack.client.gui.slot.IndexedModularCraftingMatrixSlot;
 import ruiseki.okbackpack.client.gui.slot.IndexedModularCraftingSlot;
 import ruiseki.okbackpack.client.gui.slot.ModularBackpackSlot;
 import ruiseki.okbackpack.client.gui.slot.ModularFilterSlot;
-import ruiseki.okbackpack.common.block.BackpackWrapper;
 import ruiseki.okbackpack.common.item.wrapper.CraftingUpgradeWrapper;
 import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapperBase;
 import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapperFactory;
@@ -41,7 +41,7 @@ import ruiseki.okbackpack.compat.tic.TinkersHelpers;
 
 public class BackPackContainer extends ModularContainer {
 
-    public final BackpackWrapper wrapper;
+    public final IBackpackWrapper wrapper;
     protected final Integer backpackSlotIndex;
 
     private static final int DROP_TO_WORLD = -999;
@@ -57,7 +57,7 @@ public class BackPackContainer extends ModularContainer {
     protected final Map<Integer, IndexedInventoryCraftingWrapper> inventoryCraftingInstances = new HashMap<>();
     protected final Map<Integer, IndexedModularCraftingSlot> craftingSlotInstances = new HashMap<>();
 
-    public BackPackContainer(BackpackWrapper wrapper, Integer backpackSlotIndex) {
+    public BackPackContainer(IBackpackWrapper wrapper, Integer backpackSlotIndex) {
         this.wrapper = wrapper;
         this.backpackSlotIndex = backpackSlotIndex;
     }
@@ -100,23 +100,23 @@ public class BackPackContainer extends ModularContainer {
         super.detectAndSendChanges();
 
         // Server-side only: sync dirty changes to client
-        if (!getGuiData().isClient() && wrapper.isDirty) {
+        if (!getGuiData().isClient() && wrapper.isDirty()) {
             EntityPlayer player = getPlayer();
 
             // Write changes to the actual ItemStack (using UUID tracking)
             wrapper.writeToItem(player);
 
             // Send NBT update packet to client (only if backpack is valid)
-            if (wrapper.backpack != null && wrapper.type != null
+            if (wrapper.getBackpack() != null && wrapper.getType() != null
                 && backpackSlotIndex != null
                 && player instanceof EntityPlayerMP playerMP) {
 
                 // Clear dirty flag
-                wrapper.clearDirty();
+                wrapper.markClean();
 
                 OKBackpack.instance.getPacketHandler()
                     .sendToPlayer(
-                        new PacketBackpackNBT(backpackSlotIndex, wrapper.getTagCompound(), wrapper.type),
+                        new PacketBackpackNBT(backpackSlotIndex, wrapper.getBackpackNBT(), wrapper.getType()),
                         playerMP);
             }
         }
@@ -129,7 +129,7 @@ public class BackPackContainer extends ModularContainer {
         // Final sync before closing - ensure all changes are saved
         if (!getGuiData().isClient()) {
             wrapper.writeToItem(player);
-            wrapper.clearDirty();
+            wrapper.markClean();
         }
     }
 
@@ -164,7 +164,8 @@ public class BackPackContainer extends ModularContainer {
                         if (slot instanceof ModularCraftingSlot) continue;
 
                         if (slot instanceof IndexedModularCraftingMatrixSlot matrixSlot) {
-                            ItemStack stack = wrapper.upgradeHandler.getStackInSlot(matrixSlot.getUpgradeSlotIndex());
+                            ItemStack stack = wrapper.getUpgradeHandler()
+                                .getStackInSlot(matrixSlot.getUpgradeSlotIndex());
                             UpgradeWrapperBase upgradeWrapper = UpgradeWrapperFactory
                                 .createWrapper(stack, this.wrapper);
                             if (upgradeWrapper == null) continue;

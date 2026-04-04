@@ -29,14 +29,14 @@ public abstract class BackpackGuiHolder {
     }
 
     protected BackpackPanel createPanel(PanelSyncManager syncManager, UISettings settings, EntityPlayer player,
-        TileEntity tile, InventoryType type, Integer backpackSlotIndex) {
+        TileEntity tile, InventoryType type, Integer slotIndex) {
 
         int width = 20 + rowSize * ItemSlot.SIZE;
 
-        if (backpackSlotIndex != null) wrapper.slotIndex = backpackSlotIndex;
-        if (type != null) wrapper.type = type;
+        if (slotIndex != null) wrapper.setSlotIndex(slotIndex);
+        if (type != null) wrapper.setType(type);
 
-        return new BackpackPanel(player, tile, syncManager, settings, wrapper, width, backpackSlotIndex);
+        return new BackpackPanel(player, tile, syncManager, settings, wrapper, width, slotIndex);
     }
 
     protected void addCommonWidgets(BackpackPanel panel) {

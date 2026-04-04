@@ -10,17 +10,17 @@ import ruiseki.okbackpack.api.IStorageWrapper;
 import ruiseki.okbackpack.api.wrapper.IAdvancedFilterable;
 import ruiseki.okbackpack.api.wrapper.IBasicFilterable;
 import ruiseki.okbackpack.api.wrapper.IToggleable;
-import ruiseki.okbackpack.client.gui.handler.UpgradeItemStackHandler;
+import ruiseki.okbackpack.client.gui.handler.BaseItemStackHandler;
 import ruiseki.okcore.helper.ItemNBTHelpers;
 
 public class AdvancedUpgradeWrapper extends UpgradeWrapperBase implements IAdvancedFilterable, IToggleable {
 
-    protected UpgradeItemStackHandler handler;
-    protected UpgradeItemStackHandler oreDict;
+    protected BaseItemStackHandler handler;
+    protected BaseItemStackHandler oreDict;
 
     public AdvancedUpgradeWrapper(ItemStack upgrade, IStorageWrapper storage) {
         super(upgrade, storage);
-        this.handler = new UpgradeItemStackHandler(16) {
+        this.handler = new BaseItemStackHandler(16) {
 
             @Override
             protected void onContentsChanged(int slot) {
@@ -31,7 +31,7 @@ public class AdvancedUpgradeWrapper extends UpgradeWrapperBase implements IAdvan
         NBTTagCompound filtersTag = ItemNBTHelpers.getCompound(upgrade, FILTER_ITEMS_TAG, false);
         if (filtersTag != null) handler.deserializeNBT(filtersTag);
 
-        this.oreDict = new UpgradeItemStackHandler(1) {
+        this.oreDict = new BaseItemStackHandler(1) {
 
             @Override
             protected void onContentsChanged(int slot) {
@@ -59,12 +59,12 @@ public class AdvancedUpgradeWrapper extends UpgradeWrapperBase implements IAdvan
     }
 
     @Override
-    public UpgradeItemStackHandler getFilterItems() {
+    public BaseItemStackHandler getFilterItems() {
         return handler;
     }
 
     @Override
-    public UpgradeItemStackHandler getOreDictItem() {
+    public BaseItemStackHandler getOreDictItem() {
         return oreDict;
     }
 

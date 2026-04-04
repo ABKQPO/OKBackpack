@@ -101,7 +101,7 @@ public class BackpackGuiOpener implements IContainerInputHandler {
             player.inventory.setItemStack(remain);
         }
         OKBackpack.instance.getPacketHandler()
-            .sendToServer(new PacketBackpackNBT(slot.getSlotIndex(), wrapper.getTagCompound(), InventoryTypes.PLAYER));
+            .sendToServer(new PacketBackpackNBT(slot.getSlotIndex(), wrapper.getBackpackNBT(), InventoryTypes.PLAYER));
         OKBackpack.instance.getPacketHandler()
             .sendToServer(new PacketSyncCarriedItem(player.inventory.getItemStack()));
         return true;

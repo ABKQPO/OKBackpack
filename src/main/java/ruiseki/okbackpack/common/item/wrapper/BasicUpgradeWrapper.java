@@ -6,16 +6,16 @@ import net.minecraft.nbt.NBTTagCompound;
 import ruiseki.okbackpack.api.IStorageWrapper;
 import ruiseki.okbackpack.api.wrapper.IBasicFilterable;
 import ruiseki.okbackpack.api.wrapper.IToggleable;
-import ruiseki.okbackpack.client.gui.handler.UpgradeItemStackHandler;
+import ruiseki.okbackpack.client.gui.handler.BaseItemStackHandler;
 import ruiseki.okcore.helper.ItemNBTHelpers;
 
 public class BasicUpgradeWrapper extends UpgradeWrapperBase implements IBasicFilterable, IToggleable {
 
-    protected UpgradeItemStackHandler handler;
+    protected BaseItemStackHandler handler;
 
     public BasicUpgradeWrapper(ItemStack upgrade, IStorageWrapper storage) {
         super(upgrade, storage);
-        handler = new UpgradeItemStackHandler(9) {
+        handler = new BaseItemStackHandler(9) {
 
             @Override
             protected void onContentsChanged(int slot) {
@@ -43,7 +43,7 @@ public class BasicUpgradeWrapper extends UpgradeWrapperBase implements IBasicFil
     }
 
     @Override
-    public UpgradeItemStackHandler getFilterItems() {
+    public BaseItemStackHandler getFilterItems() {
         return handler;
     }
 

@@ -86,6 +86,53 @@ public class BackpackEventHandler {
     }
 
     @SubscribeEvent
+    public void onPlayerTick(TickEvent.PlayerTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
+
+        EntityPlayer player = event.player;
+        if (player.worldObj.isRemote || player.isDead) return;
+
+        tickInventory(player);
+        tickBaubles(player);
+    }
+
+    private void tickInventory(EntityPlayer player) {
+        for (int i = 0; i < player.inventory.getSizeInventory(); i++) {
+            ItemStack stack = player.inventory.getStackInSlot(i);
+            if (stack == null || !(stack.getItem() instanceof BlockBackpack.ItemBackpack item)) continue;
+
+            BackpackWrapper wrapper = new BackpackWrapper(stack, item);
+            if (!stack.getTagCompound()
+                .hasKey(BackpackWrapper.BACKPACK_NBT)) {
+                wrapper.writeToItem();
+                continue;
+            }
+
+            if (!(player.openContainer instanceof BackPackContainer)) {
+                if (wrapper.tick(player)) {
+                    wrapper.writeToItem();
+                }
+            }
+        }
+    }
+
+    private void tickBaubles(EntityPlayer player) {
+        IInventory baubles = BaublesApi.getBaubles(player);
+        if (baubles == null) return;
+
+        for (int i = 0; i < baubles.getSizeInventory(); i++) {
+            ItemStack stack = baubles.getStackInSlot(i);
+            if (stack == null || !(stack.getItem() instanceof BlockBackpack.ItemBackpack item)) continue;
+            BackpackWrapper wrapper = new BackpackWrapper(stack, item);
+            if (!(player.openContainer instanceof BackPackContainer)) {
+                if (wrapper.tick(player)) {
+                    wrapper.writeToItem();
+                }
+            }
+        }
+    }
+
+    @SubscribeEvent
     public void onPlayerPickup(EntityItemPickupEvent event) {
         EntityPlayer player = event.entityPlayer;
         ItemStack stack = event.item.getEntityItem()
@@ -140,9 +187,9 @@ public class BackpackEventHandler {
             if (!(stack.getItem() instanceof BlockBackpack.ItemBackpack backpack)) continue;
 
             BackpackWrapper wrapper;
-            if (player.openContainer instanceof BackPackContainer container && type == container.wrapper.type
-                && i == container.wrapper.slotIndex) {
-                wrapper = container.wrapper;
+            if (player.openContainer instanceof BackPackContainer container && type == container.wrapper.getType()
+                && i == container.wrapper.getSlotIndex()) {
+                wrapper = (BackpackWrapper) container.wrapper;
             } else {
                 wrapper = new BackpackWrapper(stack, backpack);
             }
@@ -158,8 +205,8 @@ public class BackpackEventHandler {
             if (changed) {
                 wrapper.writeToItem();
                 if (player.openContainer instanceof BackPackContainer container && wrapper == container.wrapper
-                    && type == container.wrapper.type
-                    && i == container.wrapper.slotIndex) {
+                    && type == container.wrapper.getType()
+                    && i == container.wrapper.getSlotIndex()) {
                     container.detectAndSendChanges();
                 }
             }

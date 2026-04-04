@@ -34,6 +34,11 @@ public class UpgradeWrapperBase implements IUpgradeWrapper, IDirtable {
     }
 
     @Override
+    public ItemStack getUpgradeStack() {
+        return upgrade;
+    }
+
+    @Override
     public boolean isDirty() {
         return ItemNBTHelpers.getBoolean(upgrade, DIRTY_TAG, false);
     }

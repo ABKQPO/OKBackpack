@@ -266,7 +266,8 @@ public class BackpackPanel extends ModularPanel implements IStoragePanel {
 
         CyclicVariantButtonWidget sortTypeButton = new CyclicVariantButtonWidget(
             SORT_TYPE_VARIANTS,
-            wrapper.sortType.ordinal(),
+            wrapper.getSortType()
+                .ordinal(),
             0,
             12,
             (index) -> {

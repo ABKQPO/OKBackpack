@@ -13,8 +13,7 @@ import ruiseki.okbackpack.api.IStorageWrapper;
 import ruiseki.okbackpack.common.block.BlockBackpack;
 import ruiseki.okcore.helper.ItemStackHelpers;
 
-public class BackpackItemStackHandler extends UpgradeItemStackHandler
-    implements IMemoryItemHandler, ILockedItemHandler {
+public class BackpackItemStackHandler extends BaseItemStackHandler implements IMemoryItemHandler, ILockedItemHandler {
 
     private final IStorageWrapper wrapper;
 
@@ -148,7 +147,10 @@ public class BackpackItemStackHandler extends UpgradeItemStackHandler
 
     @Override
     public void setMemoryStack(int slot, ItemStack stack) {
-        if (stack == null) return;
+        if (stack == null) {
+            memorizedSlotStack.set(slot, null);
+            return;
+        }
         ItemStack copy = stack.copy();
         copy.stackSize = 1;
         memorizedSlotStack.set(slot, copy);
