@@ -3,7 +3,6 @@ package ruiseki.okbackpack.api;
 import java.util.Map;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 
@@ -13,9 +12,13 @@ import com.cleanroommc.modularui.utils.item.IItemHandler;
 import com.cleanroommc.modularui.utils.item.IItemHandlerModifiable;
 
 import ruiseki.okbackpack.client.gui.handler.UpgradeItemStackHandler;
+import ruiseki.okbackpack.common.SortType;
+import ruiseki.okcore.capabilities.ICapabilityProvider;
+import ruiseki.okcore.datastructure.BlockPos;
 import ruiseki.okcore.persist.nbt.INBTSerializable;
 
-public interface IStorageWrapper extends IItemHandlerModifiable, IItemHandler, ITintable, INBTSerializable {
+public interface IStorageWrapper extends IItemHandlerModifiable, IItemHandler, ITintable, INBTSerializable,
+    IMemoryStorage, ILockedStorage, ICapabilityProvider {
 
     UpgradeItemStackHandler getUpgradeHandler();
 
@@ -43,9 +46,25 @@ public interface IStorageWrapper extends IItemHandlerModifiable, IItemHandler, I
 
     boolean canReplaceUpgrade(int slot, ItemStack replacement);
 
-    boolean tick(EntityPlayer player);
+    boolean tick(World world, BlockPos pos);
 
     void applyContainerEntity(World world, Entity selfEntity);
 
     <T> Map<Integer, T> gatherCapabilityUpgrades(Class<T> capabilityClass);
+
+    void setSortType(SortType sortType);
+
+    SortType getSortType();
+
+    boolean isDirty();
+
+    void markDirty();
+
+    void markClean();
+
+    void setInventorySlotChangeHandler(Runnable contentsChangeHandler);
+
+    default void setUpgradeCachesInvalidatedHandler(Runnable handler) {
+        // noop
+    }
 }

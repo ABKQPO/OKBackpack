@@ -6,9 +6,8 @@ import ruiseki.okbackpack.api.IStorageWrapper;
 import ruiseki.okbackpack.client.gui.widget.updateGroup.UpgradeSlotUpdateGroup;
 import ruiseki.okbackpack.client.gui.widget.upgrade.ExpandedTabWidget;
 import ruiseki.okbackpack.common.block.BackpackPanel;
-import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapperBase;
 
-public interface IUpgradeWrapperFactory<W extends UpgradeWrapperBase> {
+public interface IUpgradeWrapperFactory<W extends IUpgradeWrapper> {
 
     W createWrapper(ItemStack stack, IStorageWrapper storage);
 

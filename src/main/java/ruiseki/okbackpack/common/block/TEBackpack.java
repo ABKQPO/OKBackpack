@@ -14,12 +14,15 @@ import com.cleanroommc.modularui.screen.ModularScreen;
 import com.cleanroommc.modularui.screen.UISettings;
 import com.cleanroommc.modularui.value.sync.PanelSyncManager;
 
+import lombok.experimental.Delegate;
 import ruiseki.okbackpack.Reference;
 import ruiseki.okbackpack.common.init.ModBlocks;
 import ruiseki.okcore.persist.nbt.NBTPersist;
-import ruiseki.okcore.tileentity.TileTicking;
+import ruiseki.okcore.tileentity.TileEntityOK;
+import ruiseki.okcore.tileentity.TileSideCapability;
 
-public class TEBackpack extends TileTicking implements ISidedInventory, IGuiHolder<SidedPosGuiData> {
+public class TEBackpack extends TileSideCapability
+    implements ISidedInventory, IGuiHolder<SidedPosGuiData>, TileEntityOK.ITickingTile {
 
     private int[] allSlots;
 
@@ -38,9 +41,12 @@ public class TEBackpack extends TileTicking implements ISidedInventory, IGuiHold
     @NBTPersist
     private int sbz;
 
+    @Delegate
+    protected final TileEntityOK.ITickingTile tickingTileComponent = new TileEntityOK.TickingTileComponent(this);
+
     public TEBackpack() {
         wrapper = new BackpackWrapper();
-        this.wrapper.setMarkDirtyCallback(new Runnable() {
+        this.wrapper.setInventorySlotChangeHandler(new Runnable() {
 
             @Override
             public void run() {
@@ -55,7 +61,7 @@ public class TEBackpack extends TileTicking implements ISidedInventory, IGuiHold
 
     public void setWrapper(BackpackWrapper wrapper) {
         this.wrapper = wrapper;
-        this.wrapper.setMarkDirtyCallback(new Runnable() {
+        this.wrapper.setInventorySlotChangeHandler(new Runnable() {
 
             @Override
             public void run() {
@@ -77,6 +83,12 @@ public class TEBackpack extends TileTicking implements ISidedInventory, IGuiHold
             }
         }
         return true;
+    }
+
+    @Override
+    protected void doUpdate() {
+        super.doUpdate();
+        wrapper.tick(worldObj, getPos());
     }
 
     @Override

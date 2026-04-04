@@ -34,21 +34,21 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import lombok.Getter;
 import lombok.Setter;
+import ruiseki.okbackpack.api.IStorageWrapper;
 import ruiseki.okbackpack.client.gui.OKBGuiTextures;
 import ruiseki.okbackpack.client.gui.syncHandler.BackpackSlotSH;
 import ruiseki.okbackpack.common.block.BackpackPanel;
-import ruiseki.okbackpack.common.block.BackpackWrapper;
 
 public class BackpackSlot extends ItemSlot {
 
     private final BackpackPanel panel;
-    private final BackpackWrapper wrapper;
+    private final IStorageWrapper wrapper;
 
     @Getter
     @Setter
     private boolean focus;
 
-    public BackpackSlot(BackpackPanel panel, BackpackWrapper wrapper) {
+    public BackpackSlot(BackpackPanel panel, IStorageWrapper wrapper) {
         this.panel = panel;
         this.wrapper = wrapper;
         this.focus = true;
@@ -68,7 +68,7 @@ public class BackpackSlot extends ItemSlot {
 
     @Override
     public void buildTooltip(ItemStack stack, RichTooltip tooltip) {
-        ItemStack memorizedStack = wrapper.getMemorizedStack(getSlot().slotNumber);
+        ItemStack memorizedStack = wrapper.getMemoryStack(getSlot().slotNumber);
 
         if (stack == null && memorizedStack == null) return;
 
@@ -203,7 +203,7 @@ public class BackpackSlot extends ItemSlot {
 
     private void drawSettingStack(ModularGuiContext context, WidgetTheme widgetTheme) {
         ItemStack slotStack = getSlot().getStack();
-        ItemStack memoryStack = wrapper.backpackHandler.memorizedSlotStack.get(getSlot().slotNumber);
+        ItemStack memoryStack = wrapper.getMemoryStack(getSlot().slotNumber);
         ItemStack toRender = slotStack != null ? slotStack : memoryStack;
 
         if (toRender == null) return;

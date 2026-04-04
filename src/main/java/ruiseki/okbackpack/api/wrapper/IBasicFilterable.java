@@ -2,7 +2,7 @@ package ruiseki.okbackpack.api.wrapper;
 
 import net.minecraft.item.ItemStack;
 
-import ruiseki.okbackpack.client.gui.handler.UpgradeItemStackHandler;
+import ruiseki.okbackpack.client.gui.handler.BaseItemStackHandler;
 import ruiseki.okcore.helper.ItemStackHelpers;
 
 public interface IBasicFilterable {
@@ -10,7 +10,7 @@ public interface IBasicFilterable {
     String FILTER_ITEMS_TAG = "FilterItems";
     String FILTER_TYPE_TAG = "FilterType";
 
-    UpgradeItemStackHandler getFilterItems();
+    BaseItemStackHandler getFilterItems();
 
     FilterType getFilterType();
 

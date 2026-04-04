@@ -4,19 +4,19 @@ import net.minecraft.item.ItemStack;
 
 import com.cleanroommc.modularui.widgets.slot.ModularSlot;
 
-import ruiseki.okbackpack.common.block.BackpackWrapper;
+import ruiseki.okbackpack.api.IStorageWrapper;
 
 public class ModularBackpackSlot extends ModularSlot {
 
-    protected final BackpackWrapper wrapper;
+    protected final IStorageWrapper wrapper;
 
-    public ModularBackpackSlot(BackpackWrapper wrapper, int index) {
+    public ModularBackpackSlot(IStorageWrapper wrapper, int index) {
         super(wrapper, index);
         this.wrapper = wrapper;
     }
 
     public ItemStack getMemoryStack() {
-        return wrapper.getMemorizedStack(getSlotIndex());
+        return wrapper.getMemoryStack(getSlotIndex());
     }
 
     @Override

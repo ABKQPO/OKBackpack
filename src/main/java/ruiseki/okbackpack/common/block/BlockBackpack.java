@@ -37,7 +37,6 @@ import cpw.mods.fml.relauncher.SideOnly;
 import lombok.Getter;
 import ruiseki.okbackpack.OKBCreativeTab;
 import ruiseki.okbackpack.Reference;
-import ruiseki.okbackpack.client.gui.container.BackPackContainer;
 import ruiseki.okbackpack.client.renderer.JsonModelISBRH;
 import ruiseki.okbackpack.client.renderer.RenderHelpers;
 import ruiseki.okbackpack.client.renderer.player.IArmorRender;
@@ -237,24 +236,12 @@ public class BlockBackpack extends BlockOK {
         public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isHeld) {
             super.onUpdate(stack, world, entity, slot, isHeld);
             if (!world.isRemote && stack != null) {
-                BackpackWrapper wrapper = new BackpackWrapper(stack, this);
                 if (!stack.getTagCompound()
                     .hasKey(BackpackWrapper.BACKPACK_NBT)) {
+                    BackpackWrapper wrapper = new BackpackWrapper(stack, this);
                     wrapper.writeToItem();
                 }
-
-                if (entity instanceof EntityPlayer player && !(player.openContainer instanceof BackPackContainer)) {
-                    if (wrapper.tick(player)) {
-                        wrapper.writeToItem();
-                    }
-                }
             }
-        }
-
-        @Override
-        public void onWornTick(ItemStack stack, EntityLivingBase player) {
-            super.onWornTick(stack, player);
-            onUpdate(stack, player.worldObj, player, -1, false);
         }
 
         @Override

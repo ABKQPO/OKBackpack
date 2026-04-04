@@ -89,11 +89,11 @@ public class BackpackSH extends SyncHandler {
     }
 
     public void setSortType(SortType sortType) {
-        wrapper.sortType = sortType;
+        wrapper.setSortType(sortType);
     }
 
     public void sortInventory(PacketBuffer buf) throws IOException {
-        for (int i = 0; i < wrapper.backpackSlots; i++) {
+        for (int i = 0; i < wrapper.getSlots(); i++) {
             wrapper.setStackInSlot(i, buf.readItemStackFromBuffer());
         }
     }

@@ -1,23 +1,28 @@
 package ruiseki.okbackpack.common.item.wrapper;
 
+import java.util.List;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemFood;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.world.World;
 
 import com.cleanroommc.modularui.utils.item.IItemHandler;
 
 import ruiseki.okbackpack.api.IStorageWrapper;
 import ruiseki.okbackpack.api.wrapper.IBasicFilterable;
 import ruiseki.okbackpack.api.wrapper.IFeedingUpgrade;
-import ruiseki.okbackpack.client.gui.handler.UpgradeItemStackHandler;
+import ruiseki.okbackpack.client.gui.handler.BaseItemStackHandler;
+import ruiseki.okcore.datastructure.BlockPos;
 import ruiseki.okcore.helper.ItemNBTHelpers;
 
 public class FeedingUpgradeWrapper extends BasicUpgradeWrapper implements IFeedingUpgrade {
 
     public FeedingUpgradeWrapper(ItemStack upgrade, IStorageWrapper storage) {
         super(upgrade, storage);
-        handler = new UpgradeItemStackHandler(9) {
+        handler = new BaseItemStackHandler(9) {
 
             @Override
             public boolean isItemValid(int slot, ItemStack stack) {
@@ -30,6 +35,9 @@ public class FeedingUpgradeWrapper extends BasicUpgradeWrapper implements IFeedi
                 tag.setTag(IBasicFilterable.FILTER_ITEMS_TAG, this.serializeNBT());
             }
         };
+
+        NBTTagCompound handlerTag = ItemNBTHelpers.getCompound(upgrade, FILTER_ITEMS_TAG, false);
+        if (handlerTag != null) handler.deserializeNBT(handlerTag);
     }
 
     @Override
@@ -64,5 +72,31 @@ public class FeedingUpgradeWrapper extends BasicUpgradeWrapper implements IFeedi
         if (player.capabilities.isCreativeMode) return false;
         if (player.ticksExisted % 20 != 0) return false;
         return feed(player, storage);
+    }
+
+    @Override
+    public boolean tick(World world, BlockPos pos) {
+        if (world.isRemote) return false;
+        if (world.getWorldTime() % 20 != 0) return false;
+
+        double range = 5;
+
+        AxisAlignedBB aabb = AxisAlignedBB
+            .getBoundingBox(pos.x - range, pos.y - range, pos.z - range, pos.x + range, pos.y + range, pos.z + range);
+
+        List<EntityPlayer> players = world.getEntitiesWithinAABB(EntityPlayer.class, aabb);
+        if (players.isEmpty()) return false;
+
+        boolean fedAny = false;
+
+        for (EntityPlayer player : players) {
+            if (player.capabilities.isCreativeMode) continue;
+
+            if (feed(player, storage)) {
+                fedAny = true;
+            }
+        }
+
+        return fedAny;
     }
 }

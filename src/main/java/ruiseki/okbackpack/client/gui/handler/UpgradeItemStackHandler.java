@@ -1,45 +1,26 @@
 package ruiseki.okbackpack.client.gui.handler;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.minecraft.item.ItemStack;
 
-import com.cleanroommc.modularui.utils.item.ItemStackHandler;
+import ruiseki.okbackpack.api.IStorageWrapper;
+import ruiseki.okbackpack.api.upgrade.IUpgradeItem;
 
-public class UpgradeItemStackHandler extends ItemStackHandler {
+public class UpgradeItemStackHandler extends BaseItemStackHandler {
 
-    public UpgradeItemStackHandler(int size) {
+    private final IStorageWrapper storage;
+
+    public UpgradeItemStackHandler(int size, IStorageWrapper storage) {
         super(size);
+        this.storage = storage;
     }
 
-    public void resize(int newSize) {
-        List<ItemStack> newStacks = new ArrayList<>(newSize);
-
-        for (int i = 0; i < newSize; i++) {
-            if (i < stacks.size()) {
-                newStacks.add(stacks.get(i));
-            } else {
-                newStacks.add(null);
-            }
-        }
-
-        this.stacks = newStacks;
+    @Override
+    public boolean isItemValid(int slot, ItemStack stack) {
+        return stack == null || stack.getItem() instanceof IUpgradeItem;
     }
 
-    public boolean isSizeInconsistent(int newSize) {
-        return newSize != stacks.size();
-    }
-
-    public static <T> void syncListSize(List<T> list, int newSize, T defaultValue) {
-        int currentSize = list.size();
-        if (newSize < currentSize) {
-            list.subList(newSize, currentSize)
-                .clear();
-        } else {
-            for (int i = currentSize; i < newSize; i++) {
-                list.add(defaultValue);
-            }
-        }
+    @Override
+    public int getSlotLimit(int slot) {
+        return 1;
     }
 }

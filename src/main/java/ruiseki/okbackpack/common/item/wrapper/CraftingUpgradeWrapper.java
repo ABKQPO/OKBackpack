@@ -6,16 +6,16 @@ import net.minecraft.nbt.NBTTagCompound;
 import ruiseki.okbackpack.api.IStorageWrapper;
 import ruiseki.okbackpack.api.wrapper.IBasicFilterable;
 import ruiseki.okbackpack.api.wrapper.ICraftingUpgrade;
-import ruiseki.okbackpack.client.gui.handler.UpgradeItemStackHandler;
+import ruiseki.okbackpack.client.gui.handler.BaseItemStackHandler;
 import ruiseki.okcore.helper.ItemNBTHelpers;
 
 public class CraftingUpgradeWrapper extends UpgradeWrapperBase implements ICraftingUpgrade {
 
-    protected UpgradeItemStackHandler handler;
+    protected BaseItemStackHandler handler;
 
     public CraftingUpgradeWrapper(ItemStack upgrade, IStorageWrapper storage) {
         super(upgrade, storage);
-        handler = new UpgradeItemStackHandler(10) {
+        handler = new BaseItemStackHandler(10) {
 
             @Override
             protected void onContentsChanged(int slot) {
@@ -33,7 +33,7 @@ public class CraftingUpgradeWrapper extends UpgradeWrapperBase implements ICraft
     }
 
     @Override
-    public UpgradeItemStackHandler getStorage() {
+    public BaseItemStackHandler getStorage() {
         return handler;
     }
 

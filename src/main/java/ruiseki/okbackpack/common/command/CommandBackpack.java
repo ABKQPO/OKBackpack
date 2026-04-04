@@ -294,8 +294,10 @@ public class CommandBackpack extends CommandMod {
         }
 
         // Upgrades
-        for (int i = 0; i < wrapper.upgradeHandler.getSlots(); i++) {
-            ItemStack stack = wrapper.upgradeHandler.getStackInSlot(i);
+        for (int i = 0; i < wrapper.getUpgradeHandler()
+            .getSlots(); i++) {
+            ItemStack stack = wrapper.getUpgradeHandler()
+                .getStackInSlot(i);
             if (stack != null) {
                 mat.getUpgrade()
                     .add(BackpackMaterial.BackpackEntry.fromItemStack(i, stack));
@@ -310,7 +312,10 @@ public class CommandBackpack extends CommandMod {
 
         // Clear existing
         for (int i = 0; i < wrapper.getSlots(); i++) wrapper.setStackInSlot(i, null);
-        for (int i = 0; i < wrapper.upgradeHandler.getSlots(); i++) wrapper.upgradeHandler.setStackInSlot(i, null);
+        for (int i = 0; i < wrapper.getUpgradeHandler()
+            .getSlots(); i++)
+            wrapper.getUpgradeHandler()
+                .setStackInSlot(i, null);
 
         // Set new
         for (BackpackMaterial.BackpackEntry entry : mat.getInventory()) {
@@ -319,8 +324,10 @@ public class CommandBackpack extends CommandMod {
             }
         }
         for (BackpackMaterial.BackpackEntry entry : mat.getUpgrade()) {
-            if (entry.slot < wrapper.upgradeHandler.getSlots()) {
-                wrapper.upgradeHandler.setStackInSlot(entry.slot, entry.toItemStack());
+            if (entry.slot < wrapper.getUpgradeHandler()
+                .getSlots()) {
+                wrapper.getUpgradeHandler()
+                    .setStackInSlot(entry.slot, entry.toItemStack());
             }
         }
     }

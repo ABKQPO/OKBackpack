@@ -12,10 +12,10 @@ import com.cleanroommc.modularui.value.sync.SyncHandler;
 import ruiseki.okbackpack.api.wrapper.IAdvancedFilterable;
 import ruiseki.okbackpack.api.wrapper.IBasicFilterable;
 import ruiseki.okbackpack.api.wrapper.IStorageUpgrade;
-import ruiseki.okbackpack.api.wrapper.UpgradeWrapperFactory;
 import ruiseki.okbackpack.client.gui.handler.DelegatedItemHandler;
 import ruiseki.okbackpack.common.block.BackpackWrapper;
 import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapperBase;
+import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapperFactory;
 
 public class DelegatedStackHandlerSH extends SyncHandler {
 
@@ -50,7 +50,8 @@ public class DelegatedStackHandlerSH extends SyncHandler {
 
     @Override
     public void readOnServer(int id, PacketBuffer buf) {
-        ItemStack stack = wrapper.upgradeHandler.getStackInSlot(slotIndex);
+        ItemStack stack = wrapper.getUpgradeHandler()
+            .getStackInSlot(slotIndex);
         UpgradeWrapperBase wrapper = UpgradeWrapperFactory.createWrapper(stack, this.wrapper);
 
         switch (id) {

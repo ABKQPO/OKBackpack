@@ -12,12 +12,12 @@ import com.cleanroommc.modularui.utils.item.IItemHandler;
 import ruiseki.okbackpack.api.wrapper.IAdvancedFilterable;
 import ruiseki.okbackpack.api.wrapper.IBasicFilterable;
 import ruiseki.okbackpack.api.wrapper.ICraftingUpgrade;
-import ruiseki.okbackpack.api.wrapper.UpgradeWrapperFactory;
 import ruiseki.okbackpack.client.gui.container.BackPackContainer;
 import ruiseki.okbackpack.client.gui.handler.IndexedInventoryCraftingWrapper;
 import ruiseki.okbackpack.common.block.BackpackWrapper;
 import ruiseki.okbackpack.common.item.wrapper.CraftingUpgradeWrapper;
 import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapperBase;
+import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapperFactory;
 
 public class DelegatedCraftingStackHandlerSH extends DelegatedStackHandlerSH {
 
@@ -62,7 +62,8 @@ public class DelegatedCraftingStackHandlerSH extends DelegatedStackHandlerSH {
                 .registerInventoryCrafting(slotIndex, inventoryCrafting);
         }
 
-        var stack = wrapper.upgradeHandler.getStackInSlot(slotIndex);
+        var stack = wrapper.getUpgradeHandler()
+            .getStackInSlot(slotIndex);
 
         UpgradeWrapperBase upgradeWrapper = UpgradeWrapperFactory.createWrapper(stack, this.wrapper);
 
@@ -88,7 +89,8 @@ public class DelegatedCraftingStackHandlerSH extends DelegatedStackHandlerSH {
     public void readOnClient(int id, PacketBuffer buf) {
 
         if (id == UPDATE_CRAFTING) {
-            ItemStack stack = wrapper.upgradeHandler.getStackInSlot(slotIndex);
+            ItemStack stack = wrapper.getUpgradeHandler()
+                .getStackInSlot(slotIndex);
             UpgradeWrapperBase upgradeWrapper = UpgradeWrapperFactory.createWrapper(stack, this.wrapper);
             if (!(upgradeWrapper instanceof CraftingUpgradeWrapper craftingWrapper)) return;
 
@@ -105,7 +107,8 @@ public class DelegatedCraftingStackHandlerSH extends DelegatedStackHandlerSH {
 
     @Override
     public void readOnServer(int id, PacketBuffer buf) {
-        ItemStack stack = wrapper.upgradeHandler.getStackInSlot(slotIndex);
+        ItemStack stack = wrapper.getUpgradeHandler()
+            .getStackInSlot(slotIndex);
         UpgradeWrapperBase wrapper = UpgradeWrapperFactory.createWrapper(stack, this.wrapper);
 
         switch (id) {
