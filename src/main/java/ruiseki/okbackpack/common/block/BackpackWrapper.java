@@ -28,6 +28,7 @@ import ruiseki.okbackpack.api.wrapper.IFilterUpgrade;
 import ruiseki.okbackpack.api.wrapper.IInventoryModifiable;
 import ruiseki.okbackpack.api.wrapper.IPickupUpgrade;
 import ruiseki.okbackpack.api.wrapper.ISlotModifiable;
+import ruiseki.okbackpack.api.wrapper.ISmeltingUpgrade;
 import ruiseki.okbackpack.api.wrapper.ITickable;
 import ruiseki.okbackpack.api.wrapper.IToggleable;
 import ruiseki.okbackpack.client.gui.handler.BackpackItemStackHandler;
@@ -168,6 +169,20 @@ public class BackpackWrapper implements IBackpackWrapper {
             protected void onContentsChanged(int slot) {
                 super.onContentsChanged(slot);
                 markDirty();
+            }
+
+            @Override
+            public ItemStack extractItem(int slot, int amount, boolean simulate) {
+                ItemStack extracted = super.extractItem(slot, amount, simulate);
+                if (!simulate && extracted != null) {
+                    NBTTagCompound tag = extracted.getTagCompound();
+                    if (tag != null && tag.hasKey(ISmeltingUpgrade.SMELTING_PROGRESS_TAG)) {
+                        tag.removeTag(ISmeltingUpgrade.SMELTING_PROGRESS_TAG);
+                        tag.removeTag(ISmeltingUpgrade.SMELTING_FUEL_PROGRESS_TAG);
+                        tag.removeTag(ISmeltingUpgrade.SMELTING_FUEL_TOTAL_TAG);
+                    }
+                }
+                return extracted;
             }
         };
 

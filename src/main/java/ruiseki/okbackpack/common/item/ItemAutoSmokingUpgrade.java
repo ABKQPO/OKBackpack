@@ -31,6 +31,7 @@ public class ItemAutoSmokingUpgrade extends ItemUpgrade<AutoSmokingUpgradeWrappe
     @Override
     public void addInformation(ItemStack itemstack, EntityPlayer entityplayer, List<String> list, boolean flag) {
         list.add(LangHelpers.localize("tooltip.backpack.auto_smoking_upgrade"));
+        list.add(LangHelpers.localize("tooltip.backpack.auto_smoking_upgrade.1"));
     }
 
     @Override

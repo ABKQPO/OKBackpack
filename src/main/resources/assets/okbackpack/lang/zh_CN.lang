@@ -197,14 +197,19 @@ tooltip.backpack.filter_upgrade=过滤放入世界时插入的物品
 tooltip.backpack.advanced_filter_upgrade=过滤放入世界时插入的物品（更多配置）
 tooltip.backpack.void_upgrade=销毁过滤器选定的物品
 tooltip.backpack.advanced_void_upgrade=销毁过滤器选定的物品（更多过滤选项）
-tooltip.backpack.compacting_upgrade=将物品压制为对应的压缩变体\n仅2x2配方
-tooltip.backpack.advanced_compacting_upgrade=将物品压制为对应的压缩变体\n包括2x2配方，3x3配方以及更多的过滤选项
+tooltip.backpack.compacting_upgrade=将物品压制为对应的压缩变体
+tooltip.backpack.compacting_upgrade.1=仅2x2配方
+tooltip.backpack.advanced_compacting_upgrade=将物品压制为对应的压缩变体
+tooltip.backpack.advanced_compacting_upgrade.1=包括2x2配方，3x3配方以及更多的过滤选项
 tooltip.backpack.smelting_upgrade=在升级标签页中熔炼物品
-tooltip.backpack.auto_smelting_upgrade=在升级标签页中熔炼物品\n自动抽入/排出物品
+tooltip.backpack.auto_smelting_upgrade=在升级标签页中熔炼物品
+tooltip.backpack.auto_smelting_upgrade.1=自动抽入/排出物品
 tooltip.backpack.smoking_upgrade=在升级标签页中烟熏食物
-tooltip.backpack.auto_smoking_upgrade=在升级标签页中烟熏食物\n自动抽入/排出物品
+tooltip.backpack.auto_smoking_upgrade=在升级标签页中烟熏食物
+tooltip.backpack.auto_smoking_upgrade.1=自动抽入/排出物品
 tooltip.backpack.blasting_upgrade=在升级标签页中高速熔炼矿物和金属材料
-tooltip.backpack.auto_blasting_upgrade=在升级标签页中高速熔炼矿物和金属材料\n自动抽入/排出物品
+tooltip.backpack.auto_blasting_upgrade=在升级标签页中高速熔炼矿物和金属材料
+tooltip.backpack.auto_blasting_upgrade.1=自动抽入/排出物品
 
 #Messages
 messages.backpack.cant.bag=无法放置睡袋！检查周围区域。

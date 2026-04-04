@@ -31,6 +31,7 @@ public class ItemAutoSmeltingUpgrade extends ItemUpgrade<AutoSmeltingUpgradeWrap
     @Override
     public void addInformation(ItemStack itemstack, EntityPlayer entityplayer, List<String> list, boolean flag) {
         list.add(LangHelpers.localize("tooltip.backpack.auto_smelting_upgrade"));
+        list.add(LangHelpers.localize("tooltip.backpack.auto_smelting_upgrade.1"));
     }
 
     @Override

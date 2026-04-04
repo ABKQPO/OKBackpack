@@ -31,6 +31,7 @@ public class ItemAutoBlastingUpgrade extends ItemUpgrade<AutoBlastingUpgradeWrap
     @Override
     public void addInformation(ItemStack itemstack, EntityPlayer entityplayer, List<String> list, boolean flag) {
         list.add(LangHelpers.localize("tooltip.backpack.auto_blasting_upgrade"));
+        list.add(LangHelpers.localize("tooltip.backpack.auto_blasting_upgrade.1"));
     }
 
     @Override
