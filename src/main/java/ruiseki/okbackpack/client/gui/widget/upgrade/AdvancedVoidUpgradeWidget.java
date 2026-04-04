@@ -8,12 +8,12 @@ import net.minecraft.item.ItemStack;
 import com.cleanroommc.modularui.api.drawable.IKey;
 import com.cleanroommc.modularui.network.NetworkUtils;
 
+import ruiseki.okbackpack.api.IStoragePanel;
 import ruiseki.okbackpack.api.wrapper.IVoidUpgrade;
 import ruiseki.okbackpack.client.gui.OKBGuiTextures;
 import ruiseki.okbackpack.client.gui.syncHandler.UpgradeSlotSH;
 import ruiseki.okbackpack.client.gui.syncHandler.UpgradeSlotSHRegisters;
 import ruiseki.okbackpack.client.gui.widget.CyclicVariantButtonWidget;
-import ruiseki.okbackpack.common.block.BackpackPanel;
 import ruiseki.okbackpack.common.item.wrapper.AdvancedVoidUpgradeWrapper;
 
 public class AdvancedVoidUpgradeWidget extends AdvancedExpandedTabWidget<AdvancedVoidUpgradeWrapper> {
@@ -29,7 +29,7 @@ public class AdvancedVoidUpgradeWidget extends AdvancedExpandedTabWidget<Advance
         new CyclicVariantButtonWidget.Variant(IKey.lang("gui.backpack.void_any"), OKBGuiTextures.VOID_ANY));
 
     public AdvancedVoidUpgradeWidget(int slotIndex, AdvancedVoidUpgradeWrapper wrapper, ItemStack stack,
-        BackpackPanel panel, String titleKey) {
+        IStoragePanel<?> panel, String titleKey) {
         super(slotIndex, wrapper, stack, titleKey, "adv_common_filter", 6, 100);
 
         // CyclicVariantButtonWidget inputButton = new CyclicVariantButtonWidget(

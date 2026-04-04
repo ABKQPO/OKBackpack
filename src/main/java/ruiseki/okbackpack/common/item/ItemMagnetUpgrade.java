@@ -6,12 +6,12 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 
 import ruiseki.okbackpack.Reference;
+import ruiseki.okbackpack.api.IStoragePanel;
 import ruiseki.okbackpack.api.IStorageWrapper;
 import ruiseki.okbackpack.client.gui.syncHandler.DelegatedStackHandlerSH;
 import ruiseki.okbackpack.client.gui.widget.updateGroup.UpgradeSlotUpdateGroup;
 import ruiseki.okbackpack.client.gui.widget.upgrade.ExpandedTabWidget;
 import ruiseki.okbackpack.client.gui.widget.upgrade.MagnetUpgradeWidget;
-import ruiseki.okbackpack.common.block.BackpackPanel;
 import ruiseki.okbackpack.common.item.wrapper.MagnetUpgradeWrapper;
 import ruiseki.okcore.helper.LangHelpers;
 
@@ -48,7 +48,7 @@ public class ItemMagnetUpgrade extends ItemUpgrade<MagnetUpgradeWrapper> {
 
     @Override
     public ExpandedTabWidget getExpandedTabWidget(int slotIndex, MagnetUpgradeWrapper wrapper, ItemStack stack,
-        BackpackPanel panel, String titleKey) {
+        IStoragePanel<?> panel, String titleKey) {
         return new MagnetUpgradeWidget(slotIndex, wrapper, stack, panel, titleKey);
     }
 }

@@ -8,11 +8,11 @@ import net.minecraft.item.ItemStack;
 import com.cleanroommc.modularui.api.drawable.IKey;
 
 import lombok.Getter;
+import ruiseki.okbackpack.api.IStoragePanel;
 import ruiseki.okbackpack.client.gui.OKBGuiTextures;
 import ruiseki.okbackpack.client.gui.syncHandler.UpgradeSlotSH;
 import ruiseki.okbackpack.client.gui.syncHandler.UpgradeSlotSHRegisters;
 import ruiseki.okbackpack.client.gui.widget.CyclicVariantButtonWidget;
-import ruiseki.okbackpack.common.block.BackpackPanel;
 import ruiseki.okbackpack.common.item.wrapper.CompactingUpgradeWrapper;
 
 public class CompactingUpgradeWidget extends BasicExpandedTabWidget<CompactingUpgradeWrapper> {
@@ -25,8 +25,8 @@ public class CompactingUpgradeWidget extends BasicExpandedTabWidget<CompactingUp
     private final CyclicVariantButtonWidget reversibleButton;
 
     public CompactingUpgradeWidget(int slotIndex, CompactingUpgradeWrapper wrapper, ItemStack stack,
-        BackpackPanel panel, String titleKey) {
-        super(slotIndex, wrapper, stack, titleKey, "common_filter", 5, 75);
+        IStoragePanel<?> panel, String titleKey) {
+        super(slotIndex, wrapper, stack, titleKey, "common_filter", 5, 90);
 
         this.reversibleButton = new CyclicVariantButtonWidget(
             REVERSIBLE_VARIANTS,

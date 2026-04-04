@@ -9,6 +9,8 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 
+import org.jetbrains.annotations.NotNull;
+
 import com.cleanroommc.modularui.api.IPanelHandler;
 import com.cleanroommc.modularui.api.drawable.IKey;
 import com.cleanroommc.modularui.api.widget.Interactable;
@@ -34,6 +36,7 @@ import com.cleanroommc.modularui.widgets.slot.ModularSlot;
 import com.cleanroommc.modularui.widgets.slot.SlotGroup;
 
 import ruiseki.okbackpack.Reference;
+import ruiseki.okbackpack.api.IStorageContainer;
 import ruiseki.okbackpack.api.IStoragePanel;
 import ruiseki.okbackpack.api.IStorageWrapper;
 import ruiseki.okbackpack.api.wrapper.IToggleable;
@@ -68,7 +71,7 @@ import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapperFactory;
 import ruiseki.okcore.helper.ItemStackHelpers;
 import ruiseki.okcore.helper.LangHelpers;
 
-public class BackpackPanel extends ModularPanel implements IStoragePanel {
+public class BackpackPanel extends ModularPanel implements IStoragePanel<BackpackPanel> {
 
     public static final AdaptableUITexture LAYERED_TAB_TEXTURE = (AdaptableUITexture) UITexture.builder()
         .location(Reference.MOD_ID, "gui/gui_controls")
@@ -623,8 +626,14 @@ public class BackpackPanel extends ModularPanel implements IStoragePanel {
         }
     }
 
-    public BackPackContainer getBackpackContainer() {
-        return (BackPackContainer) syncManager.getContainer();
+    @Override
+    public IStorageContainer<?> getContainer() {
+        return (IStorageContainer<?>) syncManager.getContainer();
+    }
+
+    @Override
+    public @NotNull BackpackPanel getPanel() {
+        return this;
     }
 
     public int getOpenCraftingUpgradeSlot() {

@@ -9,10 +9,10 @@ import net.minecraft.network.PacketBuffer;
 import com.cleanroommc.modularui.utils.item.EmptyHandler;
 import com.cleanroommc.modularui.utils.item.IItemHandler;
 
+import ruiseki.okbackpack.api.IStorageContainer;
 import ruiseki.okbackpack.api.wrapper.IAdvancedFilterable;
 import ruiseki.okbackpack.api.wrapper.IBasicFilterable;
 import ruiseki.okbackpack.api.wrapper.ICraftingUpgrade;
-import ruiseki.okbackpack.client.gui.container.BackPackContainer;
 import ruiseki.okbackpack.client.gui.handler.IndexedInventoryCraftingWrapper;
 import ruiseki.okbackpack.common.block.BackpackWrapper;
 import ruiseki.okbackpack.common.item.wrapper.CraftingUpgradeWrapper;
@@ -24,13 +24,13 @@ public class DelegatedCraftingStackHandlerSH extends DelegatedStackHandlerSH {
     public static final int UPDATE_CRAFTING = 3;
     public static final int DETECT_CHANGES = 4;
 
-    private final Supplier<BackPackContainer> containerProvider;
+    private final Supplier<IStorageContainer<?>> containerProvider;
     private final BackpackWrapper wrapper;
     private final int slotIndex;
 
     private IndexedInventoryCraftingWrapper inventoryCrafting;
 
-    public DelegatedCraftingStackHandlerSH(Supplier<BackPackContainer> containerProvider, BackpackWrapper wrapper,
+    public DelegatedCraftingStackHandlerSH(Supplier<IStorageContainer<?>> containerProvider, BackpackWrapper wrapper,
         int slotIndex, int wrappedSlotAmount) {
 
         super(wrapper, slotIndex, wrappedSlotAmount);
@@ -52,7 +52,8 @@ public class DelegatedCraftingStackHandlerSH extends DelegatedStackHandlerSH {
 
             inventoryCrafting = new IndexedInventoryCraftingWrapper(
                 slotIndex,
-                containerProvider.get(),
+                containerProvider.get()
+                    .getContainer(),
                 3,
                 3,
                 delegatedStackHandler,

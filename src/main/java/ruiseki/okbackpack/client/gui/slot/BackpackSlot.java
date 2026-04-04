@@ -38,18 +38,17 @@ import ruiseki.okbackpack.api.IStoragePanel;
 import ruiseki.okbackpack.api.IStorageWrapper;
 import ruiseki.okbackpack.client.gui.OKBGuiTextures;
 import ruiseki.okbackpack.client.gui.syncHandler.BackpackSlotSH;
-import ruiseki.okbackpack.common.block.BackpackPanel;
 
 public class BackpackSlot extends ItemSlot {
 
-    private final IStoragePanel panel;
+    private final IStoragePanel<?> panel;
     private final IStorageWrapper wrapper;
 
     @Getter
     @Setter
     private boolean focus;
 
-    public BackpackSlot(BackpackPanel panel, IStorageWrapper wrapper) {
+    public BackpackSlot(IStoragePanel<?> panel, IStorageWrapper wrapper) {
         this.panel = panel;
         this.wrapper = wrapper;
         this.focus = true;
