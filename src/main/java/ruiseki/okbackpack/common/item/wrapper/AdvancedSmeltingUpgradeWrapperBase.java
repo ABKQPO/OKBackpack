@@ -187,11 +187,12 @@ public abstract class AdvancedSmeltingUpgradeWrapperBase extends AdvancedUpgrade
         smeltingInventory.setStackInSlot(2, stack);
     }
 
-    protected void doAutoSmeltTick() {
-        if (!isEnabled()) return;
-        if (!(storage instanceof BackpackWrapper bw)) return;
+    protected boolean doAutoSmeltTick() {
+        if (!isEnabled()) return false;
+        if (!(storage instanceof BackpackWrapper bw)) return false;
 
         BackpackItemStackHandler invHandler = bw.backpackHandler;
+        boolean changed = false;
 
         // Auto-pull input from backpack
         ItemStack input = getInput();
@@ -208,6 +209,7 @@ public abstract class AdvancedSmeltingUpgradeWrapperBase extends AdvancedUpgrade
                     pulled.stackSize = 1;
                     setInput(pulled);
                     stack.stackSize--;
+                    changed = true;
                     if (stack.stackSize <= 0) {
                         invHandler.setStackInSlot(i, null);
                     } else {
@@ -222,6 +224,7 @@ public abstract class AdvancedSmeltingUpgradeWrapperBase extends AdvancedUpgrade
                         input.stackSize += take;
                         setInput(input);
                         stack.stackSize -= take;
+                        changed = true;
                         if (stack.stackSize <= 0) {
                             invHandler.setStackInSlot(i, null);
                         } else {
@@ -248,6 +251,7 @@ public abstract class AdvancedSmeltingUpgradeWrapperBase extends AdvancedUpgrade
                     pulled.stackSize = 1;
                     setFuel(pulled);
                     stack.stackSize--;
+                    changed = true;
                     if (stack.stackSize <= 0) {
                         invHandler.setStackInSlot(i, null);
                     } else {
@@ -262,6 +266,7 @@ public abstract class AdvancedSmeltingUpgradeWrapperBase extends AdvancedUpgrade
                         fuel.stackSize += take;
                         setFuel(fuel);
                         stack.stackSize -= take;
+                        changed = true;
                         if (stack.stackSize <= 0) {
                             invHandler.setStackInSlot(i, null);
                         } else {
@@ -276,15 +281,19 @@ public abstract class AdvancedSmeltingUpgradeWrapperBase extends AdvancedUpgrade
         // Auto-push output to backpack
         ItemStack output = getOutput();
         if (output != null && output.stackSize > 0) {
-            ItemStack remaining = tryInsertToBackpack(output, invHandler);
-            setOutput(remaining);
+            ItemStack remaining = tryInsertToBackpack(output, bw);
+            int remainingSize = remaining == null ? 0 : remaining.stackSize;
+            if (remainingSize != output.stackSize) {
+                setOutput(remaining);
+                changed = true;
+            }
         }
 
         // Do smelting tick
-        doSmeltTick();
+        return doSmeltTick() || changed;
     }
 
-    protected void doSmeltTick() {
+    protected boolean doSmeltTick() {
         boolean dirty = false;
         int fuelProgress = getFuelProgress();
         int smeltProgress = getSmeltProgress();
@@ -367,59 +376,23 @@ public abstract class AdvancedSmeltingUpgradeWrapperBase extends AdvancedUpgrade
         if (dirty) {
             markDirty();
         }
+        return dirty;
     }
 
-    protected ItemStack tryInsertToBackpack(ItemStack output, BackpackItemStackHandler invHandler) {
+    protected ItemStack tryInsertToBackpack(ItemStack output, BackpackWrapper wrapper) {
         if (output == null) return null;
-
-        ItemStack remaining = ItemHandlerHelper.copyStackWithSize(output, output.stackSize);
-
-        for (int i = 0; i < invHandler.getSlots() && remaining != null; i++) {
-            ItemStack existing = invHandler.getStackInSlot(i);
-            if (existing == null) continue;
-            if (!ItemHandlerHelper.canItemStacksStack(existing, remaining)) continue;
-
-            int limit = invHandler.getSlotLimit(i);
-            int space = limit - existing.stackSize;
-            if (space <= 0) continue;
-
-            int toInsert = Math.min(space, remaining.stackSize);
-            existing.stackSize += toInsert;
-            invHandler.setStackInSlot(i, existing);
-
-            remaining.stackSize -= toInsert;
-            if (remaining.stackSize <= 0) return null;
-        }
-
-        for (int i = 0; i < invHandler.getSlots() && remaining != null; i++) {
-            ItemStack existing = invHandler.getStackInSlot(i);
-            if (existing != null) continue;
-
-            int limit = invHandler.getSlotLimit(i);
-            int toInsert = Math.min(limit, remaining.stackSize);
-
-            ItemStack placed = remaining.copy();
-            placed.stackSize = toInsert;
-            invHandler.setStackInSlot(i, placed);
-
-            remaining.stackSize -= toInsert;
-            if (remaining.stackSize <= 0) return null;
-        }
-
-        return remaining;
+        return wrapper.insertItem(output.copy(), false);
     }
 
     @Override
     public boolean tick(EntityPlayer player) {
         if (player.worldObj.isRemote) return false;
-        doAutoSmeltTick();
-        return false;
+        return doAutoSmeltTick();
     }
 
     @Override
     public boolean tick(World world, BlockPos pos) {
         if (world.isRemote) return false;
-        doAutoSmeltTick();
-        return false;
+        return doAutoSmeltTick();
     }
 }
