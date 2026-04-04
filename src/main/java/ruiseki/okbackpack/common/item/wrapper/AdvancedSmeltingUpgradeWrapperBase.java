@@ -54,6 +54,14 @@ public abstract class AdvancedSmeltingUpgradeWrapperBase extends AdvancedUpgrade
         this.smeltingInventory = new BaseItemStackHandler(3) {
 
             @Override
+            public boolean isItemValid(int slot, ItemStack stack) {
+                if (stack == null) return false;
+                if (slot == 0) return checkFilter(stack);
+                if (slot == 1) return checkFuelFilter(stack);
+                return false;
+            }
+
+            @Override
             protected void onContentsChanged(int slot) {
                 NBTTagCompound tag = ItemNBTHelpers.getNBT(upgrade);
                 tag.setTag("SmeltingInv", this.serializeNBT());
@@ -63,9 +71,7 @@ public abstract class AdvancedSmeltingUpgradeWrapperBase extends AdvancedUpgrade
             @Override
             public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
                 if (stack == null) return null;
-                if (slot == 0 && !checkFilter(stack)) return stack;
-                if (slot == 1 && !checkFuelFilter(stack)) return stack;
-                if (slot == 2) return stack;
+                if (!isItemValid(slot, stack)) return stack;
                 return super.insertItem(slot, stack, simulate);
             }
         };
