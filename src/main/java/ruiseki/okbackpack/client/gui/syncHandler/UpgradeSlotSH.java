@@ -14,6 +14,7 @@ import com.cleanroommc.modularui.widgets.slot.ModularSlot;
 
 import ruiseki.okbackpack.api.wrapper.IAdvancedFilterable;
 import ruiseki.okbackpack.api.wrapper.IBasicFilterable;
+import ruiseki.okbackpack.api.wrapper.ICompactingUpgrade;
 import ruiseki.okbackpack.api.wrapper.ICraftingUpgrade;
 import ruiseki.okbackpack.api.wrapper.IFeedingUpgrade;
 import ruiseki.okbackpack.api.wrapper.IFilterUpgrade;
@@ -42,6 +43,7 @@ public class UpgradeSlotSH extends ItemSlotSH {
     public static final int UPDATE_CRAFTING_G = 16;
     public static final int UPDATE_CRAFTING_C = 17;
     public static final int UPDATE_DIRTY = 18;
+    public static final int UPDATE_COMPACTING = 19;
 
     public final BackpackWrapper wrapper;
     public final BackpackPanel panel;
@@ -94,6 +96,9 @@ public class UpgradeSlotSH extends ItemSlotSH {
             case UPDATE_DIRTY:
                 updateDirty(buf);
                 break;
+            case UPDATE_COMPACTING:
+                updateCompactingUpgrade(buf);
+                break;
             default:
                 super.readOnServer(id, buf);
                 return;
@@ -115,6 +120,7 @@ public class UpgradeSlotSH extends ItemSlotSH {
             || id == UPDATE_CRAFTING_R
             || id == UPDATE_CRAFTING_G
             || id == UPDATE_CRAFTING_C
+            || id == UPDATE_COMPACTING
 
         ) {
             wrapper.syncToServer();
@@ -238,6 +244,12 @@ public class UpgradeSlotSH extends ItemSlotSH {
         if (wrapper == null) return;
         boolean isDirty = buf.readBoolean();
         wrapper.setDirty(isDirty);
+    }
+
+    private void updateCompactingUpgrade(PacketBuffer buf) {
+        UpgradeWrapperBase wrapper = getWrapper();
+        if (!(wrapper instanceof ICompactingUpgrade upgradeWrapper)) return;
+        upgradeWrapper.setOnlyReversible(buf.readBoolean());
     }
 
 }
