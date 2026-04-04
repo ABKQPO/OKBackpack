@@ -11,6 +11,7 @@ import com.cleanroommc.modularui.value.sync.SyncHandler;
 
 import ruiseki.okbackpack.api.wrapper.IAdvancedFilterable;
 import ruiseki.okbackpack.api.wrapper.IBasicFilterable;
+import ruiseki.okbackpack.api.wrapper.ISmeltingUpgrade;
 import ruiseki.okbackpack.api.wrapper.IStorageUpgrade;
 import ruiseki.okbackpack.client.gui.handler.DelegatedItemHandler;
 import ruiseki.okbackpack.common.block.BackpackWrapper;
@@ -22,6 +23,7 @@ public class DelegatedStackHandlerSH extends SyncHandler {
     public static final int UPDATE_FILTERABLE = 0;
     public static final int UPDATE_ORE_DICT = 1;
     public static final int UPDATE_STORAGE = 2;
+    public static final int UPDATE_SMELTING = 3;
 
     private final BackpackWrapper wrapper;
     private final int slotIndex;
@@ -43,7 +45,7 @@ public class DelegatedStackHandlerSH extends SyncHandler {
 
     @Override
     public void readOnClient(int id, PacketBuffer buf) {
-        if (id == UPDATE_FILTERABLE || id == UPDATE_ORE_DICT || id == UPDATE_STORAGE) {
+        if (id == UPDATE_FILTERABLE || id == UPDATE_ORE_DICT || id == UPDATE_STORAGE || id == UPDATE_SMELTING) {
             wrapper.syncToServer();
         }
     }
@@ -68,6 +70,11 @@ public class DelegatedStackHandlerSH extends SyncHandler {
             case UPDATE_STORAGE:
                 if (wrapper instanceof IStorageUpgrade upgrade) {
                     setDelegatedStackHandler(upgrade::getStorage);
+                }
+                break;
+            case UPDATE_SMELTING:
+                if (wrapper instanceof ISmeltingUpgrade upgrade) {
+                    setDelegatedStackHandler(upgrade::getSmeltingInventory);
                 }
                 break;
             default:

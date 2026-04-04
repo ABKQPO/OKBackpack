@@ -9,18 +9,22 @@ import net.minecraft.world.World;
 import com.cleanroommc.modularui.utils.item.ItemHandlerHelper;
 
 import ruiseki.okbackpack.api.IStorageWrapper;
+import ruiseki.okbackpack.api.wrapper.ISlotModifiable;
 import ruiseki.okbackpack.api.wrapper.ISmeltingUpgrade;
 import ruiseki.okbackpack.client.gui.handler.BaseItemStackHandler;
 import ruiseki.okcore.datastructure.BlockPos;
 import ruiseki.okcore.helper.ItemNBTHelpers;
 
-public abstract class SmeltingUpgradeWrapperBase extends BasicUpgradeWrapper implements ISmeltingUpgrade {
+public abstract class SmeltingUpgradeWrapperBase extends UpgradeWrapperBase
+    implements ISmeltingUpgrade, ISlotModifiable {
 
+    protected final IStorageWrapper storage;
     protected BaseItemStackHandler smeltingInventory;
-    protected BaseItemStackHandler fuelFilter;
+    private boolean enabled;
 
     public SmeltingUpgradeWrapperBase(ItemStack upgrade, IStorageWrapper storage) {
         super(upgrade, storage);
+        this.storage = storage;
 
         this.smeltingInventory = new BaseItemStackHandler(3) {
 
@@ -34,27 +38,12 @@ public abstract class SmeltingUpgradeWrapperBase extends BasicUpgradeWrapper imp
         NBTTagCompound invTag = ItemNBTHelpers.getCompound(upgrade, "SmeltingInv", false);
         if (invTag != null) smeltingInventory.deserializeNBT(invTag);
 
-        this.fuelFilter = new BaseItemStackHandler(4) {
-
-            @Override
-            protected void onContentsChanged(int slot) {
-                NBTTagCompound tag = ItemNBTHelpers.getNBT(upgrade);
-                tag.setTag(FUEL_FILTER_TAG, this.serializeNBT());
-                markDirty();
-            }
-        };
-        NBTTagCompound fuelFilterTag = ItemNBTHelpers.getCompound(upgrade, FUEL_FILTER_TAG, false);
-        if (fuelFilterTag != null) fuelFilter.deserializeNBT(fuelFilterTag);
+        this.enabled = ItemNBTHelpers.getBoolean(upgrade, ENABLED_TAG, true);
     }
 
     @Override
     public BaseItemStackHandler getSmeltingInventory() {
         return smeltingInventory;
-    }
-
-    @Override
-    public BaseItemStackHandler getFuelFilterItems() {
-        return fuelFilter;
     }
 
     @Override
@@ -101,19 +90,27 @@ public abstract class SmeltingUpgradeWrapperBase extends BasicUpgradeWrapper imp
     }
 
     @Override
-    public boolean checkFuelFilter(ItemStack fuel) {
-        if (fuelFilter == null) return true;
-        boolean hasAnyFilter = false;
-        for (int i = 0; i < fuelFilter.getSlots(); i++) {
-            ItemStack filterStack = fuelFilter.getStackInSlot(i);
-            if (filterStack != null) {
-                hasAnyFilter = true;
-                if (ItemHandlerHelper.canItemStacksStack(filterStack, fuel)) {
-                    return true;
-                }
-            }
-        }
-        return !hasAnyFilter;
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+        ItemNBTHelpers.setBoolean(upgrade, ENABLED_TAG, enabled);
+        markDirty();
+    }
+
+    @Override
+    public void toggle() {
+        setEnabled(!isEnabled());
+    }
+
+    @Override
+    public boolean canAddUpgrade(int slot, ItemStack stack) {
+        if (stack == null) return true;
+        UpgradeWrapperBase candidate = UpgradeWrapperFactory.createWrapper(stack, storage);
+        return !(candidate instanceof ISmeltingUpgrade);
     }
 
     @Override

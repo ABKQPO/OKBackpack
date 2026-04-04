@@ -10,6 +10,7 @@ import com.cleanroommc.modularui.utils.item.ItemHandlerHelper;
 
 import ruiseki.okbackpack.api.IStorageWrapper;
 import ruiseki.okbackpack.api.wrapper.IBasicFilterable;
+import ruiseki.okbackpack.api.wrapper.ISlotModifiable;
 import ruiseki.okbackpack.api.wrapper.ISmeltingUpgrade;
 import ruiseki.okbackpack.client.gui.handler.BackpackItemStackHandler;
 import ruiseki.okbackpack.client.gui.handler.BaseItemStackHandler;
@@ -17,10 +18,10 @@ import ruiseki.okbackpack.common.block.BackpackWrapper;
 import ruiseki.okcore.datastructure.BlockPos;
 import ruiseki.okcore.helper.ItemNBTHelpers;
 
-public abstract class AdvancedSmeltingUpgradeWrapperBase extends AdvancedUpgradeWrapper implements ISmeltingUpgrade {
+public abstract class AdvancedSmeltingUpgradeWrapperBase extends AdvancedUpgradeWrapper
+    implements ISmeltingUpgrade, ISlotModifiable {
 
     protected BaseItemStackHandler smeltingInventory;
-    protected BaseItemStackHandler fuelFilter;
 
     public AdvancedSmeltingUpgradeWrapperBase(ItemStack upgrade, IStorageWrapper storage) {
         super(upgrade, storage);
@@ -48,28 +49,11 @@ public abstract class AdvancedSmeltingUpgradeWrapperBase extends AdvancedUpgrade
         };
         NBTTagCompound invTag = ItemNBTHelpers.getCompound(upgrade, "SmeltingInv", false);
         if (invTag != null) smeltingInventory.deserializeNBT(invTag);
-
-        this.fuelFilter = new BaseItemStackHandler(4) {
-
-            @Override
-            protected void onContentsChanged(int slot) {
-                NBTTagCompound tag = ItemNBTHelpers.getNBT(upgrade);
-                tag.setTag(ISmeltingUpgrade.FUEL_FILTER_TAG, this.serializeNBT());
-                markDirty();
-            }
-        };
-        NBTTagCompound fuelFilterTag = ItemNBTHelpers.getCompound(upgrade, ISmeltingUpgrade.FUEL_FILTER_TAG, false);
-        if (fuelFilterTag != null) fuelFilter.deserializeNBT(fuelFilterTag);
     }
 
     @Override
     public BaseItemStackHandler getSmeltingInventory() {
         return smeltingInventory;
-    }
-
-    @Override
-    public BaseItemStackHandler getFuelFilterItems() {
-        return fuelFilter;
     }
 
     @Override
@@ -79,34 +63,34 @@ public abstract class AdvancedSmeltingUpgradeWrapperBase extends AdvancedUpgrade
 
     @Override
     public int getSmeltProgress() {
-        return ItemNBTHelpers.getInt(upgrade, ISmeltingUpgrade.SMELTING_PROGRESS_TAG, 0);
+        return ItemNBTHelpers.getInt(upgrade, SMELTING_PROGRESS_TAG, 0);
     }
 
     @Override
     public void setSmeltProgress(int progress) {
-        ItemNBTHelpers.setInt(upgrade, ISmeltingUpgrade.SMELTING_PROGRESS_TAG, progress);
+        ItemNBTHelpers.setInt(upgrade, SMELTING_PROGRESS_TAG, progress);
         markDirty();
     }
 
     @Override
     public int getFuelProgress() {
-        return ItemNBTHelpers.getInt(upgrade, ISmeltingUpgrade.SMELTING_FUEL_PROGRESS_TAG, 0);
+        return ItemNBTHelpers.getInt(upgrade, SMELTING_FUEL_PROGRESS_TAG, 0);
     }
 
     @Override
     public void setFuelProgress(int progress) {
-        ItemNBTHelpers.setInt(upgrade, ISmeltingUpgrade.SMELTING_FUEL_PROGRESS_TAG, progress);
+        ItemNBTHelpers.setInt(upgrade, SMELTING_FUEL_PROGRESS_TAG, progress);
         markDirty();
     }
 
     @Override
     public int getFuelTotal() {
-        return ItemNBTHelpers.getInt(upgrade, ISmeltingUpgrade.SMELTING_FUEL_TOTAL_TAG, 0);
+        return ItemNBTHelpers.getInt(upgrade, SMELTING_FUEL_TOTAL_TAG, 0);
     }
 
     @Override
     public void setFuelTotal(int total) {
-        ItemNBTHelpers.setInt(upgrade, ISmeltingUpgrade.SMELTING_FUEL_TOTAL_TAG, total);
+        ItemNBTHelpers.setInt(upgrade, SMELTING_FUEL_TOTAL_TAG, total);
         markDirty();
     }
 
@@ -116,24 +100,15 @@ public abstract class AdvancedSmeltingUpgradeWrapperBase extends AdvancedUpgrade
     }
 
     @Override
-    public boolean checkFuelFilter(ItemStack fuel) {
-        if (fuelFilter == null) return true;
-        boolean hasAnyFilter = false;
-        for (int i = 0; i < fuelFilter.getSlots(); i++) {
-            ItemStack filterStack = fuelFilter.getStackInSlot(i);
-            if (filterStack != null) {
-                hasAnyFilter = true;
-                if (ItemHandlerHelper.canItemStacksStack(filterStack, fuel)) {
-                    return true;
-                }
-            }
-        }
-        return !hasAnyFilter;
+    public boolean checkFilter(ItemStack check) {
+        return super.checkFilter(check);
     }
 
     @Override
-    public boolean checkFilter(ItemStack check) {
-        return super.checkFilter(check);
+    public boolean canAddUpgrade(int slot, ItemStack stack) {
+        if (stack == null) return true;
+        UpgradeWrapperBase candidate = UpgradeWrapperFactory.createWrapper(stack, storage);
+        return !(candidate instanceof ISmeltingUpgrade);
     }
 
     @Override
@@ -219,7 +194,6 @@ public abstract class AdvancedSmeltingUpgradeWrapperBase extends AdvancedUpgrade
                 if (stack == null || stack.stackSize <= 0) continue;
                 int burnTime = TileEntityFurnace.getItemBurnTime(stack);
                 if (burnTime <= 0) continue;
-                if (!checkFuelFilter(stack)) continue;
 
                 if (fuel == null) {
                     ItemStack pulled = stack.copy();

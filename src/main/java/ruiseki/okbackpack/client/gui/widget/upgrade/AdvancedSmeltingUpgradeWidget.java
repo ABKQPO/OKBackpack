@@ -2,78 +2,74 @@ package ruiseki.okbackpack.client.gui.widget.upgrade;
 
 import net.minecraft.item.ItemStack;
 
-import com.cleanroommc.modularui.api.drawable.IKey;
 import com.cleanroommc.modularui.widgets.ProgressWidget;
 import com.cleanroommc.modularui.widgets.SlotGroupWidget;
-import com.cleanroommc.modularui.widgets.layout.Row;
+import com.cleanroommc.modularui.widgets.slot.ItemSlot;
 
 import ruiseki.okbackpack.api.IStoragePanel;
-import ruiseki.okbackpack.client.gui.slot.FilterSlot;
+import ruiseki.okbackpack.client.gui.OKBGuiTextures;
+import ruiseki.okbackpack.client.gui.slot.BigItemSlot;
 import ruiseki.okbackpack.common.item.wrapper.AdvancedSmeltingUpgradeWrapperBase;
 
 public class AdvancedSmeltingUpgradeWidget<T extends AdvancedSmeltingUpgradeWrapperBase>
     extends AdvancedExpandedTabWidget<T> {
 
-    protected final ProgressWidget smeltProgressBar;
-    protected final ProgressWidget fuelProgressBar;
-    protected final Row fuelFilterRow;
-
     public AdvancedSmeltingUpgradeWidget(int slotIndex, T wrapper, ItemStack stack, IStoragePanel<?> panel,
         String titleKey) {
-        super(slotIndex, wrapper, stack, titleKey, "adv_common_filter", 6, 120);
+        super(slotIndex, wrapper, stack, titleKey, "adv_common_filter", 6, 100);
 
-        // Smelting progress bar (arrow style)
-        this.smeltProgressBar = new ProgressWidget().size(22, 16)
-            .direction(ProgressWidget.Direction.RIGHT)
-            .progress(() -> {
-                int total = wrapper.getSmeltTime();
-                int current = wrapper.getSmeltProgress();
-                return total > 0 ? (float) current / total : 0f;
-            });
+        // Furnace layout using SlotGroupWidget with absolute positioning
+        SlotGroupWidget furnaceGroup = (SlotGroupWidget) new SlotGroupWidget().coverChildren();
 
-        // Fuel burn progress bar (flame style)
-        this.fuelProgressBar = new ProgressWidget().size(14, 14)
+        // Input slot (index 0)
+        ItemSlot inputSlot = (ItemSlot) new ItemSlot()
+            .syncHandler("smelting_slot_" + slotIndex, 0)
+            .pos(0, 0)
+            .name("smelting_input_" + slotIndex);
+        furnaceGroup.child(inputSlot);
+
+        // Fuel slot (index 1)
+        ItemSlot fuelSlot = (ItemSlot) new ItemSlot()
+            .syncHandler("smelting_slot_" + slotIndex, 1)
+            .pos(0, 36)
+            .name("smelting_fuel_" + slotIndex);
+        furnaceGroup.child(fuelSlot);
+
+        // Flame progress (fuel burn time remaining)
+        ProgressWidget flameProgress = (ProgressWidget) new ProgressWidget()
+            .size(14, 14)
+            .texture(OKBGuiTextures.FURNACE_FLAME_BACKGROUND, OKBGuiTextures.FURNACE_FLAME_FOREGROUND, 14)
             .direction(ProgressWidget.Direction.UP)
             .progress(() -> {
                 int total = wrapper.getFuelTotal();
                 int current = wrapper.getFuelProgress();
                 return total > 0 ? (float) current / total : 0f;
-            });
+            })
+            .pos(2, 20);
+        furnaceGroup.child(flameProgress);
 
-        // Smelting progress display
-        Row smeltingRow = (Row) new Row().leftRel(0.5f)
-            .height(20)
-            .coverChildrenWidth()
-            .childPadding(2);
+        // Arrow progress (smelting progress)
+        ProgressWidget arrowProgress = (ProgressWidget) new ProgressWidget()
+            .size(24, 17)
+            .texture(OKBGuiTextures.FURNACE_ARROW_BACKGROUND, OKBGuiTextures.FURNACE_ARROW_FOREGROUND, 24)
+            .direction(ProgressWidget.Direction.RIGHT)
+            .progress(() -> {
+                int total = wrapper.getSmeltTime();
+                int current = wrapper.getSmeltProgress();
+                return total > 0 ? (float) current / total : 0f;
+            })
+            .pos(24, 18);
+        furnaceGroup.child(arrowProgress);
 
-        smeltingRow.child(fuelProgressBar);
-        smeltingRow.child(smeltProgressBar);
+        // Output slot (index 2)
+        BigItemSlot outputSlot = (BigItemSlot) new BigItemSlot()
+            .syncHandler("smelting_slot_" + slotIndex, 2)
+            .pos(56, 14)
+            .name("smelting_output_" + slotIndex);
+        furnaceGroup.child(outputSlot);
 
-        // Fuel filter row (4 filter slots, separate from main input filter)
-        this.fuelFilterRow = (Row) new Row().leftRel(0.5f)
-            .height(20)
-            .coverChildrenWidth()
-            .childPadding(2);
-
-        fuelFilterRow.child(
-            IKey.lang("gui.backpack.fuel_filter")
-                .asWidget()
-                .height(10));
-
-        SlotGroupWidget fuelFilterSlotGroup = new SlotGroupWidget().coverChildren();
-        for (int i = 0; i < 4; i++) {
-            FilterSlot slot = new FilterSlot();
-            slot.name("fuel_filter_" + slotIndex)
-                .syncHandler("fuel_filter_" + slotIndex, i)
-                .pos(i * 18, 0);
-            fuelFilterSlotGroup.child(slot);
-        }
-        fuelFilterRow.child(fuelFilterSlotGroup);
-
-        this.startingRow.leftRel(0.5f)
-            .height(60)
-            .childPadding(2)
-            .child(smeltingRow)
-            .child(fuelFilterRow);
+        this.startingRow.coverChildrenWidth()
+            .height(56)
+            .child(furnaceGroup);
     }
 }

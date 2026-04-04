@@ -40,25 +40,15 @@ public class ItemBlastingUpgrade extends ItemUpgrade<BlastingUpgradeWrapper> {
 
     @Override
     public void updateWidgetDelegates(BlastingUpgradeWrapper wrapper, UpgradeSlotUpdateGroup group) {
-        DelegatedStackHandlerSH handler = group.get("common_filter_handler");
-        if (handler == null) return;
-        handler.setDelegatedStackHandler(wrapper::getFilterItems);
-        handler.syncToServer(DelegatedStackHandlerSH.UPDATE_FILTERABLE);
-
-        DelegatedStackHandlerSH fuelHandler = group.get("fuel_filter_handler");
-        if (fuelHandler == null) return;
-        fuelHandler.setDelegatedStackHandler(wrapper::getFuelFilterItems);
-        fuelHandler.syncToServer(DelegatedStackHandlerSH.UPDATE_FILTERABLE);
-
         DelegatedStackHandlerSH smeltingHandler = group.get("smelting_inv_handler");
         if (smeltingHandler == null) return;
         smeltingHandler.setDelegatedStackHandler(wrapper::getSmeltingInventory);
-        smeltingHandler.syncToServer(DelegatedStackHandlerSH.UPDATE_STORAGE);
+        smeltingHandler.syncToServer(DelegatedStackHandlerSH.UPDATE_SMELTING);
     }
 
     @Override
     public ExpandedTabWidget getExpandedTabWidget(int slotIndex, BlastingUpgradeWrapper wrapper, ItemStack stack,
         IStoragePanel<?> panel, String titleKey) {
-        return new SmeltingUpgradeWidget(slotIndex, wrapper, stack, panel, titleKey);
+        return new SmeltingUpgradeWidget<>(slotIndex, wrapper, stack, panel, titleKey);
     }
 }

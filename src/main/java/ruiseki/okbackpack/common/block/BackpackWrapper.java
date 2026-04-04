@@ -388,15 +388,17 @@ public class BackpackWrapper implements IBackpackWrapper {
 
     @Override
     public boolean canAddUpgrade(int slot, ItemStack stack) {
-        ItemStack upgradeStack = upgradeHandler.getStackInSlot(slot);
-        if (upgradeStack == null) return true;
+        for (int i = 0; i < upgradeSlots; i++) {
+            ItemStack upgradeStack = upgradeHandler.getStackInSlot(i);
+            if (upgradeStack == null) continue;
 
-        UpgradeWrapperBase wrapper = UpgradeWrapperFactory.createWrapper(upgradeStack, this);
-        if (wrapper == null) return true;
-        if (wrapper instanceof IToggleable toggleable && !toggleable.isEnabled()) return true;
+            UpgradeWrapperBase wrapper = UpgradeWrapperFactory.createWrapper(upgradeStack, this);
+            if (wrapper == null) continue;
+            if (wrapper instanceof IToggleable toggleable && !toggleable.isEnabled()) continue;
 
-        if (wrapper instanceof ISlotModifiable modifiable) {
-            return modifiable.canAddUpgrade(slot, stack);
+            if (wrapper instanceof ISlotModifiable modifiable) {
+                if (!modifiable.canAddUpgrade(slot, stack)) return false;
+            }
         }
         return true;
     }

@@ -50,20 +50,15 @@ public class ItemAutoSmokingUpgrade extends ItemUpgrade<AutoSmokingUpgradeWrappe
         oreDictHandler.setDelegatedStackHandler(wrapper::getOreDictItem);
         oreDictHandler.syncToServer(DelegatedStackHandlerSH.UPDATE_ORE_DICT);
 
-        DelegatedStackHandlerSH fuelHandler = group.get("fuel_filter_handler");
-        if (fuelHandler == null) return;
-        fuelHandler.setDelegatedStackHandler(wrapper::getFuelFilterItems);
-        fuelHandler.syncToServer(DelegatedStackHandlerSH.UPDATE_FILTERABLE);
-
         DelegatedStackHandlerSH smeltingHandler = group.get("smelting_inv_handler");
         if (smeltingHandler == null) return;
         smeltingHandler.setDelegatedStackHandler(wrapper::getSmeltingInventory);
-        smeltingHandler.syncToServer(DelegatedStackHandlerSH.UPDATE_STORAGE);
+        smeltingHandler.syncToServer(DelegatedStackHandlerSH.UPDATE_SMELTING);
     }
 
     @Override
     public ExpandedTabWidget getExpandedTabWidget(int slotIndex, AutoSmokingUpgradeWrapper wrapper, ItemStack stack,
         IStoragePanel<?> panel, String titleKey) {
-        return new AdvancedSmeltingUpgradeWidget(slotIndex, wrapper, stack, panel, titleKey);
+        return new AdvancedSmeltingUpgradeWidget<>(slotIndex, wrapper, stack, panel, titleKey);
     }
 }
