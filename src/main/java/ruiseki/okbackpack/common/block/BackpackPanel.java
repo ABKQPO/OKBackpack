@@ -9,6 +9,8 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 
+import org.jetbrains.annotations.NotNull;
+
 import com.cleanroommc.modularui.api.IPanelHandler;
 import com.cleanroommc.modularui.api.drawable.IKey;
 import com.cleanroommc.modularui.api.widget.Interactable;
@@ -34,6 +36,7 @@ import com.cleanroommc.modularui.widgets.slot.ModularSlot;
 import com.cleanroommc.modularui.widgets.slot.SlotGroup;
 
 import ruiseki.okbackpack.Reference;
+import ruiseki.okbackpack.api.IStorageContainer;
 import ruiseki.okbackpack.api.IStoragePanel;
 import ruiseki.okbackpack.api.IStorageWrapper;
 import ruiseki.okbackpack.api.wrapper.IToggleable;
@@ -48,6 +51,7 @@ import ruiseki.okbackpack.client.gui.slot.ModularUpgradeSlot;
 import ruiseki.okbackpack.client.gui.syncHandler.BackpackSH;
 import ruiseki.okbackpack.client.gui.syncHandler.BackpackSlotSH;
 import ruiseki.okbackpack.client.gui.syncHandler.UpgradeSlotSH;
+import ruiseki.okbackpack.client.gui.syncHandler.UpgradeSlotSHRegisters;
 import ruiseki.okbackpack.client.gui.widget.BackpackList;
 import ruiseki.okbackpack.client.gui.widget.BackpackSearchBarWidget;
 import ruiseki.okbackpack.client.gui.widget.CyclicVariantButtonWidget;
@@ -67,7 +71,7 @@ import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapperFactory;
 import ruiseki.okcore.helper.ItemStackHelpers;
 import ruiseki.okcore.helper.LangHelpers;
 
-public class BackpackPanel extends ModularPanel implements IStoragePanel {
+public class BackpackPanel extends ModularPanel implements IStoragePanel<BackpackPanel> {
 
     public static final AdaptableUITexture LAYERED_TAB_TEXTURE = (AdaptableUITexture) UITexture.builder()
         .location(Reference.MOD_ID, "gui/gui_controls")
@@ -482,8 +486,9 @@ public class BackpackPanel extends ModularPanel implements IStoragePanel {
             if (wrapper.isTabOpened()) {
                 if (openedTabIndex != null) {
                     wrapper.setTabOpened(false);
-                    upgradeSlotSyncHandlers[slotIndex]
-                        .syncToServer(UpgradeSlotSH.UPDATE_UPGRADE_TAB_STATE, buf -> buf.writeBoolean(false));
+                    upgradeSlotSyncHandlers[slotIndex].syncToServer(
+                        UpgradeSlotSH.getId(UpgradeSlotSHRegisters.UPDATE_UPGRADE_TAB_STATE),
+                        buf -> { buf.writeBoolean(false); });
                     return;
                 }
                 openedTabIndex = slotIndex;
@@ -612,16 +617,23 @@ public class BackpackPanel extends ModularPanel implements IStoragePanel {
                 UpgradeWrapperBase wrapper = UpgradeWrapperFactory.createWrapper(stack, this.wrapper);
                 if (wrapper != null && wrapper.isTabOpened()) {
                     wrapper.setTabOpened(false);
-                    upgradeSlotSyncHandlers[i]
-                        .syncToServer(UpgradeSlotSH.UPDATE_UPGRADE_TAB_STATE, buf -> buf.writeBoolean(false));
+                    upgradeSlotSyncHandlers[i].syncToServer(
+                        UpgradeSlotSH.getId(UpgradeSlotSHRegisters.UPDATE_UPGRADE_TAB_STATE),
+                        buf -> { buf.writeBoolean(false); });
                 }
             }
             isResetOpenedTabs = true;
         }
     }
 
-    public BackPackContainer getBackpackContainer() {
-        return (BackPackContainer) syncManager.getContainer();
+    @Override
+    public IStorageContainer<?> getContainer() {
+        return (IStorageContainer<?>) syncManager.getContainer();
+    }
+
+    @Override
+    public @NotNull BackpackPanel getPanel() {
+        return this;
     }
 
     public int getOpenCraftingUpgradeSlot() {
@@ -657,7 +669,9 @@ public class BackpackPanel extends ModularPanel implements IStoragePanel {
         if (wrapper == null) return false;
         boolean isDirty = wrapper.isDirty();
         if (isDirty) {
-            upgradeSlot.syncToServer(UpgradeSlotSH.UPDATE_DIRTY, buf -> { buf.writeBoolean(false); });
+            upgradeSlot.syncToServer(
+                UpgradeSlotSH.getId(UpgradeSlotSHRegisters.UPDATE_DIRTY),
+                buf -> { buf.writeBoolean(false); });
         }
         return isDirty;
     }
@@ -698,5 +712,25 @@ public class BackpackPanel extends ModularPanel implements IStoragePanel {
     @Override
     public IStorageWrapper getWrapper() {
         return wrapper;
+    }
+
+    @Override
+    public IPanelHandler getSettingPanel() {
+        return settingPanel;
+    }
+
+    @Override
+    public boolean isMemorySettingTabOpened() {
+        return isMemorySettingTabOpened;
+    }
+
+    @Override
+    public boolean shouldMemorizeRespectNBT() {
+        return shouldMemorizeRespectNBT;
+    }
+
+    @Override
+    public boolean isSortingSettingTabOpened() {
+        return isSortingSettingTabOpened;
     }
 }

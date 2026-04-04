@@ -17,7 +17,7 @@ public class CraftingSlotGroup implements IUpgradeSlotGroupFactory {
     public void build(UpgradeSlotUpdateGroup group) {
 
         DelegatedCraftingStackHandlerSH craftingStackHandler = new DelegatedCraftingStackHandlerSH(
-            group.panel::getBackpackContainer,
+            group.panel::getContainer,
             group.wrapper,
             group.slotIndex,
             10);

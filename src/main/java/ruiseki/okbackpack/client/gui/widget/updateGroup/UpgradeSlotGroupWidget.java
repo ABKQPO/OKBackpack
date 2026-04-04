@@ -21,9 +21,10 @@ import com.cleanroommc.modularui.widget.Widget;
 
 import lombok.Setter;
 import ruiseki.okbackpack.Reference;
+import ruiseki.okbackpack.api.IStoragePanel;
 import ruiseki.okbackpack.api.wrapper.IToggleable;
 import ruiseki.okbackpack.client.gui.syncHandler.UpgradeSlotSH;
-import ruiseki.okbackpack.common.block.BackpackPanel;
+import ruiseki.okbackpack.client.gui.syncHandler.UpgradeSlotSHRegisters;
 import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapperBase;
 import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapperFactory;
 
@@ -50,7 +51,7 @@ public class UpgradeSlotGroupWidget extends ParentWidget<UpgradeSlotGroupWidget>
     private final List<UpgradeToggleWidget> toggleWidgets;
     private final int slotSize;
 
-    public UpgradeSlotGroupWidget(BackpackPanel panel, int slotSize) {
+    public UpgradeSlotGroupWidget(IStoragePanel<?> panel, int slotSize) {
         super();
         this.slotSize = slotSize;
 
@@ -108,10 +109,10 @@ public class UpgradeSlotGroupWidget extends ParentWidget<UpgradeSlotGroupWidget>
         @Setter
         private boolean isToggleEnabled = false;
         private UpgradeSlotSH slotSyncHandler = null;
-        private final BackpackPanel panel;
+        private final IStoragePanel panel;
         private final int slotIndex;
 
-        public UpgradeToggleWidget(BackpackPanel panel, int slotIndex) {
+        public UpgradeToggleWidget(IStoragePanel panel, int slotIndex) {
             this.panel = panel;
             this.slotIndex = slotIndex;
 
@@ -129,9 +130,10 @@ public class UpgradeSlotGroupWidget extends ParentWidget<UpgradeSlotGroupWidget>
         }
 
         public IToggleable getWrapper() {
-            ItemStack stack = panel.wrapper.getUpgradeHandler()
+            ItemStack stack = panel.getWrapper()
+                .getUpgradeHandler()
                 .getStackInSlot(slotIndex);
-            UpgradeWrapperBase wrapper = UpgradeWrapperFactory.createWrapper(stack, panel.wrapper);
+            UpgradeWrapperBase wrapper = UpgradeWrapperFactory.createWrapper(stack, panel.getWrapper());
             if (wrapper instanceof IToggleable toggleableWrapper) {
                 return toggleableWrapper;
             } else {
@@ -147,7 +149,7 @@ public class UpgradeSlotGroupWidget extends ParentWidget<UpgradeSlotGroupWidget>
                 wrapper.toggle();
             }
             if (slotSyncHandler != null) {
-                slotSyncHandler.syncToServer(UpgradeSlotSH.UPDATE_UPGRADE_TOGGLE);
+                slotSyncHandler.syncToServer(UpgradeSlotSH.getId(UpgradeSlotSHRegisters.UPDATE_UPGRADE_TOGGLE));
             }
 
             Interactable.playButtonClickSound();

@@ -9,11 +9,12 @@ import com.cleanroommc.modularui.api.drawable.IKey;
 import com.cleanroommc.modularui.network.NetworkUtils;
 
 import lombok.Getter;
+import ruiseki.okbackpack.api.IStoragePanel;
 import ruiseki.okbackpack.api.wrapper.IFilterUpgrade;
 import ruiseki.okbackpack.client.gui.OKBGuiTextures;
 import ruiseki.okbackpack.client.gui.syncHandler.UpgradeSlotSH;
+import ruiseki.okbackpack.client.gui.syncHandler.UpgradeSlotSHRegisters;
 import ruiseki.okbackpack.client.gui.widget.CyclicVariantButtonWidget;
-import ruiseki.okbackpack.common.block.BackpackPanel;
 import ruiseki.okbackpack.common.item.wrapper.AdvancedFilterUpgradeWrapper;
 
 public class AdvancedFilterUpgradeWidget extends AdvancedExpandedTabWidget<AdvancedFilterUpgradeWrapper> {
@@ -27,7 +28,7 @@ public class AdvancedFilterUpgradeWidget extends AdvancedExpandedTabWidget<Advan
     private final CyclicVariantButtonWidget filterButton;
 
     public AdvancedFilterUpgradeWidget(int slotIndex, AdvancedFilterUpgradeWrapper wrapper, ItemStack stack,
-        BackpackPanel panel, String titleKey) {
+        IStoragePanel<?> panel, String titleKey) {
         super(slotIndex, wrapper, stack, titleKey, "adv_common_filter", 6, 100);
 
         this.filterButton = new CyclicVariantButtonWidget(
@@ -39,7 +40,7 @@ public class AdvancedFilterUpgradeWidget extends AdvancedExpandedTabWidget<Advan
                 if (this.filterWidget.getSlotSyncHandler() != null) {
                     this.filterWidget.getSyncHandler()
                         .syncToServer(
-                            UpgradeSlotSH.UPDATE_FILTER,
+                            UpgradeSlotSH.getId(UpgradeSlotSHRegisters.UPDATE_FILTER),
                             buf -> { NetworkUtils.writeEnumValue(buf, wrapper.getfilterWay()); });
                 }
             });

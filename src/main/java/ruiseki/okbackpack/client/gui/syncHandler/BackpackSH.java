@@ -13,8 +13,8 @@ import com.cleanroommc.modularui.network.NetworkUtils;
 import com.cleanroommc.modularui.utils.item.PlayerMainInvWrapper;
 import com.cleanroommc.modularui.value.sync.SyncHandler;
 
+import ruiseki.okbackpack.api.IStoragePanel;
 import ruiseki.okbackpack.common.SortType;
-import ruiseki.okbackpack.common.block.BackpackPanel;
 import ruiseki.okbackpack.common.block.BackpackWrapper;
 import ruiseki.okbackpack.common.block.BlockSleepingBag;
 import ruiseki.okbackpack.common.block.TEBackpack;
@@ -32,9 +32,9 @@ public class BackpackSH extends SyncHandler {
 
     private final PlayerMainInvWrapper playerInv;
     private final BackpackWrapper wrapper;
-    private final BackpackPanel panel;
+    private final IStoragePanel<?> panel;
 
-    public BackpackSH(PlayerMainInvWrapper playerInv, BackpackWrapper wrapper, BackpackPanel panel) {
+    public BackpackSH(PlayerMainInvWrapper playerInv, BackpackWrapper wrapper, IStoragePanel<?> panel) {
         this.playerInv = playerInv;
         this.wrapper = wrapper;
         this.panel = panel;
@@ -73,15 +73,7 @@ public class BackpackSH extends SyncHandler {
     }
 
     @Override
-    public void readOnClient(int id, PacketBuffer buf) throws IOException {
-        if (id == UPDATE_SET_SORT_TYPE || id == UPDATE_SORT_INV
-            || id == UPDATE_TRANSFER_TO_BACKPACK_INV
-            || id == UPDATE_TRANSFER_TO_PLAYER_INV
-            || id == UPDATE_SETTING
-            || id == DEPLOY_SLEEPING_BAG) {
-            wrapper.syncToServer();
-        }
-    }
+    public void readOnClient(int id, PacketBuffer buf) throws IOException {}
 
     public void setSortType(PacketBuffer buf) {
         SortType sortType = NetworkUtils.readEnumValue(buf, SortType.class);
@@ -129,7 +121,7 @@ public class BackpackSH extends SyncHandler {
         EntityPlayer player = getSyncManager().getPlayer();
 
         World world = player.worldObj;
-        TileEntity tile = panel.tile;
+        TileEntity tile = panel.getTile();
         if (tile != null && world.getTileEntity(tile.xCoord, tile.yCoord, tile.zCoord) instanceof TEBackpack te) {
             if (!te.isSleepingBagDeployed()) {
                 int[] can = BlockSleepingBag

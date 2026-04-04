@@ -6,12 +6,12 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 
 import ruiseki.okbackpack.Reference;
+import ruiseki.okbackpack.api.IStoragePanel;
 import ruiseki.okbackpack.api.IStorageWrapper;
 import ruiseki.okbackpack.client.gui.syncHandler.DelegatedStackHandlerSH;
 import ruiseki.okbackpack.client.gui.widget.updateGroup.UpgradeSlotUpdateGroup;
 import ruiseki.okbackpack.client.gui.widget.upgrade.AdvancedCompactingUpgradeWidget;
 import ruiseki.okbackpack.client.gui.widget.upgrade.ExpandedTabWidget;
-import ruiseki.okbackpack.common.block.BackpackPanel;
 import ruiseki.okbackpack.common.item.wrapper.AdvancedCompactingUpgradeWrapper;
 import ruiseki.okcore.helper.LangHelpers;
 
@@ -53,7 +53,7 @@ public class ItemAdvancedCompactingUpgrade extends ItemUpgrade<AdvancedCompactin
 
     @Override
     public ExpandedTabWidget getExpandedTabWidget(int slotIndex, AdvancedCompactingUpgradeWrapper wrapper,
-        ItemStack stack, BackpackPanel panel, String titleKey) {
+        ItemStack stack, IStoragePanel<?> panel, String titleKey) {
         return new AdvancedCompactingUpgradeWidget(slotIndex, wrapper, stack, panel, titleKey);
     }
 }

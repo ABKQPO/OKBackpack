@@ -2,12 +2,12 @@ package ruiseki.okbackpack.common.item.wrapper;
 
 import net.minecraft.item.ItemStack;
 
+import ruiseki.okbackpack.api.IStoragePanel;
 import ruiseki.okbackpack.api.IStorageWrapper;
 import ruiseki.okbackpack.api.wrapper.IUpgradeWrapper;
 import ruiseki.okbackpack.api.wrapper.IUpgradeWrapperFactory;
 import ruiseki.okbackpack.client.gui.widget.updateGroup.UpgradeSlotUpdateGroup;
 import ruiseki.okbackpack.client.gui.widget.upgrade.ExpandedTabWidget;
-import ruiseki.okbackpack.common.block.BackpackPanel;
 
 public class UpgradeWrapperFactory {
 
@@ -27,7 +27,7 @@ public class UpgradeWrapperFactory {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public static ExpandedTabWidget getExpandedTabWidget(ItemStack stack, int slotIndex, IUpgradeWrapper wrapper,
-        BackpackPanel panel, String titleKey) {
+        IStoragePanel<?> panel, String titleKey) {
         if (stack == null || stack.getItem() == null || wrapper == null) return null;
         if (!(stack.getItem() instanceof IUpgradeWrapperFactory factory)) return null;
         return factory.getExpandedTabWidget(slotIndex, wrapper, stack, panel, titleKey);

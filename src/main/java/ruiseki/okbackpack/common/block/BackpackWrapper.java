@@ -13,9 +13,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
 
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import com.cleanroommc.modularui.factory.inventory.InventoryType;
@@ -40,7 +38,6 @@ import ruiseki.okbackpack.common.init.ModBlocks;
 import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapperBase;
 import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapperFactory;
 import ruiseki.okbackpack.common.network.PacketBackpackNBT;
-import ruiseki.okcore.capabilities.Capability;
 import ruiseki.okcore.datastructure.BlockPos;
 import ruiseki.okcore.helper.ItemNBTHelpers;
 import ruiseki.okcore.helper.LangHelpers;
@@ -391,11 +388,15 @@ public class BackpackWrapper implements IBackpackWrapper {
 
     @Override
     public boolean canAddUpgrade(int slot, ItemStack stack) {
-        Map<Integer, ISlotModifiable> gathered = gatherCapabilityUpgrades(ISlotModifiable.class);
-        if (gathered.isEmpty()) return true;
+        ItemStack upgradeStack = upgradeHandler.getStackInSlot(slot);
+        if (upgradeStack == null) return true;
 
-        for (ISlotModifiable mod : gathered.values()) {
-            if (!mod.canAddUpgrade(slot, stack)) return false;
+        UpgradeWrapperBase wrapper = UpgradeWrapperFactory.createWrapper(upgradeStack, this);
+        if (wrapper == null) return true;
+        if (wrapper instanceof IToggleable toggleable && !toggleable.isEnabled()) return true;
+
+        if (wrapper instanceof ISlotModifiable modifiable) {
+            return modifiable.canAddUpgrade(slot, stack);
         }
         return true;
     }
@@ -423,20 +424,31 @@ public class BackpackWrapper implements IBackpackWrapper {
 
     @Override
     public boolean canRemoveUpgrade(int slot) {
-        Map<Integer, ISlotModifiable> gathered = gatherCapabilityUpgrades(ISlotModifiable.class);
-        if (gathered.isEmpty()) return true;
-        for (ISlotModifiable mod : gathered.values()) {
-            if (!mod.canRemoveUpgrade(slot)) return false;
+        ItemStack upgradeStack = upgradeHandler.getStackInSlot(slot);
+        if (upgradeStack == null) return true;
+
+        UpgradeWrapperBase wrapper = UpgradeWrapperFactory.createWrapper(upgradeStack, this);
+        if (wrapper == null) return true;
+        if (wrapper instanceof IToggleable toggleable && !toggleable.isEnabled()) return true;
+
+        if (wrapper instanceof ISlotModifiable modifiable) {
+            return modifiable.canRemoveUpgrade(slot);
         }
+
         return true;
     }
 
     @Override
     public boolean canReplaceUpgrade(int slot, ItemStack replacement) {
-        Map<Integer, ISlotModifiable> gathered = gatherCapabilityUpgrades(ISlotModifiable.class);
-        if (gathered.isEmpty()) return true;
-        for (ISlotModifiable mod : gathered.values()) {
-            if (!mod.canReplaceUpgrade(slot, replacement)) return false;
+        ItemStack upgradeStack = upgradeHandler.getStackInSlot(slot);
+        if (upgradeStack == null) return true;
+
+        UpgradeWrapperBase wrapper = UpgradeWrapperFactory.createWrapper(upgradeStack, this);
+        if (wrapper == null) return true;
+        if (wrapper instanceof IToggleable toggleable && !toggleable.isEnabled()) return true;
+
+        if (wrapper instanceof ISlotModifiable modifiable) {
+            return modifiable.canReplaceUpgrade(slot, replacement);
         }
         return true;
     }
@@ -816,7 +828,7 @@ public class BackpackWrapper implements IBackpackWrapper {
 
     @Override
     public boolean isDirty() {
-        return false;
+        return isDirty;
     }
 
     @Override
@@ -862,26 +874,5 @@ public class BackpackWrapper implements IBackpackWrapper {
     @Override
     public ItemStack getBackpack() {
         return backpack;
-    }
-
-    public boolean matches(ItemStack stack) {
-        if (stack == null || stack.getTagCompound() == null) return false;
-
-        NBTTagCompound tag = stack.getTagCompound()
-            .getCompoundTag(BACKPACK_NBT);
-
-        if (tag == null || !tag.hasKey(UUID_TAG)) return false;
-
-        return this.uuid.equals(tag.getString(UUID_TAG));
-    }
-
-    @Override
-    public boolean hasCapability(@NotNull Capability<?> capability, @Nullable ForgeDirection forgeDirection) {
-        return false;
-    }
-
-    @Override
-    public @Nullable <T> T getCapability(Capability<T> capability, ForgeDirection forgeDirection) {
-        return null;
     }
 }

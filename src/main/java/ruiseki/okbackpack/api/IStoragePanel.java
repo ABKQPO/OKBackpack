@@ -3,10 +3,12 @@ package ruiseki.okbackpack.api;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 
+import com.cleanroommc.modularui.api.IPanelHandler;
+import com.cleanroommc.modularui.screen.ModularPanel;
 import com.cleanroommc.modularui.screen.UISettings;
 import com.cleanroommc.modularui.value.sync.PanelSyncManager;
 
-public interface IStoragePanel {
+public interface IStoragePanel<T extends ModularPanel> {
 
     EntityPlayer getPlayer();
 
@@ -17,5 +19,17 @@ public interface IStoragePanel {
     UISettings getSettings();
 
     IStorageWrapper getWrapper();
+
+    IPanelHandler getSettingPanel();
+
+    boolean isMemorySettingTabOpened();
+
+    boolean shouldMemorizeRespectNBT();
+
+    boolean isSortingSettingTabOpened();
+
+    IStorageContainer<?> getContainer();
+
+    T getPanel();
 
 }

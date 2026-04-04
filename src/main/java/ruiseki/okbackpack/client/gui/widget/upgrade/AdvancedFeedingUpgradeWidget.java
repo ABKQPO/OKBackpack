@@ -9,11 +9,12 @@ import com.cleanroommc.modularui.api.drawable.IKey;
 import com.cleanroommc.modularui.network.NetworkUtils;
 
 import lombok.Getter;
+import ruiseki.okbackpack.api.IStoragePanel;
 import ruiseki.okbackpack.api.wrapper.IFeedingUpgrade;
 import ruiseki.okbackpack.client.gui.OKBGuiTextures;
 import ruiseki.okbackpack.client.gui.syncHandler.UpgradeSlotSH;
+import ruiseki.okbackpack.client.gui.syncHandler.UpgradeSlotSHRegisters;
 import ruiseki.okbackpack.client.gui.widget.CyclicVariantButtonWidget;
-import ruiseki.okbackpack.common.block.BackpackPanel;
 import ruiseki.okbackpack.common.item.wrapper.AdvancedFeedingUpgradeWrapper;
 
 public class AdvancedFeedingUpgradeWidget extends AdvancedExpandedTabWidget<AdvancedFeedingUpgradeWrapper> {
@@ -41,7 +42,7 @@ public class AdvancedFeedingUpgradeWidget extends AdvancedExpandedTabWidget<Adva
     private final CyclicVariantButtonWidget heartButton;
 
     public AdvancedFeedingUpgradeWidget(int slotIndex, AdvancedFeedingUpgradeWrapper wrapper, ItemStack stack,
-        BackpackPanel panel, String titleKey) {
+        IStoragePanel<?> panel, String titleKey) {
         super(slotIndex, wrapper, stack, titleKey, "adv_feeding_filter", 6, 100);
 
         this.hungerButton = new CyclicVariantButtonWidget(
@@ -72,7 +73,7 @@ public class AdvancedFeedingUpgradeWidget extends AdvancedExpandedTabWidget<Adva
     public void updateWrapper() {
         if (this.filterWidget.getSlotSyncHandler() != null) {
             this.filterWidget.getSyncHandler()
-                .syncToServer(UpgradeSlotSH.UPDATE_ADVANCED_FEEDING, writer -> {
+                .syncToServer(UpgradeSlotSH.getId(UpgradeSlotSHRegisters.UPDATE_ADVANCED_FEEDING), writer -> {
                     NetworkUtils.writeEnumValue(writer, wrapper.getHungerFeedingStrategy());
                     NetworkUtils.writeEnumValue(writer, wrapper.getHealthFeedingStrategy());
                 });

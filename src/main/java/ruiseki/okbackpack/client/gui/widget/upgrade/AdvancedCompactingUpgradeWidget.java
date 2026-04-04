@@ -8,10 +8,11 @@ import net.minecraft.item.ItemStack;
 import com.cleanroommc.modularui.api.drawable.IKey;
 
 import lombok.Getter;
+import ruiseki.okbackpack.api.IStoragePanel;
 import ruiseki.okbackpack.client.gui.OKBGuiTextures;
 import ruiseki.okbackpack.client.gui.syncHandler.UpgradeSlotSH;
+import ruiseki.okbackpack.client.gui.syncHandler.UpgradeSlotSHRegisters;
 import ruiseki.okbackpack.client.gui.widget.CyclicVariantButtonWidget;
-import ruiseki.okbackpack.common.block.BackpackPanel;
 import ruiseki.okbackpack.common.item.wrapper.AdvancedCompactingUpgradeWrapper;
 
 public class AdvancedCompactingUpgradeWidget extends AdvancedExpandedTabWidget<AdvancedCompactingUpgradeWrapper> {
@@ -24,7 +25,7 @@ public class AdvancedCompactingUpgradeWidget extends AdvancedExpandedTabWidget<A
     private final CyclicVariantButtonWidget reversibleButton;
 
     public AdvancedCompactingUpgradeWidget(int slotIndex, AdvancedCompactingUpgradeWrapper wrapper, ItemStack stack,
-        BackpackPanel panel, String titleKey) {
+        IStoragePanel panel, String titleKey) {
         super(slotIndex, wrapper, stack, titleKey, "adv_common_filter", 6, 100);
 
         this.reversibleButton = new CyclicVariantButtonWidget(
@@ -35,7 +36,7 @@ public class AdvancedCompactingUpgradeWidget extends AdvancedExpandedTabWidget<A
                 if (this.filterWidget.getSlotSyncHandler() != null) {
                     this.filterWidget.getSyncHandler()
                         .syncToServer(
-                            UpgradeSlotSH.UPDATE_COMPACTING,
+                            UpgradeSlotSH.getId(UpgradeSlotSHRegisters.UPDATE_COMPACTING),
                             buf -> { buf.writeBoolean(wrapper.isOnlyReversible()); });
                 }
             });

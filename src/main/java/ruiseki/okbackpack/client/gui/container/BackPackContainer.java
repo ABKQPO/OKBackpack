@@ -27,6 +27,7 @@ import com.cleanroommc.modularui.widgets.slot.SlotGroup;
 
 import ruiseki.okbackpack.OKBackpack;
 import ruiseki.okbackpack.api.IBackpackWrapper;
+import ruiseki.okbackpack.api.IStorageContainer;
 import ruiseki.okbackpack.client.gui.handler.IndexedInventoryCraftingWrapper;
 import ruiseki.okbackpack.client.gui.slot.IndexedModularCraftingMatrixSlot;
 import ruiseki.okbackpack.client.gui.slot.IndexedModularCraftingSlot;
@@ -39,7 +40,7 @@ import ruiseki.okbackpack.common.network.PacketBackpackNBT;
 import ruiseki.okbackpack.compat.Mods;
 import ruiseki.okbackpack.compat.tic.TinkersHelpers;
 
-public class BackPackContainer extends ModularContainer {
+public class BackPackContainer extends ModularContainer implements IStorageContainer<BackPackContainer> {
 
     public final IBackpackWrapper wrapper;
     protected final Integer backpackSlotIndex;
@@ -575,7 +576,13 @@ public class BackPackContainer extends ModularContainer {
         this.dragSlots.clear();
     }
 
-    private void registerCraftingSlot(int slotIndex, IndexedModularCraftingSlot craftingSlot) {
+    @Override
+    public BackPackContainer getContainer() {
+        return this;
+    }
+
+    @Override
+    public void registerCraftingSlot(int slotIndex, IndexedModularCraftingSlot craftingSlot) {
 
         craftingSlotInstances.put(slotIndex, craftingSlot);
 
@@ -586,6 +593,7 @@ public class BackPackContainer extends ModularContainer {
         }
     }
 
+    @Override
     public void registerInventoryCrafting(int slotIndex, IndexedInventoryCraftingWrapper inventoryCrafting) {
 
         inventoryCraftingInstances.put(slotIndex, inventoryCrafting);

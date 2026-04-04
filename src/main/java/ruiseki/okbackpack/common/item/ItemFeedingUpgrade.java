@@ -6,12 +6,12 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 
 import ruiseki.okbackpack.Reference;
+import ruiseki.okbackpack.api.IStoragePanel;
 import ruiseki.okbackpack.api.IStorageWrapper;
 import ruiseki.okbackpack.client.gui.syncHandler.DelegatedStackHandlerSH;
 import ruiseki.okbackpack.client.gui.widget.updateGroup.UpgradeSlotUpdateGroup;
 import ruiseki.okbackpack.client.gui.widget.upgrade.ExpandedTabWidget;
 import ruiseki.okbackpack.client.gui.widget.upgrade.FeedingUpgradeWidget;
-import ruiseki.okbackpack.common.block.BackpackPanel;
 import ruiseki.okbackpack.common.item.wrapper.FeedingUpgradeWrapper;
 import ruiseki.okcore.helper.LangHelpers;
 
@@ -48,7 +48,7 @@ public class ItemFeedingUpgrade extends ItemUpgrade<FeedingUpgradeWrapper> {
 
     @Override
     public ExpandedTabWidget getExpandedTabWidget(int slotIndex, FeedingUpgradeWrapper wrapper, ItemStack stack,
-        BackpackPanel panel, String titleKey) {
+        IStoragePanel<?> panel, String titleKey) {
         return new FeedingUpgradeWidget(slotIndex, wrapper, stack, panel, titleKey);
     }
 }

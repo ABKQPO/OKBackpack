@@ -8,10 +8,11 @@ import net.minecraft.item.ItemStack;
 import com.cleanroommc.modularui.api.drawable.IKey;
 
 import lombok.Getter;
+import ruiseki.okbackpack.api.IStoragePanel;
 import ruiseki.okbackpack.client.gui.OKBGuiTextures;
 import ruiseki.okbackpack.client.gui.syncHandler.UpgradeSlotSH;
+import ruiseki.okbackpack.client.gui.syncHandler.UpgradeSlotSHRegisters;
 import ruiseki.okbackpack.client.gui.widget.CyclicVariantButtonWidget;
-import ruiseki.okbackpack.common.block.BackpackPanel;
 import ruiseki.okbackpack.common.item.wrapper.MagnetUpgradeWrapper;
 
 public class MagnetUpgradeWidget extends BasicExpandedTabWidget<MagnetUpgradeWrapper> {
@@ -33,7 +34,7 @@ public class MagnetUpgradeWidget extends BasicExpandedTabWidget<MagnetUpgradeWra
     @Getter
     private final CyclicVariantButtonWidget expButton;
 
-    public MagnetUpgradeWidget(int slotIndex, MagnetUpgradeWrapper wrapper, ItemStack stack, BackpackPanel panel,
+    public MagnetUpgradeWidget(int slotIndex, MagnetUpgradeWrapper wrapper, ItemStack stack, IStoragePanel<?> panel,
         String titleKey) {
         super(slotIndex, wrapper, stack, titleKey, "common_filter", 5, 75);
 
@@ -57,7 +58,7 @@ public class MagnetUpgradeWidget extends BasicExpandedTabWidget<MagnetUpgradeWra
     public void updateWrapper() {
         if (this.filterWidget.getSlotSyncHandler() != null) {
             this.filterWidget.getSyncHandler()
-                .syncToServer(UpgradeSlotSH.UPDATE_MAGNET, buf -> {
+                .syncToServer(UpgradeSlotSH.getId(UpgradeSlotSHRegisters.UPDATE_MAGNET), buf -> {
                     buf.writeBoolean(wrapper.isCollectItem());
                     buf.writeBoolean(wrapper.isCollectExp());
                 });

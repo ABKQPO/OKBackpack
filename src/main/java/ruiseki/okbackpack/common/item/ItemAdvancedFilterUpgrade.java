@@ -6,12 +6,12 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 
 import ruiseki.okbackpack.Reference;
+import ruiseki.okbackpack.api.IStoragePanel;
 import ruiseki.okbackpack.api.IStorageWrapper;
 import ruiseki.okbackpack.client.gui.syncHandler.DelegatedStackHandlerSH;
 import ruiseki.okbackpack.client.gui.widget.updateGroup.UpgradeSlotUpdateGroup;
 import ruiseki.okbackpack.client.gui.widget.upgrade.AdvancedFilterUpgradeWidget;
 import ruiseki.okbackpack.client.gui.widget.upgrade.ExpandedTabWidget;
-import ruiseki.okbackpack.common.block.BackpackPanel;
 import ruiseki.okbackpack.common.item.wrapper.AdvancedFilterUpgradeWrapper;
 import ruiseki.okcore.helper.LangHelpers;
 
@@ -53,7 +53,7 @@ public class ItemAdvancedFilterUpgrade extends ItemUpgrade<AdvancedFilterUpgrade
 
     @Override
     public ExpandedTabWidget getExpandedTabWidget(int slotIndex, AdvancedFilterUpgradeWrapper wrapper, ItemStack stack,
-        BackpackPanel panel, String titleKey) {
+        IStoragePanel<?> panel, String titleKey) {
         return new AdvancedFilterUpgradeWidget(slotIndex, wrapper, stack, panel, titleKey);
     }
 }
