@@ -6,7 +6,6 @@ import net.minecraft.world.World;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import ruiseki.okbackpack.OKBackpack;
 import ruiseki.okbackpack.client.audio.BackpackJukeboxSoundManager;
 import ruiseki.okbackpack.client.audio.RecordDurationClientHelper;
 import ruiseki.okcore.network.CodecField;

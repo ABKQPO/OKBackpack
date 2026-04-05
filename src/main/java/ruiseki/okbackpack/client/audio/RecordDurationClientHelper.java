@@ -100,7 +100,8 @@ public class RecordDurationClientHelper {
 
         if (dataStart + 16 > data.length) return -1;
         if (data[dataStart] != 1) return -1;
-        if (data[dataStart + 1] != 'v' || data[dataStart + 2] != 'o' || data[dataStart + 3] != 'r'
+        if (data[dataStart + 1] != 'v' || data[dataStart + 2] != 'o'
+            || data[dataStart + 3] != 'r'
             || data[dataStart + 4] != 'b'
             || data[dataStart + 5] != 'i'
             || data[dataStart + 6] != 's') return -1;
