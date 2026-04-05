@@ -11,7 +11,6 @@ import com.cleanroommc.modularui.value.sync.SyncHandler;
 
 import ruiseki.okbackpack.api.wrapper.IAdvancedFilterable;
 import ruiseki.okbackpack.api.wrapper.IBasicFilterable;
-import ruiseki.okbackpack.api.wrapper.IJukeboxUpgrade;
 import ruiseki.okbackpack.api.wrapper.IStorageUpgrade;
 import ruiseki.okbackpack.client.gui.handler.DelegatedItemHandler;
 import ruiseki.okbackpack.common.block.BackpackWrapper;
