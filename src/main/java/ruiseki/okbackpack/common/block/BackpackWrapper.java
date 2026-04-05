@@ -43,7 +43,6 @@ import ruiseki.okbackpack.common.helpers.BackpackItemStackHelpers;
 import ruiseki.okbackpack.common.init.ModBlocks;
 import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapperBase;
 import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapperFactory;
-import ruiseki.okbackpack.common.network.PacketBackpackNBT;
 import ruiseki.okbackpack.common.network.PacketJukeboxPlaybackState;
 import ruiseki.okcore.datastructure.BlockPos;
 import ruiseki.okcore.helper.ItemNBTHelpers;
@@ -179,14 +178,6 @@ public class BackpackWrapper implements IBackpackWrapper {
                 super.setStackInSlot(slot, stack);
             }
 
-            @Override
-            public ItemStack extractItem(int slot, int amount, boolean simulate) {
-                if (!simulate) {
-                    detectPlayingJukeboxRemoval(slot);
-                }
-                return super.extractItem(slot, amount, simulate);
-            }
-
             private void detectPlayingJukeboxRemoval(int slot) {
                 ItemStack existing = getStackInSlot(slot);
                 if (existing != null && ItemNBTHelpers.getBoolean(existing, IJukeboxUpgrade.PLAYING_TAG, false)) {
@@ -203,6 +194,9 @@ public class BackpackWrapper implements IBackpackWrapper {
             @Override
             public ItemStack extractItem(int slot, int amount, boolean simulate) {
                 ItemStack extracted = super.extractItem(slot, amount, simulate);
+                if (!simulate) {
+                    detectPlayingJukeboxRemoval(slot);
+                }
                 if (!simulate && extracted != null) {
                     NBTTagCompound tag = extracted.getTagCompound();
                     if (tag != null && tag.hasKey(ISmeltingUpgrade.COOK_TIME_TAG)) {
