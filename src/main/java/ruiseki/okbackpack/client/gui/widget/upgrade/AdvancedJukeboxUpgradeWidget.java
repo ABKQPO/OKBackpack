@@ -53,11 +53,9 @@ public class AdvancedJukeboxUpgradeWidget extends ExpandedUpgradeTabWidget<Advan
     @Getter
     private final CyclicVariantButtonWidget loopButton;
 
-    private UpgradeSlotSH slotSH = null;
-
     public AdvancedJukeboxUpgradeWidget(int slotIndex, AdvancedJukeboxUpgradeWrapper wrapper, ItemStack stack,
         IStoragePanel<?> panel, String titleKey) {
-        super(slotIndex, 8, stack, titleKey, 90);
+        super(slotIndex, 5, stack, titleKey, 100);
         this.wrapper = wrapper;
 
         SlotGroupWidget slotGroup = new SlotGroupWidget().name("adv_jukebox_slots")
@@ -182,15 +180,6 @@ public class AdvancedJukeboxUpgradeWidget extends ExpandedUpgradeTabWidget<Advan
     @Override
     protected AdvancedJukeboxUpgradeWrapper getWrapper() {
         return wrapper;
-    }
-
-    @Override
-    public boolean isValidSyncOrValue(@NotNull ISyncOrValue syncOrValue) {
-        boolean result = super.isValidSyncOrValue(syncOrValue);
-        if (syncOrValue instanceof UpgradeSlotSH slot) {
-            this.slotSH = slot;
-        }
-        return result;
     }
 
     private void syncJukeboxAction(String action) {

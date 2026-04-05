@@ -1,18 +1,13 @@
 package ruiseki.okbackpack.api.wrapper;
 
-import ruiseki.okbackpack.client.gui.handler.BaseItemStackHandler;
+public interface IJukeboxUpgrade extends ITickable, IToggleable, IStorageUpgrade {
 
-public interface IJukeboxUpgrade extends ITickable, IToggleable {
-
-    String JUKEBOX_ITEMS_TAG = "JukeboxItems";
     String PLAYING_TAG = "Playing";
     String PENDING_STOP_SYNC_TAG = "PendingStopSync";
     String CURRENT_SLOT_INDEX_TAG = "CurrentSlotIndex";
     String PROGRESS_TICKS_TAG = "ProgressTicks";
     String SHUFFLE_TAG = "ShuffleEnabled";
     String LOOP_MODE_TAG = "LoopMode";
-
-    BaseItemStackHandler getRecordHandler();
 
     boolean isPlaying();
 

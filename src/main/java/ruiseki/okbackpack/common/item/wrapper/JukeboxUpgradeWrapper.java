@@ -44,12 +44,13 @@ public class JukeboxUpgradeWrapper extends UpgradeWrapperBase implements IJukebo
             @Override
             protected void onContentsChanged(int slot) {
                 NBTTagCompound tag = ItemNBTHelpers.getNBT(upgrade);
-                tag.setTag(IJukeboxUpgrade.JUKEBOX_ITEMS_TAG, this.serializeNBT());
+                tag.setTag(STORAGE_TAG, this.serializeNBT());
                 onRecordSlotChanged(slot);
+                storage.markDirty();
             }
         };
 
-        NBTTagCompound handlerTag = ItemNBTHelpers.getCompound(upgrade, JUKEBOX_ITEMS_TAG, false);
+        NBTTagCompound handlerTag = ItemNBTHelpers.getCompound(upgrade, STORAGE_TAG, false);
         if (handlerTag != null) recordHandler.deserializeNBT(handlerTag);
     }
 
@@ -64,7 +65,7 @@ public class JukeboxUpgradeWrapper extends UpgradeWrapperBase implements IJukebo
     }
 
     @Override
-    public BaseItemStackHandler getRecordHandler() {
+    public BaseItemStackHandler getStorage() {
         return recordHandler;
     }
 
@@ -76,7 +77,6 @@ public class JukeboxUpgradeWrapper extends UpgradeWrapperBase implements IJukebo
     @Override
     public void setPlaying(boolean playing) {
         ItemNBTHelpers.setBoolean(upgrade, PLAYING_TAG, playing);
-        markDirty();
     }
 
     @Override
@@ -87,7 +87,6 @@ public class JukeboxUpgradeWrapper extends UpgradeWrapperBase implements IJukebo
     @Override
     public void setCurrentSlotIndex(int index) {
         ItemNBTHelpers.setInt(upgrade, CURRENT_SLOT_INDEX_TAG, index);
-        markDirty();
     }
 
     @Override
@@ -98,7 +97,7 @@ public class JukeboxUpgradeWrapper extends UpgradeWrapperBase implements IJukebo
     @Override
     public void setProgressTicks(int ticks) {
         ItemNBTHelpers.setInt(upgrade, PROGRESS_TICKS_TAG, ticks);
-        markDirty();
+
     }
 
     @Override

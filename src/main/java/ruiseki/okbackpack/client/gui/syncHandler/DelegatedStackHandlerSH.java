@@ -23,7 +23,6 @@ public class DelegatedStackHandlerSH extends SyncHandler {
     public static final int UPDATE_FILTERABLE = 0;
     public static final int UPDATE_ORE_DICT = 1;
     public static final int UPDATE_STORAGE = 2;
-    public static final int UPDATE_JUKEBOX_RECORDS = 3;
 
     private final BackpackWrapper wrapper;
     private final int slotIndex;
@@ -45,9 +44,7 @@ public class DelegatedStackHandlerSH extends SyncHandler {
 
     @Override
     public void readOnClient(int id, PacketBuffer buf) {
-        if (id == UPDATE_FILTERABLE || id == UPDATE_ORE_DICT || id == UPDATE_STORAGE || id == UPDATE_JUKEBOX_RECORDS) {
-            wrapper.syncToServer();
-        }
+
     }
 
     @Override
@@ -70,11 +67,6 @@ public class DelegatedStackHandlerSH extends SyncHandler {
             case UPDATE_STORAGE:
                 if (wrapper instanceof IStorageUpgrade upgrade) {
                     setDelegatedStackHandler(upgrade::getStorage);
-                }
-                break;
-            case UPDATE_JUKEBOX_RECORDS:
-                if (wrapper instanceof IJukeboxUpgrade upgrade) {
-                    setDelegatedStackHandler(upgrade::getRecordHandler);
                 }
                 break;
             default:

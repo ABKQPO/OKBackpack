@@ -43,8 +43,8 @@ public class ItemAdvancedJukeboxUpgrade extends ItemUpgrade<AdvancedJukeboxUpgra
     public void updateWidgetDelegates(AdvancedJukeboxUpgradeWrapper wrapper, UpgradeSlotUpdateGroup group) {
         DelegatedStackHandlerSH handler = group.get("adv_jukebox_handler");
         if (handler == null) return;
-        handler.setDelegatedStackHandler(wrapper::getRecordHandler);
-        handler.syncToServer(DelegatedStackHandlerSH.UPDATE_JUKEBOX_RECORDS);
+        handler.setDelegatedStackHandler(wrapper::getStorage);
+        handler.syncToServer(DelegatedStackHandlerSH.UPDATE_STORAGE);
     }
 
     @Override
