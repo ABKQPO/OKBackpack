@@ -18,8 +18,8 @@ public class JukeboxStorageSlotGroupFactory implements IUpgradeSlotGroupFactory 
 
         IUpgradeWrapper upgradeWrapper = group.wrapper.getUpgradeHandler()
             .getWrapperInSlot(group.slotIndex);
-        if (upgradeWrapper instanceof IStorageUpgrade storageUpgrade
-            && storageUpgrade.getStorage().getSlots() == 1) {
+        if (upgradeWrapper instanceof IStorageUpgrade storageUpgrade && storageUpgrade.getStorage()
+            .getSlots() == 1) {
             handler.setDelegatedStackHandler(storageUpgrade::getStorage);
         }
 

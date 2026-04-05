@@ -578,6 +578,23 @@ public class BackpackWrapper implements IBackpackWrapper {
         pendingJukeboxStops.clear();
     }
 
+    public void forceStopAllJukeboxes(World world, float x, float y, float z) {
+        if (world.isRemote) return;
+        var targetPoint = new NetworkRegistry.TargetPoint(world.provider.dimensionId, x, y, z, 64);
+        for (int i = 0; i < upgradeSlots; i++) {
+            ItemStack stack = upgradeHandler.getStackInSlot(i);
+            if (stack == null) continue;
+            if (!ItemNBTHelpers.getBoolean(stack, IJukeboxUpgrade.PLAYING_TAG, false)) continue;
+            var packet = new PacketJukeboxPlaybackState(uuid, i, false, 0, 0, x, y, z, "", -1);
+            OKBackpack.instance.getPacketHandler()
+                .sendToAllAround(packet, targetPoint);
+            IUpgradeWrapper wrapper = upgradeHandler.getWrapperInSlot(i);
+            if (wrapper instanceof IJukeboxUpgrade jukebox) {
+                jukebox.stop();
+            }
+        }
+    }
+
     @Override
     public boolean canInsert(int slot, ItemStack stack) {
         Map<Integer, IFilterUpgrade> gathered = gatherCapabilityUpgrades(IFilterUpgrade.class);
