@@ -187,8 +187,8 @@ public class OKBGuiTextures {
     public static final IDrawable JUKEBOX_NEXT_ICON = icon("jukebox_next", 32, 96);
     public static final IDrawable JUKEBOX_PREV_ICON = icon("jukebox_prev", 48, 96);
 
-    public static final IDrawable SHUFFLE_OFF_ICON = icon("shuffle_off", 96, 80);
-    public static final IDrawable SHUFFLE_ON_ICON = icon("shuffle_on", 112, 80);
+    public static final IDrawable SHUFFLE_OFF_ICON = icon("shuffle_off", 112, 80);
+    public static final IDrawable SHUFFLE_ON_ICON = icon("shuffle_on", 96, 80);
     public static final IDrawable LOOP_ALL_ICON = icon("loop_all", 128, 80);
     public static final IDrawable LOOP_SINGLE_ICON = icon("loop_single", 144, 80);
     public static final IDrawable LOOP_OFF_ICON = icon("loop_off", 160, 80);
