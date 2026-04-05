@@ -33,6 +33,7 @@ import ruiseki.okbackpack.client.gui.slot.IndexedModularCraftingMatrixSlot;
 import ruiseki.okbackpack.client.gui.slot.IndexedModularCraftingSlot;
 import ruiseki.okbackpack.client.gui.slot.ModularBackpackSlot;
 import ruiseki.okbackpack.client.gui.slot.ModularFilterSlot;
+import ruiseki.okbackpack.common.block.BackpackWrapper;
 import ruiseki.okbackpack.common.item.wrapper.CraftingUpgradeWrapper;
 import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapperBase;
 import ruiseki.okbackpack.common.item.wrapper.UpgradeWrapperFactory;
@@ -97,12 +98,35 @@ public class BackPackContainer extends ModularContainer implements IStorageConta
     }
 
     @Override
+    public Slot getSlotFromInventory(IInventory inv, int slotIndex) {
+        Slot slot = super.getSlotFromInventory(inv, slotIndex);
+        if (slot != null) return slot;
+
+        // Fallback: ModularSlot wrapping IItemHandler may not match via
+        // SlotItemHandler.isSlotInInventory in some cases. Search by slot group.
+        if (inv instanceof InventoryPlayer) {
+            for (var s : this.inventorySlots) {
+                if (s instanceof ModularSlot ms && PLAYER_INV.equals(ms.getSlotGroupName())
+                    && ms.getSlotIndex() == slotIndex) {
+                    return ms;
+                }
+            }
+        }
+        return null;
+    }
+
+    @Override
     public void detectAndSendChanges() {
         super.detectAndSendChanges();
 
         // Server-side only: sync dirty changes to client
         if (!getGuiData().isClient() && wrapper.isDirty()) {
             EntityPlayer player = getPlayer();
+
+            // Process any pending jukebox stops immediately
+            if (wrapper instanceof BackpackWrapper bw) {
+                bw.processPendingJukeboxStops(player);
+            }
 
             // Write changes to the actual ItemStack (using UUID tracking)
             wrapper.writeToItem(player);
@@ -129,6 +153,10 @@ public class BackPackContainer extends ModularContainer implements IStorageConta
 
         // Final sync before closing - ensure all changes are saved
         if (!getGuiData().isClient()) {
+            // Process any pending jukebox stops before closing
+            if (wrapper instanceof BackpackWrapper bw) {
+                bw.processPendingJukeboxStops(player);
+            }
             wrapper.writeToItem(player);
             wrapper.markClean();
         }
