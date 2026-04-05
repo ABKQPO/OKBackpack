@@ -430,7 +430,7 @@ public class BackpackWrapper implements IBackpackWrapper {
             if (upgradeStack == null) continue;
 
             IUpgradeWrapper wrapper = this.getUpgradeHandler()
-                .getWrapperInSlot(slotIndex);
+                .getWrapperInSlot(i);
             if (wrapper == null) continue;
             if (wrapper instanceof IToggleable toggleable && !toggleable.isEnabled()) continue;
 
@@ -468,7 +468,7 @@ public class BackpackWrapper implements IBackpackWrapper {
         if (upgradeStack == null) return true;
 
         IUpgradeWrapper wrapper = this.getUpgradeHandler()
-            .getWrapperInSlot(slotIndex);
+            .getWrapperInSlot(slot);
         if (wrapper == null) return true;
         if (wrapper instanceof IToggleable toggleable && !toggleable.isEnabled()) return true;
 
@@ -485,7 +485,7 @@ public class BackpackWrapper implements IBackpackWrapper {
         if (upgradeStack == null) return true;
 
         IUpgradeWrapper wrapper = this.getUpgradeHandler()
-            .getWrapperInSlot(slotIndex);
+            .getWrapperInSlot(slot);
         if (wrapper == null) return true;
         if (wrapper instanceof IToggleable toggleable && !toggleable.isEnabled()) return true;
 
@@ -512,7 +512,7 @@ public class BackpackWrapper implements IBackpackWrapper {
             if (stack == null) continue;
             if (!ItemNBTHelpers.getBoolean(stack, IJukeboxUpgrade.PENDING_STOP_SYNC_TAG, false)) continue;
             IUpgradeWrapper wrapper2 = this.getUpgradeHandler()
-                .getWrapperInSlot(slotIndex);
+                .getWrapperInSlot(i);
             if (wrapper2 instanceof ITickable tickable) {
                 dirty |= tickable.tick(player);
             }
@@ -541,7 +541,7 @@ public class BackpackWrapper implements IBackpackWrapper {
             if (stack == null) continue;
             if (!ItemNBTHelpers.getBoolean(stack, IJukeboxUpgrade.PENDING_STOP_SYNC_TAG, false)) continue;
             IUpgradeWrapper wrapper2 = this.getUpgradeHandler()
-                .getWrapperInSlot(slotIndex);
+                .getWrapperInSlot(i);
             if (wrapper2 instanceof ITickable tickable) {
                 dirty |= tickable.tick(world, pos);
             }
