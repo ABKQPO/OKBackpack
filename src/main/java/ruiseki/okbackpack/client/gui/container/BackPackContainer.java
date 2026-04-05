@@ -28,7 +28,7 @@ import ruiseki.okbackpack.client.gui.handler.IndexedInventoryCraftingWrapper;
 import ruiseki.okbackpack.client.gui.slot.IndexedModularCraftingSlot;
 import ruiseki.okbackpack.client.gui.slot.ModularBackpackSlot;
 import ruiseki.okbackpack.common.block.BackpackWrapper;
-import ruiseki.okbackpack.common.item.wrapper.CraftingUpgradeWrapper;
+import ruiseki.okbackpack.common.item.crafting.CraftingUpgradeWrapper;
 import ruiseki.okbackpack.common.network.PacketBackpackNBT;
 import ruiseki.okbackpack.compat.Mods;
 import ruiseki.okbackpack.compat.tic.TinkersHelpers;
