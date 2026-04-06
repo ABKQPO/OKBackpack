@@ -193,10 +193,17 @@ public class BackpackWrapper implements IBackpackWrapper {
                 ItemStack extracted = super.extractItem(slot, amount, simulate);
                 if (!simulate && extracted != null) {
                     NBTTagCompound tag = extracted.getTagCompound();
-                    if (tag != null && tag.hasKey(ISmeltingUpgrade.COOK_TIME_TAG)) {
-                        tag.removeTag(ISmeltingUpgrade.COOK_TIME_TAG);
-                        tag.removeTag(ISmeltingUpgrade.BURN_TIME_TAG);
-                        tag.removeTag(ISmeltingUpgrade.BURN_TIME_TOTAL_TAG);
+                    if (tag != null) {
+                        if (tag.hasKey(ISmeltingUpgrade.COOK_TIME_TAG)) {
+                            tag.removeTag(ISmeltingUpgrade.COOK_TIME_TAG);
+                            tag.removeTag(ISmeltingUpgrade.BURN_TIME_TAG);
+                            tag.removeTag(ISmeltingUpgrade.BURN_TIME_TOTAL_TAG);
+                        }
+                        if (tag.hasKey(IJukeboxUpgrade.PLAYING_TAG)) {
+                            tag.removeTag(IJukeboxUpgrade.PLAYING_TAG);
+                            tag.removeTag(IJukeboxUpgrade.PROGRESS_TICKS_TAG);
+                            tag.removeTag(IJukeboxUpgrade.PENDING_STOP_SYNC_TAG);
+                        }
                     }
                 }
                 return extracted;
