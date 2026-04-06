@@ -18,13 +18,12 @@ import ruiseki.okbackpack.client.gui.handler.DelegatedItemHandler;
 
 public class DelegatedStackHandlerSH extends SyncHandler {
 
-    protected final Supplier<IStorageContainer<?>> containerProvider;
-    protected final IStorageWrapper wrapper;
-    protected final int slotIndex;
-    protected final int wrappedSlotAmount;
+    public final Supplier<IStorageContainer<?>> containerProvider;
+    public final IStorageWrapper wrapper;
+    public final int slotIndex;
+    public final int wrappedSlotAmount;
 
     public DelegatedItemHandler delegatedStackHandler;
-    public Runnable stackHandleChanger;
     public IInventory inventory;
 
     public DelegatedStackHandlerSH(Supplier<IStorageContainer<?>> containerProvider, IStorageWrapper wrapper,
@@ -39,17 +38,6 @@ public class DelegatedStackHandlerSH extends SyncHandler {
 
     public void setDelegatedStackHandler(Supplier<IItemHandler> delegated) {
         this.delegatedStackHandler.setDelegated(delegated);
-        if (this.stackHandleChanger != null) {
-            this.stackHandleChanger.run();
-        }
-    }
-
-    public void setDelegatedChange(Runnable stackHandleChanger) {
-        this.stackHandleChanger = stackHandleChanger;
-    }
-
-    public Supplier<IStorageContainer<?>> getContainerProvider() {
-        return this.containerProvider;
     }
 
     @SuppressWarnings("unchecked")

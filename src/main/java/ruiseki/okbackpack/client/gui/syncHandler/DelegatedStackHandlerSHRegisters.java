@@ -9,7 +9,6 @@ import com.cleanroommc.modularui.utils.item.EmptyHandler;
 import ruiseki.okbackpack.api.upgrade.DelegatedStackHandlerSHRegistry;
 import ruiseki.okbackpack.api.wrapper.IAdvancedFilterable;
 import ruiseki.okbackpack.api.wrapper.IBasicFilterable;
-import ruiseki.okbackpack.api.wrapper.ICraftingUpgrade;
 import ruiseki.okbackpack.api.wrapper.ISmeltingUpgrade;
 import ruiseki.okbackpack.api.wrapper.IStorageUpgrade;
 import ruiseki.okbackpack.api.wrapper.IUpgradeWrapper;
@@ -56,14 +55,12 @@ public class DelegatedStackHandlerSHRegisters implements IInitListener {
             DelegatedStackHandlerSHRegistry.registerServer(UPDATE_CRAFTING, (handler, buf) -> {
                 IUpgradeWrapper wrapper = handler.getWrapper();
                 if (!(wrapper instanceof IStorageUpgrade upgrade)) return;
-                handler.setDelegatedChange(() -> updateInventoryCrafting(handler));
                 handler.setDelegatedStackHandler(upgrade::getStorage);
             });
 
             DelegatedStackHandlerSHRegistry.registerClient(UPDATE_CRAFTING, (handler, buf) -> {
                 IUpgradeWrapper wrapper = handler.getWrapper();
                 if (!(wrapper instanceof IStorageUpgrade upgrade)) return;
-                updateInventoryCrafting(handler);
                 try {
                     upgrade.getStorage()
                         .setStackInSlot(9, buf.readItemStackFromBuffer());
@@ -88,50 +85,6 @@ public class DelegatedStackHandlerSHRegisters implements IInitListener {
                 }
 
             });
-        }
-    }
-
-    public void updateInventoryCrafting(DelegatedStackHandlerSH handler) {
-
-        IndexedInventoryCraftingWrapper inventoryCrafting;
-        if (handler.getInventory() instanceof IndexedInventoryCraftingWrapper inv) {
-            inventoryCrafting = inv;
-        } else {
-            inventoryCrafting = new IndexedInventoryCraftingWrapper(
-                handler.slotIndex,
-                handler.containerProvider.get()
-                    .getContainer(),
-                3,
-                3,
-                handler.delegatedStackHandler,
-                0);
-
-            handler.setInventory(inventoryCrafting);
-
-            handler.containerProvider.get()
-                .registerInventoryCrafting(handler.slotIndex, inventoryCrafting);
-        }
-
-        IUpgradeWrapper wrapper = handler.wrapper.getUpgradeHandler()
-            .getWrapperInSlot(handler.slotIndex);
-        if (!(wrapper instanceof ICraftingUpgrade craftingWrapper)) {
-            return;
-        }
-
-        inventoryCrafting.setCraftingDestination(craftingWrapper.getCraftingDes());
-
-        inventoryCrafting.detectChanges();
-
-        if (handler.isValid() && !handler.getSyncManager()
-            .isClient() && !(handler.delegatedStackHandler.get() instanceof EmptyHandler)) {
-            int resultSlot = inventoryCrafting.getSizeInventory() - 1;
-
-            ItemStack result = handler.delegatedStackHandler.get()
-                .getStackInSlot(resultSlot);
-
-            handler.syncToClient(
-                DelegatedStackHandlerSH.getId(UPDATE_CRAFTING),
-                buffer -> buffer.writeItemStackToBuffer(result));
         }
     }
 }
