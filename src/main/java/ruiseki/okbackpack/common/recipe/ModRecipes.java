@@ -526,6 +526,44 @@ public class ModRecipes implements IInitListener {
                 'U',
                 ModItems.JUKEBOX_UPGRADE.getItem()));
 
+        // Tool Swapper Upgrade
+        GameRegistry.addRecipe(
+            new ShapedOreRecipe(
+                ModItems.TOOL_SWAPPER_UPGRADE.getItem(),
+                "RSR",
+                "PUA",
+                "IHI",
+                'S',
+                Items.wooden_sword,
+                'P',
+                Items.wooden_pickaxe,
+                'A',
+                Items.wooden_axe,
+                'H',
+                Items.wooden_shovel,
+                'R',
+                "dustRedstone",
+                'I',
+                "ingotIron",
+                'U',
+                ModItems.BASE_UPGRADE.getItem()));
+
+        // Advanced Tool Swapper Upgrade
+        GameRegistry.addRecipe(
+            new ShapedOreRecipe(
+                ModItems.ADVANCED_TOOL_SWAPPER_UPGRADE.getItem(),
+                " D ",
+                "GUG",
+                "RRR",
+                'D',
+                "gemDiamond",
+                'R',
+                "dustRedstone",
+                'G',
+                "ingotGold",
+                'U',
+                ModItems.TOOL_SWAPPER_UPGRADE.getItem()));
+
         // Smelting Upgrade
         GameRegistry.addRecipe(
             new ShapedOreRecipe(
