@@ -11,6 +11,7 @@ import ruiseki.okbackpack.api.IStoragePanel;
 import ruiseki.okbackpack.api.IStorageWrapper;
 import ruiseki.okbackpack.client.gui.syncHandler.DelegatedFloatSH;
 import ruiseki.okbackpack.client.gui.syncHandler.DelegatedStackHandlerSH;
+import ruiseki.okbackpack.client.gui.syncHandler.DelegatedStackHandlerSHRegisters;
 import ruiseki.okbackpack.client.gui.widget.updateGroup.UpgradeSlotUpdateGroup;
 import ruiseki.okbackpack.client.gui.widget.upgrade.ExpandedTabWidget;
 import ruiseki.okbackpack.client.gui.widget.upgrade.SmeltingUpgradeWidget;
@@ -46,7 +47,7 @@ public class ItemSmokingUpgrade extends ItemUpgrade<SmokingUpgradeWrapper> {
         DelegatedStackHandlerSH smeltingHandler = group.get("smelting_inv_handler");
         if (smeltingHandler == null) return;
         smeltingHandler.setDelegatedStackHandler(wrapper::getStorage);
-        smeltingHandler.syncToServer(DelegatedStackHandlerSH.UPDATE_STORAGE);
+        smeltingHandler.syncToServer(DelegatedStackHandlerSH.getId(DelegatedStackHandlerSHRegisters.UPDATE_STORAGE));
 
         DelegatedFloatSH progressHandler = group.get("smelting_progress_handler");
         if (progressHandler == null) return;
