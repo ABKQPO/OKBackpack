@@ -595,6 +595,11 @@ public class BackpackWrapper implements IBackpackWrapper {
         }
     }
 
+    public void writeAdditionalInfo(World world, float x, float y, float z) {
+        forceStopAllJukeboxes(world, x, y, z);
+        writeToItem();
+    }
+
     @Override
     public boolean canInsert(int slot, ItemStack stack) {
         Map<Integer, IFilterUpgrade> gathered = gatherCapabilityUpgrades(IFilterUpgrade.class);

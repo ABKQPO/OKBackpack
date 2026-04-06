@@ -88,6 +88,11 @@ public class BackpackPanel extends ModularPanel implements IStoragePanel<Backpac
         .tiled()
         .build();
 
+    public static final int ERROR_BACKGROUND_COLOR = 0xF0100010;
+    public static final int ERROR_BORDER_COLOR = 0xFFB02E26;
+    public static final int ERROR_TEXT_COLOR = 0xB02E26;
+    public static final int ERROR_DISPLAY_TICKS = 60;
+
     private static final List<CyclicVariantButtonWidget.Variant> SORT_TYPE_VARIANTS = Arrays.asList(
         new CyclicVariantButtonWidget.Variant(
             IKey.lang(LangHelpers.localize("gui.backpack.sort_by_name")),
@@ -122,6 +127,10 @@ public class BackpackPanel extends ModularPanel implements IStoragePanel<Backpac
     public boolean shouldMemorizeRespectNBT = false;
     public boolean isSortingSettingTabOpened = false;
     public boolean isResetOpenedTabs = false;
+
+    @Nullable
+    public UpgradeSlotChangeResult activeError;
+    public float activeErrorSetTick;
 
     public BackpackPanel(EntityPlayer player, TileEntity tile, PanelSyncManager syncManager, UISettings settings,
         BackpackWrapper wrapper, int width, Integer backpackSlotIndex) {
@@ -438,7 +447,7 @@ public class BackpackPanel extends ModularPanel implements IStoragePanel<Backpac
             .left(-21);
         for (int i = 0; i < wrapper.getUpgradeHandler()
             .getSlots(); i++) {
-            UpgradeSlot itemSlot = (UpgradeSlot) new UpgradeSlot().syncHandler("upgrades", i)
+            UpgradeSlot itemSlot = (UpgradeSlot) new UpgradeSlot(this, i).syncHandler("upgrades", i)
                 .pos(5, 5 + i * ItemSlot.SIZE)
                 .name("slot_" + i);
             upgradeSlotWidgets.add(itemSlot);
@@ -699,20 +708,11 @@ public class BackpackPanel extends ModularPanel implements IStoragePanel<Backpac
             resizer().getArea().height,
             WidgetTheme.getDefault()
                 .getTheme());
-        renderErrorOverlay();
+        renderErrorOverlay(context.getPartialTicks());
     }
 
-    private static final int ERROR_BACKGROUND_COLOR = 0xF0100010;
-    private static final int ERROR_BORDER_COLOR = 0xFFB02E26;
-    private static final int ERROR_TEXT_COLOR = 0xB02E26;
-    private static final int ERROR_DISPLAY_TICKS = 60;
-
-    @Nullable
-    private UpgradeSlotChangeResult activeError;
-    private long activeErrorSetTick;
-
     public boolean isSlotInConflict(int slotIndex) {
-        updateActiveError();
+        updateActiveError(0f);
         if (activeError == null) return false;
         for (int s : activeError.getConflictSlots()) {
             if (s == slotIndex) return true;
@@ -720,7 +720,7 @@ public class BackpackPanel extends ModularPanel implements IStoragePanel<Backpac
         return false;
     }
 
-    private void updateActiveError() {
+    private void updateActiveError(float partialTicks) {
         // pick up new error from any upgrade slot
         for (var widget : upgradeSlotWidgets) {
             if (widget instanceof UpgradeSlot upgradeSlot
@@ -729,7 +729,7 @@ public class BackpackPanel extends ModularPanel implements IStoragePanel<Backpac
                 if (result != null && !result.isSuccessful()) {
                     if (result != activeError) {
                         activeError = result;
-                        activeErrorSetTick = getCurrentTick();
+                        activeErrorSetTick = getCurrentTick(partialTicks);
                     }
                     modularSlot.setLastChangeResult(null);
                     return;
@@ -737,13 +737,13 @@ public class BackpackPanel extends ModularPanel implements IStoragePanel<Backpac
             }
         }
         // check expiry
-        if (activeError != null && getCurrentTick() - activeErrorSetTick >= ERROR_DISPLAY_TICKS) {
+        if (activeError != null && getCurrentTick(partialTicks) - activeErrorSetTick >= ERROR_DISPLAY_TICKS) {
             activeError = null;
         }
     }
 
-    private void renderErrorOverlay() {
-        updateActiveError();
+    private void renderErrorOverlay(float partialTicks) {
+        updateActiveError(partialTicks);
         if (activeError == null || activeError.getErrorLangKey() == null) return;
 
         String errorText = LangHelpers.localize(activeError.getErrorLangKey(), activeError.getErrorArgs());
@@ -772,9 +772,9 @@ public class BackpackPanel extends ModularPanel implements IStoragePanel<Backpac
         GlStateManager.enableDepth();
     }
 
-    private long getCurrentTick() {
+    private float getCurrentTick(float partialTicks) {
         var mc = Minecraft.getMinecraft();
-        return mc.theWorld != null ? mc.theWorld.getTotalWorldTime() : 0;
+        return mc.theWorld != null ? mc.theWorld.getTotalWorldTime() + partialTicks : 0;
     }
 
     @Override

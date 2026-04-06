@@ -119,6 +119,14 @@ public class TEBackpack extends TileSideCapability
     }
 
     @Override
+    public void invalidate() {
+        if (worldObj != null && !worldObj.isRemote) {
+            wrapper.forceStopAllJukeboxes(worldObj, xCoord + 0.5f, yCoord + 0.5f, zCoord + 0.5f);
+        }
+        super.invalidate();
+    }
+
+    @Override
     public void onChunkLoad() {
         super.onChunkLoad();
         if (worldObj != null && !worldObj.isRemote) {
