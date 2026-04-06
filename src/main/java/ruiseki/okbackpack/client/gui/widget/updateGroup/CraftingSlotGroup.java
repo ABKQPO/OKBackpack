@@ -9,14 +9,15 @@ import ruiseki.okbackpack.api.widget.IUpgradeSlotGroupFactory;
 import ruiseki.okbackpack.client.gui.slot.CraftingSlotInfo;
 import ruiseki.okbackpack.client.gui.slot.IndexedModularCraftingMatrixSlot;
 import ruiseki.okbackpack.client.gui.slot.IndexedModularCraftingSlot;
-import ruiseki.okbackpack.client.gui.syncHandler.DelegatedCraftingStackHandlerSH;
+import ruiseki.okbackpack.client.gui.syncHandler.DelegatedStackHandlerSH;
+import ruiseki.okbackpack.client.gui.syncHandler.DelegatedStackHandlerSHRegisters;
 
 public class CraftingSlotGroup implements IUpgradeSlotGroupFactory {
 
     @Override
     public void build(UpgradeSlotUpdateGroup group) {
 
-        DelegatedCraftingStackHandlerSH craftingStackHandler = new DelegatedCraftingStackHandlerSH(
+        DelegatedStackHandlerSH craftingStackHandler = new DelegatedStackHandlerSH(
             group.panel::getContainer,
             group.wrapper,
             group.slotIndex,
@@ -36,7 +37,9 @@ public class CraftingSlotGroup implements IUpgradeSlotGroupFactory {
 
             slot.changeListener((stack, onlyAmountChanged, client, init) -> {
                 if (!client) return;
-                craftingStackHandler.syncToServer(DelegatedCraftingStackHandlerSH.DETECT_CHANGES);
+                DelegatedStackHandlerSH handler = group.get("crafting_handler");
+                handler.syncToServer(
+                    DelegatedStackHandlerSH.getId(DelegatedStackHandlerSHRegisters.UPDATE_CRAFTING_CHANGES));
             });
         }
         group.put("crafting_matrix_slots", slots);
