@@ -160,7 +160,7 @@ public class AnvilUpgradeWidget extends ExpandedUpgradeTabWidget<AnvilUpgradeWra
                 }
 
                 int textWidth = font.getStringWidth(costText);
-                int drawX = (82 - textWidth) / 2;
+                int drawX = (100 + 8 - textWidth) / 2;
                 GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
                 GL11.glEnable(GL11.GL_TEXTURE_2D);
                 GL11.glEnable(GL11.GL_BLEND);
