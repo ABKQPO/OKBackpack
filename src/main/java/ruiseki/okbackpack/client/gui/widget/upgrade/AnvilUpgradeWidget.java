@@ -22,6 +22,7 @@ import ruiseki.okbackpack.client.gui.OKBGuiTextures;
 import ruiseki.okbackpack.client.gui.syncHandler.UpgradeSlotSH;
 import ruiseki.okbackpack.client.gui.syncHandler.UpgradeSlotSHRegisters;
 import ruiseki.okbackpack.common.item.anvil.AnvilUpgradeWrapper;
+import ruiseki.okcore.helper.LangHelpers;
 
 public class AnvilUpgradeWidget extends ExpandedUpgradeTabWidget<AnvilUpgradeWrapper> {
 
@@ -148,12 +149,10 @@ public class AnvilUpgradeWidget extends ExpandedUpgradeTabWidget<AnvilUpgradeWra
                 int color;
 
                 if (tooExpensive) {
-                    costText = "\u00a7c"
-                        + net.minecraft.util.StatCollector.translateToLocal("container.repair.expensive");
+                    costText = "\u00a7c" + LangHelpers.localize("container.repair.expensive");
                     color = 0xFF6060;
                 } else {
-                    costText = net.minecraft.util.StatCollector
-                        .translateToLocalFormatted("container.repair.cost", cost);
+                    costText = LangHelpers.localize("container.repair.cost", cost);
                     boolean canAfford = mc.thePlayer != null
                         && (mc.thePlayer.capabilities.isCreativeMode || mc.thePlayer.experienceLevel >= cost);
                     color = canAfford ? 0x80FF20 : 0xFF6060;
