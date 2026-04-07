@@ -9,6 +9,7 @@ import com.cleanroommc.modularui.utils.item.EmptyHandler;
 import ruiseki.okbackpack.api.upgrade.DelegatedStackHandlerSHRegistry;
 import ruiseki.okbackpack.api.wrapper.IAdvancedFilterable;
 import ruiseki.okbackpack.api.wrapper.IBasicFilterable;
+import ruiseki.okbackpack.api.wrapper.IRefillUpgrade;
 import ruiseki.okbackpack.api.wrapper.ISmeltingUpgrade;
 import ruiseki.okbackpack.api.wrapper.IStorageUpgrade;
 import ruiseki.okbackpack.api.wrapper.IUpgradeWrapper;
@@ -30,8 +31,11 @@ public class DelegatedStackHandlerSHRegisters implements IInitListener {
 
             DelegatedStackHandlerSHRegistry.registerServer(UPDATE_FILTERABLE, (handler, buf) -> {
                 IUpgradeWrapper wrapper = handler.getWrapper();
-                if (!(wrapper instanceof IBasicFilterable upgrade)) return;
-                handler.setDelegatedStackHandler(upgrade::getFilterItems);
+                if (wrapper instanceof IBasicFilterable upgrade) {
+                    handler.setDelegatedStackHandler(upgrade::getFilterItems);
+                } else if (wrapper instanceof IRefillUpgrade refill) {
+                    handler.setDelegatedStackHandler(refill::getFilterHandler);
+                }
             });
 
             DelegatedStackHandlerSHRegistry.registerServer(UPDATE_ORE_DICT, (handler, buf) -> {
