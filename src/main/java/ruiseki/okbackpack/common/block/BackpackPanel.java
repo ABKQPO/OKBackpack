@@ -598,6 +598,11 @@ public class BackpackPanel extends ModularPanel implements IStoragePanel<Backpac
                 .bottom(85));
     }
 
+    @Override
+    public void onUpdate() {
+        super.onUpdate();
+    }
+
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void updateUpgradeWidgets() {
         int tabCount = 0;
@@ -786,7 +791,12 @@ public class BackpackPanel extends ModularPanel implements IStoragePanel<Backpac
     }
 
     public void resetOpenedTabsIfNotKeep() {
-        if (!wrapper.keepTab && !isResetOpenedTabs) {
+        if (wrapper.isKeepTab()) {
+            isResetOpenedTabs = false;
+            return;
+        }
+
+        if (!isResetOpenedTabs) {
             for (int i = 0; i < upgradeSlotWidgets.size(); i++) {
                 ItemSlot slotWidget = upgradeSlotWidgets.get(i);
                 ItemStack stack = slotWidget.getSlot()
@@ -804,6 +814,24 @@ public class BackpackPanel extends ModularPanel implements IStoragePanel<Backpac
             }
             isResetOpenedTabs = true;
         }
+    }
+
+    @Override
+    public void onClose() {
+        super.onClose();
+        if (!wrapper.isKeepSearchPhrase()) {
+            clearSearchPhrase();
+        }
+    }
+
+    public void clearSearchPhrase() {
+        wrapper.setSearchPhrase("");
+        if (searchBarWidget != null) {
+            searchBarWidget.clearSearch();
+        }
+        backpackSyncHandler.syncToServer(
+            BackpackSH.getId(BackpackSHRegisters.UPDATE_SEARCH_PHRASE),
+            buffer -> buffer.writeStringToBuffer(""));
     }
 
     public int getOpenCraftingUpgradeSlot() {
